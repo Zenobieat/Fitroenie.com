@@ -4,16 +4,20 @@ Een eenvoudige single-page webapp met kant-en-klare Anatomie-quizzen en ruimte v
 
 ## Gebruik
 1. Open `index.html` in je browser.
-2. Kies bovenaan voor **Quizzen** of **Samenvattingen** binnen het vak **Anatomie**.
-3. Maak de vaste hoofdstuk-quizzen:
-   - 🟦 Osteologie – 20 examenvragen (A–D)
-   - 🟧 Arthrologie – 20 vragen + oplossingen
-4. Klik op een optie om een vraag te beantwoorden; je ziet meteen goed/fout. Voortgang (beantwoord/correct) en scores per hoofdstuk worden lokaal bewaard.
+2. Gebruik de pillen **Start / Quizzen / Samenvattingen** of het hoverende **Vakken**-menu in de topbalk om zonder scrollen van blad te wisselen.
+3. In de tab **Quizzen** zie je de twee vaste hoofdstuk-quizzen (elk 20 vragen / 20 punten):
+   - Osteologie – 20 examenvragen (A–D)
+   - Arthrologie – 20 vragen + oplossingen
+   Kies één kaart om die quiz te starten of te hervatten; elke quiz telt apart en wordt niet samengenomen.
+4. Beantwoord vraag per vraag met **Vorige/Volgende**. Pas na het invullen van alle 20 vragen verschijnt de knop **Toon score**; je krijgt daarna een apart resultatenblad met je punten en de juiste antwoorden per vraag.
 
 Alle gegevens, inclusief je voortgang, worden lokaal in `localStorage` opgeslagen.
 
 ### Inloggen met e-mail of Google
-- Klik rechtsboven op **Inloggen / Registreren** om het compacte venster te openen. Daar kun je:
+- Rechtsboven vind je een accountmenu met statusdot en twee opties:
+  - Open direct de modal via **Inloggen / Registreren** (ook vanuit de snelkaart op Home).
+  - Klik op het pijltje om het snelle accountpaneel te tonen en kies daar **Inloggen** of **Registreren**.
+  In beide gevallen kun je:
   - Inloggen met e-mail & wachtwoord.
   - Een nieuw account registreren via e-mail & wachtwoord.
   - Inloggen met Google via de knop "Log in met Google".

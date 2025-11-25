@@ -9,7 +9,9 @@ import {
   onAuthStateChanged
 } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js';
 
-const quizList = document.getElementById('quiz-list');
+const quizPicker = document.getElementById('quiz-picker');
+const quizRunner = document.getElementById('quiz-runner');
+const quizResults = document.getElementById('quiz-results');
 const summaryDisplay = document.getElementById('summary-display');
 const sectionTabs = document.getElementById('section-tabs');
 const panels = document.querySelectorAll('[data-panel]');
@@ -20,6 +22,12 @@ const drawerToggle = document.getElementById('drawer-toggle');
 const drawerOverlay = document.getElementById('drawer-overlay');
 const drawerClose = document.getElementById('drawer-close');
 const loginBtn = document.getElementById('login-btn');
+const account = document.getElementById('account');
+const accountToggle = document.getElementById('account-toggle');
+const accountPanel = document.getElementById('account-panel');
+const accountLogin = document.getElementById('account-login');
+const accountRegister = document.getElementById('account-register');
+const homeLogin = document.getElementById('home-login');
 const authModal = document.getElementById('auth-modal');
 const authOverlay = document.getElementById('auth-overlay');
 const authClose = document.getElementById('auth-close');
@@ -31,11 +39,28 @@ const authToggle = document.getElementById('auth-toggle');
 const authMessage = document.getElementById('auth-message');
 const googleBtn = document.getElementById('google-btn');
 const userChip = document.getElementById('user-chip');
+const statusDot = document.querySelector('.status-dot');
 const views = document.querySelectorAll('.view');
 const viewToggles = document.querySelectorAll('[data-view-target]');
 const subjectMenu = document.getElementById('subject-menu');
 const subjectMenuPanel = document.getElementById('subject-menu-panel');
 const subjectMenuToggle = document.getElementById('subject-menu-toggle');
+const quizRunnerTitle = document.getElementById('quiz-runner-title');
+const quizRunnerSubtitle = document.getElementById('quiz-runner-subtitle');
+const quizRunnerStep = document.getElementById('quiz-runner-step');
+const quizQuestionTitle = document.getElementById('quiz-question-title');
+const quizQuestionText = document.getElementById('quiz-question-text');
+const quizOptions = document.getElementById('quiz-options');
+const quizPrev = document.getElementById('quiz-prev');
+const quizNext = document.getElementById('quiz-next');
+const quizSubmit = document.getElementById('quiz-submit');
+const quizRunnerHint = document.getElementById('quiz-runner-hint');
+const quizExit = document.getElementById('quiz-exit');
+const quizResultsTitle = document.getElementById('quiz-results-title');
+const quizResultsSubtitle = document.getElementById('quiz-results-subtitle');
+const quizResultsList = document.getElementById('quiz-results-list');
+const quizBack = document.getElementById('quiz-back');
+const quizRetake = document.getElementById('quiz-retake');
 
 const fallbackFirebaseConfig = {
   apiKey: 'YOUR_FIREBASE_API_KEY',
@@ -76,7 +101,7 @@ const defaultSubjects = [
     summary: 'Hier komen de samenvattingen van Anatomie zodra ze beschikbaar zijn.',
     quizSets: [
       {
-        title: '🟦 Osteologie – 20 examenvragen (A–D)',
+        title: 'Osteologie – 20 examenvragen (A–D)',
         questions: [
           {
             question: 'Een salto gebeurt in…',
@@ -196,7 +221,7 @@ const defaultSubjects = [
         ]
       },
       {
-        title: '🟧 Arthrologie – 20 vragen + oplossingen',
+        title: 'Arthrologie – 20 vragen + oplossingen',
         questions: [
           {
             question: 'Wat is een diarthrose?',
@@ -359,6 +384,9 @@ let progress = loadProgress();
 let activeSubject = subjects[0]?.name ?? 'Anatomie';
 let activeView = 'home';
 let activePanel = 'quiz-panel';
+let activeQuizSetTitle = null;
+let activeQuizQuestionIndex = 0;
+let quizMode = 'picker';
 
 function loadSubjects() {
   try {
@@ -427,10 +455,39 @@ function setActivePanel(panelId) {
 
 function handleSubjectNavigation(subjectName, panelTarget = 'quiz-panel') {
   activeSubject = subjectName;
+  quizMode = 'picker';
+  activeQuizSetTitle = null;
+  activeQuizQuestionIndex = 0;
   render();
   setActiveView('anatomie');
   setActivePanel(panelTarget);
   closeSubjectMenu();
+}
+
+function openAccountPanel() {
+  if (!accountPanel) return;
+  accountPanel.hidden = false;
+  requestAnimationFrame(() => accountPanel.classList.add('visible'));
+  account?.classList.add('open');
+  accountToggle?.setAttribute('aria-expanded', 'true');
+}
+
+function closeAccountPanel() {
+  if (!accountPanel) return;
+  accountPanel.classList.remove('visible');
+  account?.classList.remove('open');
+  accountToggle?.setAttribute('aria-expanded', 'false');
+  setTimeout(() => {
+    accountPanel.hidden = true;
+  }, 160);
+}
+
+function toggleAccountPanel() {
+  if (accountPanel?.hidden || !account?.classList.contains('open')) {
+    openAccountPanel();
+  } else {
+    closeAccountPanel();
+  }
 }
 
 function renderSubjectMenu() {
@@ -530,10 +587,62 @@ function closeSubjectMenu() {
   subjectMenuToggle?.setAttribute('aria-expanded', 'false');
 }
 
-function getSetProgress(subjectName, setTitle) {
+function getActiveSubject() {
+  return subjects.find((s) => s.name === activeSubject) ?? null;
+}
+
+function getActiveSet(subject = getActiveSubject()) {
+  if (!subject || !activeQuizSetTitle) return null;
+  return subject.quizSets.find((set) => set.title === activeQuizSetTitle) ?? null;
+}
+
+function ensureSetState(subjectName, setTitle) {
+  const subjectProgress = progress[subjectName] || (progress[subjectName] = {});
+  const state = subjectProgress[setTitle] || (subjectProgress[setTitle] = { answers: {} });
+  if (!state.answers) state.answers = {};
+  return state;
+}
+
+function computeSetCounts(set, state) {
+  const answers = state.answers || {};
+  const answered = Object.keys(answers).length;
+  const correct = set.questions.reduce((acc, question, idx) => {
+    const pick = answers[idx];
+    return acc + (pick && pick.choice === question.answerIndex ? 1 : 0);
+  }, 0);
+  state.answered = answered;
+  state.correct = correct;
+  state.completed = answered === set.questions.length;
+  return state;
+}
+
+function getSetProgress(subjectName, setTitle, questions = []) {
   const subjectProgress = progress[subjectName];
-  if (!subjectProgress) return { answered: 0, correct: 0, answers: {} };
-  return subjectProgress[setTitle] || { answered: 0, correct: 0, answers: {} };
+  const base = subjectProgress?.[setTitle] || { answers: {} };
+  const state = { answers: base.answers || {} };
+  const answered = Object.keys(state.answers).length;
+  const correct = questions.reduce((acc, question, idx) => {
+    const pick = state.answers[idx];
+    return acc + (pick && pick.choice === question.answerIndex ? 1 : 0);
+  }, 0);
+  return {
+    ...base,
+    answers: state.answers,
+    answered,
+    correct,
+    completed: questions.length ? answered === questions.length : false
+  };
+}
+
+function resetSetProgress(subjectName, setTitle) {
+  if (!progress[subjectName]) return;
+  delete progress[subjectName][setTitle];
+  persistProgress();
+}
+
+function findFirstUnanswered(set, state) {
+  const unansweredIndex = set.questions.findIndex((_, idx) => !state.answers?.[idx]);
+  return unansweredIndex === -1 ? 0 : unansweredIndex;
 }
 
 function updateProgressBanner(subject) {
@@ -541,26 +650,24 @@ function updateProgressBanner(subject) {
     progressBanner.textContent = '';
     return;
   }
-  const totalQuestions = subject.quizSets.reduce((acc, set) => acc + set.questions.length, 0);
-  const totals = subject.quizSets.reduce(
-    (acc, set) => {
-      const state = getSetProgress(subject.name, set.title);
-      acc.answered += state.answered || 0;
-      acc.correct += state.correct || 0;
-      return acc;
-    },
-    { answered: 0, correct: 0 }
-  );
-  const percent = totalQuestions ? Math.round((totals.correct / totalQuestions) * 100) : 0;
+
+  const chips = subject.quizSets
+    .map((set) => {
+      const state = getSetProgress(subject.name, set.title, set.questions);
+      const percent = set.questions.length ? Math.round((state.correct / set.questions.length) * 100) : 0;
+      return `<span class="chip${set.title === activeQuizSetTitle ? ' active' : ''}">${set.title.split('–')[0].trim()} · ${
+        state.correct
+      }/${set.questions.length} · ${percent}%</span>`;
+    })
+    .join('');
+
   progressBanner.innerHTML = `
     <div class="progress-banner__top">
-      <p class="eyebrow">Voortgang Anatomie</p>
-      <strong>${totals.correct}/${totalQuestions} correct</strong>
+      <p class="eyebrow">Vaste hoofdstukken</p>
+      <strong>${subject.quizSets.length} quizzen · elk 20 punten</strong>
     </div>
-    <div class="progress">
-      <div class="progress__bar" style="width:${percent}%"></div>
-    </div>
-    <p class="caption">${totals.answered}/${totalQuestions} beantwoord · ${percent}% gescoord</p>
+    <div class="progress-banner__chips">${chips}</div>
+    <p class="caption">Kies een hoofdstuk, maak de 20 vragen en bekijk daarna je score.</p>
   `;
 }
 
@@ -572,109 +679,207 @@ function renderSummary(subject) {
   summaryDisplay.textContent = subject.summary || 'Nog geen samenvatting beschikbaar.';
 }
 
-function renderQuizCard(subject, setTitle, question, index) {
-  const card = document.createElement('div');
-  card.className = 'quiz-card';
-
-  const header = document.createElement('div');
-  header.className = 'quiz-card__header';
-  header.innerHTML = `<h3>Vraag ${index + 1}</h3>`;
-  card.appendChild(header);
-
-  const prompt = document.createElement('p');
-  prompt.textContent = question.question;
-  card.appendChild(prompt);
-
-  const optionsList = document.createElement('div');
-  optionsList.className = 'options';
-
-  const setProgress = getSetProgress(subject.name, setTitle);
-  const answeredState = setProgress.answers?.[index];
-
-  question.options.forEach((opt, idx) => {
-    const btn = document.createElement('button');
-    btn.className = 'option';
-    btn.type = 'button';
-    btn.textContent = opt;
-
-    if (answeredState) {
-      const isChosen = answeredState.choice === idx;
-      const isCorrect = idx === question.answerIndex;
-      if (isChosen) {
-        btn.classList.add(answeredState.correct ? 'correct' : 'incorrect');
-        btn.textContent = `${opt} ${answeredState.correct ? '✓' : '✕'}`;
-      }
-      btn.disabled = true;
-      if (isCorrect && !isChosen) {
-        btn.classList.add('ghost');
-      }
-    }
-
-    btn.addEventListener('click', () => handleAnswer(subject, setTitle, index, idx, question, btn));
-    optionsList.appendChild(btn);
-  });
-
-  card.appendChild(optionsList);
-  return card;
-}
-
-function handleAnswer(subject, setTitle, questionIndex, optionIndex, question, button) {
-  const isCorrect = optionIndex === question.answerIndex;
-  const subjectProgress = progress[subject.name] || (progress[subject.name] = {});
-  const setState = subjectProgress[setTitle] || (subjectProgress[setTitle] = { answered: 0, correct: 0, answers: {} });
-
-  if (setState.answers[questionIndex]) return;
-
-  setState.answers[questionIndex] = { choice: optionIndex, correct: isCorrect };
-  setState.answered += 1;
-  if (isCorrect) setState.correct += 1;
-
-  button.classList.add(isCorrect ? 'correct' : 'incorrect');
-  button.textContent = `${button.textContent} ${isCorrect ? '✓' : '✕'}`;
-  button.disabled = true;
-
-  persistProgress();
-  render();
-}
-
-function renderQuizList(subject) {
-  quizList.innerHTML = '';
+function renderQuizPicker(subject) {
+  quizPicker.innerHTML = '';
   if (!subject) {
-    quizList.innerHTML = '<p class="caption">Geen vak beschikbaar.</p>';
+    quizPicker.innerHTML = '<p class="caption">Geen vak beschikbaar.</p>';
     return;
   }
 
   subject.quizSets.forEach((set, setIndex) => {
-    const group = document.createElement('section');
-    group.className = 'quiz-group';
+    const state = getSetProgress(subject.name, set.title, set.questions);
+    const percent = set.questions.length ? Math.round((state.correct / set.questions.length) * 100) : 0;
+    const status = state.completed ? 'Voltooid' : state.answered ? 'Bezig' : 'Niet gestart';
 
-    const state = getSetProgress(subject.name, set.title);
-    const setPercent = set.questions.length
-      ? Math.round((state.correct / set.questions.length) * 100)
-      : 0;
-
-    group.innerHTML = `
-      <header class="quiz-group__header">
+    const card = document.createElement('article');
+    card.className = 'quiz-picker__card';
+    card.innerHTML = `
+      <header class="quiz-picker__header">
         <div>
           <p class="eyebrow">Hoofdstuk ${setIndex + 1}</p>
           <h3>${set.title}</h3>
         </div>
-        <div class="chip">${state.correct}/${set.questions.length} correct · ${setPercent}%</div>
+        <div class="chip">${state.correct}/${set.questions.length} correct · ${percent}%</div>
       </header>
+      <p class="caption">${status} · ${set.questions.length} vragen</p>
     `;
 
-    set.questions.forEach((question, idx) => {
-      group.appendChild(renderQuizCard(subject, set.title, question, idx));
+    const actions = document.createElement('div');
+    actions.className = 'quiz-picker__actions';
+
+    const primaryBtn = document.createElement('button');
+    primaryBtn.type = 'button';
+    primaryBtn.className = 'btn';
+    primaryBtn.textContent = state.completed ? 'Bekijk score' : state.answered ? 'Ga verder' : 'Start quiz';
+    primaryBtn.addEventListener('click', () => startQuiz(set.title));
+
+    const secondaryBtn = document.createElement('button');
+    secondaryBtn.type = 'button';
+    secondaryBtn.className = 'btn ghost';
+    secondaryBtn.textContent = 'Herstart';
+    secondaryBtn.addEventListener('click', () => {
+      resetSetProgress(subject.name, set.title);
+      if (activeQuizSetTitle === set.title) {
+        activeQuizQuestionIndex = 0;
+      }
+      render();
     });
 
-    quizList.appendChild(group);
+    actions.append(primaryBtn, secondaryBtn);
+    card.appendChild(actions);
+    quizPicker.appendChild(card);
   });
 }
 
+function startQuiz(setTitle) {
+  const subject = getActiveSubject();
+  if (!subject) return;
+  const set = subject.quizSets.find((quizSet) => quizSet.title === setTitle);
+  if (!set) return;
+  activeQuizSetTitle = set.title;
+  const state = getSetProgress(subject.name, set.title, set.questions);
+  activeQuizQuestionIndex = findFirstUnanswered(set, state);
+  quizMode = state.completed ? 'results' : 'runner';
+  render();
+}
+
+function exitQuiz() {
+  quizMode = 'picker';
+  activeQuizSetTitle = null;
+  activeQuizQuestionIndex = 0;
+  render();
+}
+
+function goToQuestion(delta) {
+  const subject = getActiveSubject();
+  const set = getActiveSet(subject);
+  if (!set) return;
+  const nextIndex = Math.min(Math.max(activeQuizQuestionIndex + delta, 0), set.questions.length - 1);
+  activeQuizQuestionIndex = nextIndex;
+  render();
+}
+
+function handleAnswerSelection(choiceIndex) {
+  const subject = getActiveSubject();
+  const set = getActiveSet(subject);
+  if (!subject || !set) return;
+  const state = ensureSetState(subject.name, set.title);
+  state.answers[activeQuizQuestionIndex] = {
+    choiceIndex,
+    choice: choiceIndex,
+    correct: choiceIndex === set.questions[activeQuizQuestionIndex].answerIndex
+  };
+  computeSetCounts(set, state);
+  persistProgress();
+  render();
+}
+
+function renderQuizRunner(subject) {
+  const set = getActiveSet(subject);
+  const state = set ? getSetProgress(subject.name, set.title, set.questions) : null;
+  const isRunner = quizMode === 'runner' && !!set;
+  quizRunner.hidden = !isRunner;
+  if (!isRunner || !set || !state) return;
+
+  const question = set.questions[activeQuizQuestionIndex];
+  const answer = state.answers?.[activeQuizQuestionIndex];
+
+  quizRunnerTitle.textContent = set.title;
+  quizRunnerSubtitle.textContent = `${state.correct}/${set.questions.length} correct · ${state.answered}/${set.questions.length} beantwoord`;
+  quizRunnerStep.textContent = `Vraag ${activeQuizQuestionIndex + 1} van ${set.questions.length}`;
+  quizQuestionTitle.textContent = question.question;
+  quizQuestionText.textContent = 'Kies het juiste antwoord hieronder.';
+
+  quizOptions.innerHTML = '';
+  question.options.forEach((option, idx) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'option';
+    btn.textContent = option;
+    if (answer?.choice === idx) {
+      btn.classList.add('selected');
+    }
+    btn.addEventListener('click', () => {
+      handleAnswerSelection(idx);
+      quizRunnerHint.textContent = 'Antwoord opgeslagen.';
+    });
+    quizOptions.appendChild(btn);
+  });
+
+  quizPrev.disabled = activeQuizQuestionIndex === 0;
+  quizNext.disabled = activeQuizQuestionIndex === set.questions.length - 1;
+  quizSubmit.disabled = state.answered < set.questions.length;
+  quizRunnerHint.textContent = state.answered < set.questions.length
+    ? 'Beantwoord alle 20 vragen om je score te zien.'
+    : 'Klaar? Toon je score en bekijk de oplossingen.';
+}
+
+function renderQuizResults(subject) {
+  const set = getActiveSet(subject);
+  const state = set ? getSetProgress(subject.name, set.title, set.questions) : null;
+  const isResults = quizMode === 'results' && !!set;
+  quizResults.hidden = !isResults;
+  if (!isResults || !set || !state) return;
+
+  const percent = set.questions.length ? Math.round((state.correct / set.questions.length) * 100) : 0;
+  quizResultsTitle.textContent = `${state.correct}/${set.questions.length} punten`;
+  quizResultsSubtitle.textContent = `${percent}% · ${set.title}`;
+
+  quizResultsList.innerHTML = '';
+  set.questions.forEach((question, idx) => {
+    const userAnswer = state.answers?.[idx];
+    const container = document.createElement('article');
+    container.className = 'quiz-results__item';
+
+    const correctness = userAnswer?.choice === question.answerIndex ? 'correct' : 'incorrect';
+    const userText =
+      userAnswer && typeof userAnswer.choice === 'number'
+        ? question.options[userAnswer.choice]
+        : 'Geen antwoord';
+
+    container.innerHTML = `
+      <header class="quiz-results__item-header">
+        <p class="eyebrow">Vraag ${idx + 1}</p>
+        <span class="chip ${correctness}">${correctness === 'correct' ? 'Juist' : 'Fout'}</span>
+      </header>
+      <h4>${question.question}</h4>
+      <p class="caption"><strong>Jouw antwoord:</strong> ${userText}</p>
+      <p class="caption"><strong>Correct:</strong> ${question.options[question.answerIndex]}</p>
+    `;
+
+    quizResultsList.appendChild(container);
+  });
+}
+
+function showResults() {
+  const subject = getActiveSubject();
+  const set = getActiveSet(subject);
+  if (!set || !subject) return;
+  const state = getSetProgress(subject.name, set.title, set.questions);
+  if (state.answered < set.questions.length) {
+    quizRunnerHint.textContent = 'Beantwoord alle vragen voordat je de score bekijkt.';
+    return;
+  }
+  quizMode = 'results';
+  render();
+}
+
+function retakeActiveQuiz() {
+  const subject = getActiveSubject();
+  const set = getActiveSet(subject);
+  if (!subject || !set) return;
+  resetSetProgress(subject.name, set.title);
+  activeQuizQuestionIndex = 0;
+  quizMode = 'runner';
+  render();
+}
+
 function render() {
-  const subject = subjects.find((s) => s.name === activeSubject) ?? null;
+  const subject = getActiveSubject();
   renderSummary(subject);
-  renderQuizList(subject);
+  renderQuizPicker(subject);
+  renderQuizRunner(subject);
+  renderQuizResults(subject);
   updateProgressBanner(subject);
   renderDrawerList();
   renderSubjectMenu();
@@ -692,6 +897,7 @@ function openAuthModal(mode = 'login') {
   setAuthMode(mode);
   authMessage.textContent = '';
   authMessage.className = 'message';
+  closeAccountPanel();
   authModal.hidden = false;
   authOverlay.hidden = false;
   requestAnimationFrame(() => {
@@ -755,17 +961,34 @@ function updateUserChip(user) {
   if (user) {
     userChip.textContent = user.displayName || user.email || 'Ingelogd';
     userChip.classList.add('active');
+    statusDot?.classList.add('online');
   } else {
     userChip.textContent = 'Niet ingelogd';
     userChip.classList.remove('active');
+    statusDot?.classList.remove('online');
   }
 }
+
+quizPrev?.addEventListener('click', () => goToQuestion(-1));
+quizNext?.addEventListener('click', () => goToQuestion(1));
+quizSubmit?.addEventListener('click', showResults);
+quizExit?.addEventListener('click', exitQuiz);
+quizBack?.addEventListener('click', exitQuiz);
+quizRetake?.addEventListener('click', retakeActiveQuiz);
 
 drawerToggle.addEventListener('click', toggleDrawer);
 drawerClose.addEventListener('click', closeDrawer);
 drawerOverlay.addEventListener('click', closeDrawer);
 
 loginBtn.addEventListener('click', () => openAuthModal('login'));
+homeLogin?.addEventListener('click', () => openAuthModal('login'));
+accountLogin?.addEventListener('click', () => openAuthModal('login'));
+accountRegister?.addEventListener('click', () => openAuthModal('register'));
+accountToggle?.addEventListener('click', (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  toggleAccountPanel();
+});
 authClose.addEventListener('click', closeAuthModal);
 authOverlay.addEventListener('click', closeAuthModal);
 authToggle.addEventListener('click', () => {
@@ -805,10 +1028,17 @@ document.addEventListener('click', (event) => {
   if (subjectMenu?.classList.contains('open') && !subjectMenu.contains(event.target)) {
     closeSubjectMenu();
   }
+  if (account?.classList.contains('open') && !account.contains(event.target)) {
+    closeAccountPanel();
+  }
 });
 
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && !authModal.hidden) closeAuthModal();
+  if (event.key === 'Escape') {
+    if (!authModal.hidden) closeAuthModal();
+    if (account?.classList.contains('open')) closeAccountPanel();
+    if (subjectMenu?.classList.contains('open')) closeSubjectMenu();
+  }
 });
 
 onAuthStateChanged(auth, (user) => {
