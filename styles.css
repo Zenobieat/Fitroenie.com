@@ -489,6 +489,18 @@ body {
   padding: 14px;
   margin-bottom: 8px;
   box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-banner::after {
+  content: '';
+  position: absolute;
+  inset: -40% 10% auto 10%;
+  height: 60%;
+  background: radial-gradient(circle at 50% 50%, rgba(41, 198, 119, 0.14), transparent 52%);
+  opacity: 0;
+  animation: bannerGlow 7s ease-in-out infinite;
 }
 .progress-banner__top {
   display: flex;
@@ -683,6 +695,13 @@ body {
   0% { transform: scale(1); opacity: 0.8; }
   50% { transform: scale(1.05); opacity: 1; }
   100% { transform: scale(1); opacity: 0.8; }
+}
+
+@keyframes bannerGlow {
+  0% { opacity: 0; transform: translateY(8px); }
+  20% { opacity: 0.7; transform: translateY(0); }
+  60% { opacity: 0.2; transform: translateY(-6px); }
+  100% { opacity: 0; transform: translateY(-12px); }
 }
 
 @media (max-width: 640px) {
