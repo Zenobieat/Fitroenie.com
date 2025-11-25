@@ -15,17 +15,27 @@
     </button>
     <nav class="nav" aria-label="Hoofdmenu">
       <div class="logo">Fitroenie</div>
-      <ul class="nav__menu">
-        <li class="nav__item"><a href="#" class="nav__link">Home</a></li>
-        <li class="nav__item nav__item--dropdown">
-          <a href="#" class="nav__link">Features</a>
-          <div class="dropdown" aria-label="Features submenu">
-            <a href="#subject-form" class="dropdown__link">Nieuwe vak-tab</a>
-            <a href="#summary-input" class="dropdown__link">Samenvatting plakken</a>
-            <a href="#quiz-input" class="dropdown__link">Quiz importeren</a>
-          </div>
-        </li>
-        <li class="nav__item"><a href="#content" class="nav__link">Quizzen</a></li>
+      <div class="subject-menu" id="subject-menu">
+        <button
+          class="nav__link nav__link--burger"
+          id="subject-menu-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-haspopup="true"
+        >
+          <span class="nav__burger-icon" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+          <span>Vakken</span>
+        </button>
+        <div class="subject-menu__panel" id="subject-menu-panel" hidden aria-label="Beschikbare vakken"></div>
+      </div>
+      <ul class="nav__menu" id="nav-links">
+        <li class="nav__item"><a href="#" class="nav__link" data-view-target="home">Home</a></li>
+        <li class="nav__item"><a href="#" class="nav__link" data-view-target="anatomie" data-panel-target="quiz-panel">Quizzen</a></li>
+        <li class="nav__item"><a href="#" class="nav__link" data-view-target="anatomie" data-panel-target="summary-panel">Samenvattingen</a></li>
       </ul>
     </nav>
     <div class="nav__actions">
@@ -43,78 +53,48 @@
     <div id="drawer-list" class="drawer__list"></div>
   </aside>
 
-  <header class="hero">
-    <div class="hero__content">
-      <p class="eyebrow">Fitroenie.com</p>
-      <h1>Beheer je vakken, samenvattingen en quizzen</h1>
-      <p class="lede">
-        Voeg een vak toe, plak de samenvatting en importeer de quizvragen in JSON-formaat.
-        Elke import krijgt een eigen tab zodat je snel kunt oefenen.
-      </p>
-    </div>
-  </header>
-
   <main class="layout">
-    <section class="panel">
-      <div class="panel__header">
-        <div>
-          <p class="eyebrow">Stap 1</p>
-          <h2>Vak aanmaken</h2>
-          <p class="caption">Maak voor ieder vak een aparte tab.</p>
-        </div>
-      </div>
-      <form id="subject-form" class="form-row">
-        <label class="field">
-          <span>Vaknaam</span>
-          <input id="subject-name" name="subject" type="text" required placeholder="Bijv. Biologie" />
-        </label>
-        <button class="btn" type="submit">Voeg tab toe</button>
-      </form>
-    </section>
-
-    <section class="panel">
-      <div class="panel__header">
-        <div>
-          <p class="eyebrow">Stap 2</p>
-          <h2>Samenvatting &amp; quiz importeren</h2>
-          <p class="caption">Werk steeds in de geselecteerde tab.</p>
-        </div>
-        <div class="selected" id="current-subject">Nog geen vak geselecteerd</div>
-      </div>
-      <div class="grid">
-        <div class="field">
-          <div class="field__label">Samenvatting</div>
-          <textarea id="summary-input" rows="6" placeholder="Plak hier je samenvatting voor het gekozen vak"></textarea>
-          <button class="btn secondary" id="save-summary" type="button">Samenvatting opslaan</button>
-        </div>
-        <div class="field">
-          <div class="field__label">
-            Quiz import (JSON)
-            <span class="caption">Array met vraag, opties, antwoordIndex</span>
+    <section class="view view--home active" data-view="home">
+      <header class="hero">
+        <div class="hero__content">
+          <p class="eyebrow">Fitroenie.com</p>
+          <h1>Oefen Anatomie met kant-en-klare quizzen</h1>
+          <p class="lede">Spring meteen naar de samenvattingen of start met de vaste hoofdstuk-quizzen.</p>
+          <div class="hero__cta">
+            <button class="btn" data-view-target="anatomie" data-panel-target="quiz-panel" type="button">Start quiz</button>
+            <button class="btn ghost" data-view-target="anatomie" data-panel-target="summary-panel" type="button">Naar samenvattingen</button>
           </div>
-          <textarea id="quiz-input" rows="6" placeholder='[
-  {"vraag":"Wat is een cel?","opties":["Basiseenheid","Atomaire kern"],"antwoordIndex":0}
-]'></textarea>
-          <button class="btn secondary" id="import-quiz" type="button">Quiz toevoegen</button>
-          <p class="hint">Gebruik sleutel-namen <strong>vraag</strong> of <strong>question</strong>,
-            <strong>opties</strong> of <strong>options</strong> en <strong>antwoordIndex</strong> (0-based) of
-            <strong>answer</strong>.</p>
-          <div class="message" id="quiz-message" role="status"></div>
         </div>
-      </div>
+        <div class="hero__glow"></div>
+      </header>
     </section>
 
-    <section class="panel">
-      <div class="panel__header">
-        <div>
-          <p class="eyebrow">Stap 3</p>
-          <h2>Tabs en quizzen</h2>
+    <section class="view" data-view="anatomie">
+      <div class="panel">
+        <div class="panel__header">
+          <div>
+            <p class="eyebrow">Vak</p>
+            <h2>Anatomie</h2>
+            <p class="caption">Kies tussen de quizzen of samenvattingen. Voortgang blijft lokaal bewaard.</p>
+          </div>
+          <div class="tabbar" id="section-tabs" aria-label="Anatomie secties">
+            <button class="tab active" type="button" data-panel-target="quiz-panel">Quizzen</button>
+            <button class="tab" type="button" data-panel-target="summary-panel">Samenvattingen</button>
+          </div>
         </div>
-        <div class="tabbar" id="subject-tabs" aria-label="Vaktabs"></div>
-      </div>
-      <div id="content" class="content-area">
-        <article class="summary" id="summary-display">Selecteer een vak om de samenvatting te tonen.</article>
-        <div id="quiz-list" class="quiz-list" aria-live="polite"></div>
+
+        <div class="content-area">
+          <article class="summary" id="summary-panel" data-panel="summary-panel" hidden>
+            <h3>Samenvattingen</h3>
+            <p class="lede">De samenvattingen volgen; je kunt hier straks de kernpunten van Anatomie nalezen.</p>
+            <div id="summary-display">Nog geen samenvatting beschikbaar.</div>
+          </article>
+
+          <div id="quiz-panel" data-panel="quiz-panel">
+            <div class="progress-banner" id="progress-banner"></div>
+            <div id="quiz-list" class="quiz-list" aria-live="polite"></div>
+          </div>
+        </div>
       </div>
     </section>
   </main>

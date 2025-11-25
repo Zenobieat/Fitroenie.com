@@ -1,21 +1,16 @@
 # Fitroenie.com
 
-Een eenvoudige single-page webapp om vakken aan te maken, samenvattingen op te slaan en quizzen per vak te importeren.
+Een eenvoudige single-page webapp met kant-en-klare Anatomie-quizzen en ruimte voor samenvattingen.
 
 ## Gebruik
 1. Open `index.html` in je browser.
-2. Voeg een nieuw **vak** toe via het formulier.
-3. Plak de **samenvatting** voor het geselecteerde vak en klik op "Samenvatting opslaan".
-4. Importeer een **quiz** door JSON te plakken in het tekstvak. Verwacht formaat:
-   ```json
-   [
-     { "vraag": "Wat is een cel?", "opties": ["Basiseenheid", "Atomaire kern"], "antwoordIndex": 0 }
-   ]
-   ```
-   - Je kunt ook `question`, `options` en `answerIndex`/`answer`/`correct` gebruiken.
-5. Elke quizvraag verschijnt in de tab van het gekozen vak met klikbare opties en feedback.
+2. Kies bovenaan voor **Quizzen** of **Samenvattingen** binnen het vak **Anatomie**.
+3. Maak de vaste hoofdstuk-quizzen:
+   - 🟦 Osteologie – 20 examenvragen (A–D)
+   - 🟧 Arthrologie – 20 vragen + oplossingen
+4. Klik op een optie om een vraag te beantwoorden; je ziet meteen goed/fout. Voortgang (beantwoord/correct) en scores per hoofdstuk worden lokaal bewaard.
 
-Alle gegevens worden lokaal in `localStorage` opgeslagen zodat je eigen invoer behouden blijft.
+Alle gegevens, inclusief je voortgang, worden lokaal in `localStorage` opgeslagen.
 
 ### Inloggen met e-mail of Google
 - Klik rechtsboven op **Inloggen / Registreren** om het compacte venster te openen. Daar kun je:
