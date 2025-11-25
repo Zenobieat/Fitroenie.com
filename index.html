@@ -13,26 +13,10 @@
 <body>
   <header class="topbar">
     <div class="nav__left">
-      <button class="hamburger" id="drawer-toggle" aria-label="Open vakken-menu" aria-expanded="false">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
       <div class="logo">Fitroenie</div>
       <nav class="nav" aria-label="Hoofdmenu">
         <div class="subject-menu" id="subject-menu">
-          <button
-            class="nav__link nav__link--burger"
-            id="subject-menu-toggle"
-            type="button"
-            aria-expanded="false"
-            aria-haspopup="true"
-          >
-            <span class="nav__burger-icon" aria-hidden="true">
-              <span></span>
-              <span></span>
-              <span></span>
-            </span>
+          <button class="nav__link" id="subject-menu-toggle" type="button" aria-expanded="false" aria-haspopup="true">
             <span>Vakken</span>
           </button>
           <div class="subject-menu__panel" id="subject-menu-panel" hidden aria-label="Beschikbare vakken"></div>
@@ -66,15 +50,6 @@
       </div>
     </div>
   </header>
-
-  <div id="drawer-overlay" class="drawer__overlay" hidden></div>
-  <aside class="drawer" id="subject-drawer" aria-label="Vakkenlijst" hidden>
-    <div class="drawer__header">
-      <p class="eyebrow">Vakken</p>
-      <button class="icon-btn" id="drawer-close" aria-label="Sluit vakken-menu">×</button>
-    </div>
-    <div id="drawer-list" class="drawer__list"></div>
-  </aside>
 
   <main class="layout">
     <section class="view view--home active" data-view="home">
@@ -141,52 +116,67 @@
           <div id="quiz-panel" data-panel="quiz-panel">
             <div class="progress-banner" id="progress-banner"></div>
             <section id="quiz-picker" class="quiz-picker" aria-live="polite"></section>
-
-            <section id="quiz-runner" class="quiz-runner" hidden aria-live="polite">
-              <header class="quiz-runner__header">
-                <div>
-                  <p class="eyebrow" id="quiz-runner-title">Hoofdstuk</p>
-                  <p class="caption" id="quiz-runner-subtitle">Vraag 1/20</p>
-                </div>
-                <div class="quiz-runner__actions">
-                  <button class="btn ghost" id="quiz-exit" type="button">Terug naar overzicht</button>
-                </div>
-              </header>
-
-              <div class="quiz-runner__card">
-                <p class="quiz-runner__step" id="quiz-runner-step">Vraag 1</p>
-                <h3 id="quiz-question-title"></h3>
-                <p class="lede" id="quiz-question-text"></p>
-                <div id="quiz-options" class="options"></div>
-
-                <div class="quiz-runner__footer">
-                  <p class="caption" id="quiz-runner-hint">Kies een antwoord om verder te gaan.</p>
-                  <div class="quiz-runner__nav">
-                    <button class="btn tertiary" id="quiz-prev" type="button">Vorige</button>
-                    <button class="btn" id="quiz-next" type="button">Volgende</button>
-                    <button class="btn primary" id="quiz-submit" type="button">Toon score</button>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section id="quiz-results" class="quiz-results" hidden aria-live="polite">
-              <header class="quiz-results__header">
-                <div>
-                  <p class="eyebrow">Resultaat</p>
-                  <h3 id="quiz-results-title">Score</h3>
-                  <p class="lede" id="quiz-results-subtitle"></p>
-                </div>
-                <div class="quiz-results__actions">
-                  <button class="btn" id="quiz-retake" type="button">Opnieuw maken</button>
-                  <button class="btn ghost" id="quiz-back" type="button">Terug naar overzicht</button>
-                </div>
-              </header>
-
-              <div class="quiz-results__list" id="quiz-results-list"></div>
-            </section>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="view view--quiz" data-view="quizplay">
+      <div class="panel panel--runner">
+        <div class="panel__header">
+          <div>
+            <p class="eyebrow">Quizmodus</p>
+            <h2 id="quiz-runner-heading">Bezig met een quiz</h2>
+            <p class="caption">Antwoord vraag voor vraag en bekijk je score in dit blad.</p>
+          </div>
+          <div class="tabbar tabbar--inline">
+            <button class="tab" id="quiz-exit" type="button">Terug naar overzicht</button>
+          </div>
+        </div>
+
+        <section id="quiz-runner" class="quiz-runner" hidden aria-live="polite">
+          <header class="quiz-runner__header">
+            <div>
+              <p class="eyebrow" id="quiz-runner-title">Hoofdstuk</p>
+              <p class="caption" id="quiz-runner-subtitle">Vraag 1/20</p>
+            </div>
+            <div class="quiz-runner__actions">
+              <button class="btn ghost" id="quiz-exit-compact" type="button">Terug</button>
+            </div>
+          </header>
+
+          <div class="quiz-runner__card">
+            <p class="quiz-runner__step" id="quiz-runner-step">Vraag 1</p>
+            <h3 id="quiz-question-title"></h3>
+            <p class="lede" id="quiz-question-text"></p>
+            <div id="quiz-options" class="options"></div>
+
+            <div class="quiz-runner__footer">
+              <p class="caption" id="quiz-runner-hint">Kies een antwoord om verder te gaan.</p>
+              <div class="quiz-runner__nav">
+                <button class="btn tertiary" id="quiz-prev" type="button">Vorige</button>
+                <button class="btn" id="quiz-next" type="button">Volgende</button>
+                <button class="btn primary" id="quiz-submit" type="button">Toon score</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="quiz-results" class="quiz-results" hidden aria-live="polite">
+          <header class="quiz-results__header">
+            <div>
+              <p class="eyebrow">Resultaat</p>
+              <h3 id="quiz-results-title">Score</h3>
+              <p class="lede" id="quiz-results-subtitle"></p>
+            </div>
+            <div class="quiz-results__actions">
+              <button class="btn" id="quiz-retake" type="button">Opnieuw maken</button>
+              <button class="btn ghost" id="quiz-back" type="button">Terug naar overzicht</button>
+            </div>
+          </header>
+
+          <div class="quiz-results__list" id="quiz-results-list"></div>
+        </section>
       </div>
     </section>
   </main>

@@ -16,11 +16,6 @@ const summaryDisplay = document.getElementById('summary-display');
 const sectionTabs = document.getElementById('section-tabs');
 const panels = document.querySelectorAll('[data-panel]');
 const progressBanner = document.getElementById('progress-banner');
-const drawer = document.getElementById('subject-drawer');
-const drawerList = document.getElementById('drawer-list');
-const drawerToggle = document.getElementById('drawer-toggle');
-const drawerOverlay = document.getElementById('drawer-overlay');
-const drawerClose = document.getElementById('drawer-close');
 const loginBtn = document.getElementById('login-btn');
 const account = document.getElementById('account');
 const accountToggle = document.getElementById('account-toggle');
@@ -61,6 +56,7 @@ const quizResultsSubtitle = document.getElementById('quiz-results-subtitle');
 const quizResultsList = document.getElementById('quiz-results-list');
 const quizBack = document.getElementById('quiz-back');
 const quizRetake = document.getElementById('quiz-retake');
+const quizExitCompact = document.getElementById('quiz-exit-compact');
 
 const fallbackFirebaseConfig = {
   apiKey: 'YOUR_FIREBASE_API_KEY',
@@ -527,52 +523,6 @@ function renderSubjectMenu() {
   });
 }
 
-function renderDrawerList() {
-  drawerList.innerHTML = '';
-  if (!subjects.length) {
-    drawerList.innerHTML = '<p class="caption">Geen vakken beschikbaar.</p>';
-    return;
-  }
-  subjects.forEach((subject) => {
-    const item = document.createElement('button');
-    item.type = 'button';
-    item.className = `drawer__item${subject.name === activeSubject ? ' active' : ''}`;
-    item.textContent = subject.name;
-    item.addEventListener('click', () => {
-      activeSubject = subject.name;
-      render();
-      closeDrawer();
-    });
-    drawerList.appendChild(item);
-  });
-}
-
-function openDrawer() {
-  drawer.hidden = false;
-  drawerOverlay.hidden = false;
-  drawer.classList.add('open');
-  drawerOverlay.classList.add('visible');
-  drawerToggle.setAttribute('aria-expanded', 'true');
-}
-
-function closeDrawer() {
-  drawer.classList.remove('open');
-  drawerOverlay.classList.remove('visible');
-  drawerToggle.setAttribute('aria-expanded', 'false');
-  setTimeout(() => {
-    drawer.hidden = true;
-    drawerOverlay.hidden = true;
-  }, 180);
-}
-
-function toggleDrawer() {
-  if (drawer.classList.contains('open')) {
-    closeDrawer();
-  } else {
-    openDrawer();
-  }
-}
-
 function openSubjectMenu() {
   if (!subjectMenu) return;
   subjectMenu.classList.add('open');
@@ -740,6 +690,7 @@ function startQuiz(setTitle) {
   const state = getSetProgress(subject.name, set.title, set.questions);
   activeQuizQuestionIndex = findFirstUnanswered(set, state);
   quizMode = state.completed ? 'results' : 'runner';
+  setActiveView('quizplay');
   render();
 }
 
@@ -747,6 +698,8 @@ function exitQuiz() {
   quizMode = 'picker';
   activeQuizSetTitle = null;
   activeQuizQuestionIndex = 0;
+  setActiveView('anatomie');
+  setActivePanel('quiz-panel');
   render();
 }
 
@@ -881,7 +834,6 @@ function render() {
   renderQuizRunner(subject);
   renderQuizResults(subject);
   updateProgressBanner(subject);
-  renderDrawerList();
   renderSubjectMenu();
   persistSubjects();
 }
@@ -973,12 +925,9 @@ quizPrev?.addEventListener('click', () => goToQuestion(-1));
 quizNext?.addEventListener('click', () => goToQuestion(1));
 quizSubmit?.addEventListener('click', showResults);
 quizExit?.addEventListener('click', exitQuiz);
+quizExitCompact?.addEventListener('click', exitQuiz);
 quizBack?.addEventListener('click', exitQuiz);
 quizRetake?.addEventListener('click', retakeActiveQuiz);
-
-drawerToggle.addEventListener('click', toggleDrawer);
-drawerClose.addEventListener('click', closeDrawer);
-drawerOverlay.addEventListener('click', closeDrawer);
 
 loginBtn.addEventListener('click', () => openAuthModal('login'));
 homeLogin?.addEventListener('click', () => openAuthModal('login'));

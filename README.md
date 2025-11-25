@@ -4,12 +4,12 @@ Een eenvoudige single-page webapp met kant-en-klare Anatomie-quizzen en ruimte v
 
 ## Gebruik
 1. Open `index.html` in je browser.
-2. Gebruik de pillen **Start / Quizzen / Samenvattingen** of het hoverende **Vakken**-menu in de topbalk om zonder scrollen van blad te wisselen.
+2. Gebruik de pillen **Start / Quizzen / Samenvattingen** of het hoverende **Vakken**-menu in de topbalk (zonder burger-icoon) om zonder scrollen van blad te wisselen.
 3. In de tab **Quizzen** zie je de twee vaste hoofdstuk-quizzen (elk 20 vragen / 20 punten):
-   - Osteologie – 20 examenvragen (A–D)
-   - Arthrologie – 20 vragen + oplossingen
+    - Osteologie – 20 examenvragen (A–D)
+    - Arthrologie – 20 vragen + oplossingen
    Kies één kaart om die quiz te starten of te hervatten; elke quiz telt apart en wordt niet samengenomen.
-4. Beantwoord vraag per vraag met **Vorige/Volgende**. Pas na het invullen van alle 20 vragen verschijnt de knop **Toon score**; je krijgt daarna een apart resultatenblad met je punten en de juiste antwoorden per vraag.
+4. Zodra je start word je naar een apart blad binnen de site gestuurd met alleen de gekozen quiz; beantwoord vraag per vraag met **Vorige/Volgende**. Pas na het invullen van alle 20 vragen verschijnt de knop **Toon score** en krijg je een eigen resultatenblad met je punten en de juiste antwoorden per vraag.
 
 Alle gegevens, inclusief je voortgang, worden lokaal in `localStorage` opgeslagen.
 
