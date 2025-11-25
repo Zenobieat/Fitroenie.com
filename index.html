@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fitroenie Quizportaal</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <button class="hamburger" id="drawer-toggle" aria-label="Open vakken-menu" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <nav class="nav" aria-label="Hoofdmenu">
+      <div class="logo">Fitroenie</div>
+      <ul class="nav__menu">
+        <li class="nav__item"><a href="#" class="nav__link">Home</a></li>
+        <li class="nav__item nav__item--dropdown">
+          <a href="#" class="nav__link">Features</a>
+          <div class="dropdown" aria-label="Features submenu">
+            <a href="#subject-form" class="dropdown__link">Nieuwe vak-tab</a>
+            <a href="#summary-input" class="dropdown__link">Samenvatting plakken</a>
+            <a href="#quiz-input" class="dropdown__link">Quiz importeren</a>
+          </div>
+        </li>
+        <li class="nav__item"><a href="#content" class="nav__link">Quizzen</a></li>
+      </ul>
+    </nav>
+    <div class="nav__actions">
+      <div class="user-chip" id="user-chip" aria-live="polite">Niet ingelogd</div>
+      <button class="btn ghost" id="login-btn" type="button">Inloggen / Registreren</button>
+    </div>
+  </header>
+
+  <div id="drawer-overlay" class="drawer__overlay" hidden></div>
+  <aside class="drawer" id="subject-drawer" aria-label="Vakkenlijst" hidden>
+    <div class="drawer__header">
+      <p class="eyebrow">Vakken</p>
+      <button class="icon-btn" id="drawer-close" aria-label="Sluit vakken-menu">×</button>
+    </div>
+    <div id="drawer-list" class="drawer__list"></div>
+  </aside>
+
+  <header class="hero">
+    <div class="hero__content">
+      <p class="eyebrow">Fitroenie.com</p>
+      <h1>Beheer je vakken, samenvattingen en quizzen</h1>
+      <p class="lede">
+        Voeg een vak toe, plak de samenvatting en importeer de quizvragen in JSON-formaat.
+        Elke import krijgt een eigen tab zodat je snel kunt oefenen.
+      </p>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel">
+      <div class="panel__header">
+        <div>
+          <p class="eyebrow">Stap 1</p>
+          <h2>Vak aanmaken</h2>
+          <p class="caption">Maak voor ieder vak een aparte tab.</p>
+        </div>
+      </div>
+      <form id="subject-form" class="form-row">
+        <label class="field">
+          <span>Vaknaam</span>
+          <input id="subject-name" name="subject" type="text" required placeholder="Bijv. Biologie" />
+        </label>
+        <button class="btn" type="submit">Voeg tab toe</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="panel__header">
+        <div>
+          <p class="eyebrow">Stap 2</p>
+          <h2>Samenvatting &amp; quiz importeren</h2>
+          <p class="caption">Werk steeds in de geselecteerde tab.</p>
+        </div>
+        <div class="selected" id="current-subject">Nog geen vak geselecteerd</div>
+      </div>
+      <div class="grid">
+        <div class="field">
+          <div class="field__label">Samenvatting</div>
+          <textarea id="summary-input" rows="6" placeholder="Plak hier je samenvatting voor het gekozen vak"></textarea>
+          <button class="btn secondary" id="save-summary" type="button">Samenvatting opslaan</button>
+        </div>
+        <div class="field">
+          <div class="field__label">
+            Quiz import (JSON)
+            <span class="caption">Array met vraag, opties, antwoordIndex</span>
+          </div>
+          <textarea id="quiz-input" rows="6" placeholder='[
+  {"vraag":"Wat is een cel?","opties":["Basiseenheid","Atomaire kern"],"antwoordIndex":0}
+]'></textarea>
+          <button class="btn secondary" id="import-quiz" type="button">Quiz toevoegen</button>
+          <p class="hint">Gebruik sleutel-namen <strong>vraag</strong> of <strong>question</strong>,
+            <strong>opties</strong> of <strong>options</strong> en <strong>antwoordIndex</strong> (0-based) of
+            <strong>answer</strong>.</p>
+          <div class="message" id="quiz-message" role="status"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel__header">
+        <div>
+          <p class="eyebrow">Stap 3</p>
+          <h2>Tabs en quizzen</h2>
+        </div>
+        <div class="tabbar" id="subject-tabs" aria-label="Vaktabs"></div>
+      </div>
+      <div id="content" class="content-area">
+        <article class="summary" id="summary-display">Selecteer een vak om de samenvatting te tonen.</article>
+        <div id="quiz-list" class="quiz-list" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Plak je nieuwe quizzen of samenvattingen hierboven; alles blijft lokaal opgeslagen.</p>
+  </footer>
+  <div id="auth-overlay" class="auth__overlay" hidden></div>
+  <section id="auth-modal" class="auth" hidden role="dialog" aria-modal="true" aria-labelledby="auth-title">
+    <div class="auth__header">
+      <div>
+        <p class="eyebrow">Account</p>
+        <h2 id="auth-title">Inloggen of registreren</h2>
+        <p class="caption">Gebruik e-mail &amp; wachtwoord of meld je aan met Google.</p>
+      </div>
+      <button class="icon-btn" id="auth-close" aria-label="Sluit inlogvenster">×</button>
+    </div>
+    <form id="auth-form" class="auth__form">
+      <label class="field">
+        <span>E-mail</span>
+        <input id="auth-email" type="email" name="email" placeholder="jij@example.com" required />
+      </label>
+      <label class="field">
+        <span>Wachtwoord</span>
+        <input id="auth-password" type="password" name="password" placeholder="••••••••" required />
+      </label>
+      <div class="auth__actions">
+        <button class="btn" id="auth-submit" type="submit">Inloggen</button>
+        <button class="btn tertiary" id="auth-toggle" type="button">Nog geen account? Registreren</button>
+      </div>
+      <div class="auth__divider"><span>of</span></div>
+      <button class="btn google" id="google-btn" type="button">Log in met Google</button>
+      <div class="message" id="auth-message" role="status"></div>
+    </form>
+  </section>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
