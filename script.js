@@ -38,15 +38,25 @@ const authMessage = document.getElementById('auth-message');
 const googleBtn = document.getElementById('google-btn');
 const userChip = document.getElementById('user-chip');
 
-const firebaseConfig = {
-  apiKey: 'AIzaSyCYAs99vDWlr_CD2XJwtQG1Yg_UrUqw1cs',
-  authDomain: 'fitroenie.firebaseapp.com',
-  projectId: 'fitroenie',
-  storageBucket: 'fitroenie.firebasestorage.app',
-  messagingSenderId: '507365551216',
-  appId: '1:507365551216:web:a532c95471fed4976658b5',
-  measurementId: 'G-FW1TL85F3S'
+const fallbackFirebaseConfig = {
+  apiKey: 'YOUR_FIREBASE_API_KEY',
+  authDomain: 'YOUR_FIREBASE_AUTH_DOMAIN',
+  projectId: 'YOUR_FIREBASE_PROJECT_ID',
+  storageBucket: 'YOUR_FIREBASE_STORAGE_BUCKET',
+  messagingSenderId: 'YOUR_FIREBASE_MESSAGING_SENDER_ID',
+  appId: 'YOUR_FIREBASE_APP_ID',
+  measurementId: 'YOUR_FIREBASE_MEASUREMENT_ID'
 };
+
+const firebaseConfig = window.FITROENIE_FIREBASE_CONFIG || fallbackFirebaseConfig;
+
+if (
+  Object.values(firebaseConfig).some((v) => typeof v === 'string' && v.startsWith('YOUR_FIREBASE_'))
+) {
+  console.warn(
+    'Firebase-configuratie ontbreekt. Zet een volledig config-object op window.FITROENIE_FIREBASE_CONFIG voor je script inlaadt.'
+  );
+}
 
 const app = initializeApp(firebaseConfig);
 isAnalyticsSupported()
