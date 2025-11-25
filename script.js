@@ -604,10 +604,9 @@ function updateProgressBanner(subject) {
   const chips = subject.quizSets
     .map((set) => {
       const state = getSetProgress(subject.name, set.title, set.questions);
-      const percent = set.questions.length ? Math.round((state.correct / set.questions.length) * 100) : 0;
-      return `<span class="chip${set.title === activeQuizSetTitle ? ' active' : ''}">${set.title.split('–')[0].trim()} · ${
-        state.correct
-      }/${set.questions.length} · ${percent}%</span>`;
+      return `<span class="chip${set.title === activeQuizSetTitle ? ' active' : ''}">${set.title
+        .split('–')[0]
+        .trim()} · ${state.answered}/${set.questions.length} beantwoord</span>`;
     })
     .join('');
 
@@ -638,7 +637,6 @@ function renderQuizPicker(subject) {
 
   subject.quizSets.forEach((set, setIndex) => {
     const state = getSetProgress(subject.name, set.title, set.questions);
-    const percent = set.questions.length ? Math.round((state.correct / set.questions.length) * 100) : 0;
     const status = state.completed ? 'Voltooid' : state.answered ? 'Bezig' : 'Niet gestart';
 
     const card = document.createElement('article');
@@ -649,7 +647,7 @@ function renderQuizPicker(subject) {
           <p class="eyebrow">Hoofdstuk ${setIndex + 1}</p>
           <h3>${set.title}</h3>
         </div>
-        <div class="chip">${state.correct}/${set.questions.length} correct · ${percent}%</div>
+        <div class="chip">${state.answered}/${set.questions.length} beantwoord</div>
       </header>
       <p class="caption">${status} · ${set.questions.length} vragen</p>
     `;
@@ -738,7 +736,7 @@ function renderQuizRunner(subject) {
   const answer = state.answers?.[activeQuizQuestionIndex];
 
   quizRunnerTitle.textContent = set.title;
-  quizRunnerSubtitle.textContent = `${state.correct}/${set.questions.length} correct · ${state.answered}/${set.questions.length} beantwoord`;
+  quizRunnerSubtitle.textContent = `Vraag ${activeQuizQuestionIndex + 1} van ${set.questions.length}`;
   quizRunnerStep.textContent = `Vraag ${activeQuizQuestionIndex + 1} van ${set.questions.length}`;
   quizQuestionTitle.textContent = question.question;
   quizQuestionText.textContent = 'Kies het juiste antwoord hieronder.';
@@ -748,7 +746,8 @@ function renderQuizRunner(subject) {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'option';
-    btn.textContent = option;
+    const letter = String.fromCharCode(65 + idx);
+    btn.innerHTML = `<span class="option__label">${letter}</span><span class="option__text">${option}</span>`;
     if (answer?.choice === idx) {
       btn.classList.add('selected');
     }
@@ -761,10 +760,14 @@ function renderQuizRunner(subject) {
 
   quizPrev.disabled = activeQuizQuestionIndex === 0;
   quizNext.disabled = activeQuizQuestionIndex === set.questions.length - 1;
-  quizSubmit.disabled = state.answered < set.questions.length;
-  quizRunnerHint.textContent = state.answered < set.questions.length
-    ? 'Beantwoord alle 20 vragen om je score te zien.'
-    : 'Klaar? Toon je score en bekijk de oplossingen.';
+  const canShowSubmit = state.answered === set.questions.length && activeQuizQuestionIndex === set.questions.length - 1;
+  quizSubmit.hidden = !canShowSubmit;
+  quizSubmit.disabled = !canShowSubmit;
+  quizRunnerHint.textContent = !state.answered
+    ? 'Kies een antwoord om verder te gaan.'
+    : state.answered < set.questions.length
+    ? 'Ga verder tot alle vragen zijn ingevuld; de score verschijnt op het einde.'
+    : 'Beantwoord deze laatste vraag en bekijk daarna je score.';
 }
 
 function renderQuizResults(subject) {
