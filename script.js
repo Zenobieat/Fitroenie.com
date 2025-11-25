@@ -33,6 +33,9 @@ const googleBtn = document.getElementById('google-btn');
 const userChip = document.getElementById('user-chip');
 const views = document.querySelectorAll('.view');
 const viewToggles = document.querySelectorAll('[data-view-target]');
+const subjectMenu = document.getElementById('subject-menu');
+const subjectMenuPanel = document.getElementById('subject-menu-panel');
+const subjectMenuToggle = document.getElementById('subject-menu-toggle');
 
 const fallbackFirebaseConfig = {
   apiKey: 'YOUR_FIREBASE_API_KEY',
@@ -422,6 +425,51 @@ function setActivePanel(panelId) {
   });
 }
 
+function handleSubjectNavigation(subjectName, panelTarget = 'quiz-panel') {
+  activeSubject = subjectName;
+  render();
+  setActiveView('anatomie');
+  setActivePanel(panelTarget);
+  closeSubjectMenu();
+}
+
+function renderSubjectMenu() {
+  if (!subjectMenuPanel) return;
+  subjectMenuPanel.innerHTML = '';
+  if (!subjects.length) {
+    subjectMenuPanel.innerHTML = '<p class="caption">Geen vakken beschikbaar.</p>';
+    return;
+  }
+
+  subjects.forEach((subject) => {
+    const item = document.createElement('div');
+    item.className = 'subject-menu__item';
+
+    const title = document.createElement('p');
+    title.className = 'subject-menu__name';
+    title.textContent = subject.name;
+
+    const actions = document.createElement('div');
+    actions.className = 'subject-menu__actions';
+
+    const quizBtn = document.createElement('button');
+    quizBtn.type = 'button';
+    quizBtn.className = 'chip';
+    quizBtn.textContent = 'Quizzen';
+    quizBtn.addEventListener('click', () => handleSubjectNavigation(subject.name, 'quiz-panel'));
+
+    const summaryBtn = document.createElement('button');
+    summaryBtn.type = 'button';
+    summaryBtn.className = 'chip ghost';
+    summaryBtn.textContent = 'Samenvattingen';
+    summaryBtn.addEventListener('click', () => handleSubjectNavigation(subject.name, 'summary-panel'));
+
+    actions.append(quizBtn, summaryBtn);
+    item.append(title, actions);
+    subjectMenuPanel.appendChild(item);
+  });
+}
+
 function renderDrawerList() {
   drawerList.innerHTML = '';
   if (!subjects.length) {
@@ -466,6 +514,20 @@ function toggleDrawer() {
   } else {
     openDrawer();
   }
+}
+
+function openSubjectMenu() {
+  if (!subjectMenu) return;
+  subjectMenu.classList.add('open');
+  subjectMenuPanel.hidden = false;
+  subjectMenuToggle?.setAttribute('aria-expanded', 'true');
+}
+
+function closeSubjectMenu() {
+  if (!subjectMenu) return;
+  subjectMenu.classList.remove('open');
+  subjectMenuPanel.hidden = true;
+  subjectMenuToggle?.setAttribute('aria-expanded', 'false');
 }
 
 function getSetProgress(subjectName, setTitle) {
@@ -615,6 +677,7 @@ function render() {
   renderQuizList(subject);
   updateProgressBanner(subject);
   renderDrawerList();
+  renderSubjectMenu();
   persistSubjects();
 }
 
@@ -725,6 +788,23 @@ viewToggles.forEach((toggle) => {
     if (viewTarget) setActiveView(viewTarget);
     if (panelTarget) setActivePanel(panelTarget);
   });
+});
+
+subjectMenu?.addEventListener('mouseenter', openSubjectMenu);
+subjectMenu?.addEventListener('mouseleave', closeSubjectMenu);
+subjectMenuToggle?.addEventListener('click', (event) => {
+  event.preventDefault();
+  if (subjectMenu.classList.contains('open')) {
+    closeSubjectMenu();
+  } else {
+    openSubjectMenu();
+  }
+});
+
+document.addEventListener('click', (event) => {
+  if (subjectMenu?.classList.contains('open') && !subjectMenu.contains(event.target)) {
+    closeSubjectMenu();
+  }
 });
 
 document.addEventListener('keydown', (event) => {

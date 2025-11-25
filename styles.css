@@ -47,6 +47,100 @@ body {
   text-transform: uppercase;
 }
 
+.subject-menu {
+  position: relative;
+}
+
+.nav__link--burger {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--border);
+  background: #f8fff9;
+  box-shadow: inset 0 0 0 1px rgba(41, 198, 119, 0.08);
+}
+
+.nav__link--burger:hover {
+  background: #e3f6eb;
+}
+
+.nav__burger-icon {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav__burger-icon span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--text);
+}
+
+.subject-menu__panel {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 10px);
+  min-width: 260px;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  display: grid;
+  gap: 10px;
+  z-index: 40;
+}
+
+.subject-menu.open .subject-menu__panel,
+.subject-menu:hover .subject-menu__panel,
+.subject-menu:focus-within .subject-menu__panel {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.subject-menu__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f6fbf7;
+  border: 1px solid #e4f2e8;
+  gap: 12px;
+  box-shadow: inset 0 0 0 1px rgba(41, 198, 119, 0.06);
+}
+
+.subject-menu__name {
+  margin: 0;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.subject-menu__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.subject-menu__actions .chip {
+  background: #e3f6eb;
+  border: 1px solid #d4ecdf;
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.subject-menu__actions .chip:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
 .nav__menu {
   display: flex;
   gap: 12px;
@@ -709,5 +803,6 @@ body {
   .form-row { flex-direction: column; }
   .btn { width: 100%; justify-content: center; text-align: center; }
   .nav__menu { display: none; }
+  .subject-menu { display: none; }
   .hamburger { display: inline-flex; }
 }

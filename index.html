@@ -15,15 +15,25 @@
     </button>
     <nav class="nav" aria-label="Hoofdmenu">
       <div class="logo">Fitroenie</div>
+      <div class="subject-menu" id="subject-menu">
+        <button
+          class="nav__link nav__link--burger"
+          id="subject-menu-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-haspopup="true"
+        >
+          <span class="nav__burger-icon" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+          <span>Vakken</span>
+        </button>
+        <div class="subject-menu__panel" id="subject-menu-panel" hidden aria-label="Beschikbare vakken"></div>
+      </div>
       <ul class="nav__menu" id="nav-links">
         <li class="nav__item"><a href="#" class="nav__link" data-view-target="home">Home</a></li>
-        <li class="nav__item nav__item--dropdown">
-          <a href="#" class="nav__link">Anatomie</a>
-          <div class="dropdown" aria-label="Anatomie submenu">
-            <button class="dropdown__link" type="button" data-view-target="anatomie" data-panel-target="quiz-panel">Quizzen</button>
-            <button class="dropdown__link" type="button" data-view-target="anatomie" data-panel-target="summary-panel">Samenvattingen</button>
-          </div>
-        </li>
         <li class="nav__item"><a href="#" class="nav__link" data-view-target="anatomie" data-panel-target="quiz-panel">Quizzen</a></li>
         <li class="nav__item"><a href="#" class="nav__link" data-view-target="anatomie" data-panel-target="summary-panel">Samenvattingen</a></li>
       </ul>
