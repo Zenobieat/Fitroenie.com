@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fitroenie Quizportaal</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <button class="hamburger" id="drawer-toggle" aria-label="Open vakken-menu" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <nav class="nav" aria-label="Hoofdmenu">
+      <div class="logo">Fitroenie</div>
+      <ul class="nav__menu" id="nav-links">
+        <li class="nav__item"><a href="#" class="nav__link" data-view-target="home">Home</a></li>
+        <li class="nav__item nav__item--dropdown">
+          <a href="#" class="nav__link">Anatomie</a>
+          <div class="dropdown" aria-label="Anatomie submenu">
+            <button class="dropdown__link" type="button" data-view-target="anatomie" data-panel-target="quiz-panel">Quizzen</button>
+            <button class="dropdown__link" type="button" data-view-target="anatomie" data-panel-target="summary-panel">Samenvattingen</button>
+          </div>
+        </li>
+        <li class="nav__item"><a href="#" class="nav__link" data-view-target="anatomie" data-panel-target="quiz-panel">Quizzen</a></li>
+        <li class="nav__item"><a href="#" class="nav__link" data-view-target="anatomie" data-panel-target="summary-panel">Samenvattingen</a></li>
+      </ul>
+    </nav>
+    <div class="nav__actions">
+      <div class="user-chip" id="user-chip" aria-live="polite">Niet ingelogd</div>
+      <button class="btn ghost" id="login-btn" type="button">Inloggen / Registreren</button>
+    </div>
+  </header>
+
+  <div id="drawer-overlay" class="drawer__overlay" hidden></div>
+  <aside class="drawer" id="subject-drawer" aria-label="Vakkenlijst" hidden>
+    <div class="drawer__header">
+      <p class="eyebrow">Vakken</p>
+      <button class="icon-btn" id="drawer-close" aria-label="Sluit vakken-menu">×</button>
+    </div>
+    <div id="drawer-list" class="drawer__list"></div>
+  </aside>
+
+  <main class="layout">
+    <section class="view view--home active" data-view="home">
+      <header class="hero">
+        <div class="hero__content">
+          <p class="eyebrow">Fitroenie.com</p>
+          <h1>Oefen Anatomie met kant-en-klare quizzen</h1>
+          <p class="lede">Spring meteen naar de samenvattingen of start met de vaste hoofdstuk-quizzen.</p>
+          <div class="hero__cta">
+            <button class="btn" data-view-target="anatomie" data-panel-target="quiz-panel" type="button">Start quiz</button>
+            <button class="btn ghost" data-view-target="anatomie" data-panel-target="summary-panel" type="button">Naar samenvattingen</button>
+          </div>
+        </div>
+        <div class="hero__glow"></div>
+      </header>
+    </section>
+
+    <section class="view" data-view="anatomie">
+      <div class="panel">
+        <div class="panel__header">
+          <div>
+            <p class="eyebrow">Vak</p>
+            <h2>Anatomie</h2>
+            <p class="caption">Kies tussen de quizzen of samenvattingen. Voortgang blijft lokaal bewaard.</p>
+          </div>
+          <div class="tabbar" id="section-tabs" aria-label="Anatomie secties">
+            <button class="tab active" type="button" data-panel-target="quiz-panel">Quizzen</button>
+            <button class="tab" type="button" data-panel-target="summary-panel">Samenvattingen</button>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <article class="summary" id="summary-panel" data-panel="summary-panel" hidden>
+            <h3>Samenvattingen</h3>
+            <p class="lede">De samenvattingen volgen; je kunt hier straks de kernpunten van Anatomie nalezen.</p>
+            <div id="summary-display">Nog geen samenvatting beschikbaar.</div>
+          </article>
+
+          <div id="quiz-panel" data-panel="quiz-panel">
+            <div class="progress-banner" id="progress-banner"></div>
+            <div id="quiz-list" class="quiz-list" aria-live="polite"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Plak je nieuwe quizzen of samenvattingen hierboven; alles blijft lokaal opgeslagen.</p>
+  </footer>
+  <div id="auth-overlay" class="auth__overlay" hidden></div>
+  <section id="auth-modal" class="auth" hidden role="dialog" aria-modal="true" aria-labelledby="auth-title">
+    <div class="auth__header">
+      <div>
+        <p class="eyebrow">Account</p>
+        <h2 id="auth-title">Inloggen of registreren</h2>
+        <p class="caption">Gebruik e-mail &amp; wachtwoord of meld je aan met Google.</p>
+      </div>
+      <button class="icon-btn" id="auth-close" aria-label="Sluit inlogvenster">×</button>
+    </div>
+    <form id="auth-form" class="auth__form">
+      <label class="field">
+        <span>E-mail</span>
+        <input id="auth-email" type="email" name="email" placeholder="jij@example.com" required />
+      </label>
+      <label class="field">
+        <span>Wachtwoord</span>
+        <input id="auth-password" type="password" name="password" placeholder="••••••••" required />
+      </label>
+      <div class="auth__actions">
+        <button class="btn" id="auth-submit" type="submit">Inloggen</button>
+        <button class="btn tertiary" id="auth-toggle" type="button">Nog geen account? Registreren</button>
+      </div>
+      <div class="auth__divider"><span>of</span></div>
+      <button class="btn google" id="google-btn" type="button">Log in met Google</button>
+      <div class="message" id="auth-message" role="status"></div>
+    </form>
+  </section>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
