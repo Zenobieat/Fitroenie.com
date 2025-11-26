@@ -3111,6 +3111,46 @@ function mergeDefaultSubjects(currentSubjects, defaults) {
       return;
     }
 
+    if (!Array.isArray(existing.examDomains)) {
+      existing.examDomains = deepClone(defSubject.examDomains || []);
+      mutated = true;
+    } else if (Array.isArray(defSubject.examDomains)) {
+      defSubject.examDomains.forEach((defDomain) => {
+        const targetDomain = existing.examDomains.find((d) => d.id === defDomain.id);
+        if (!targetDomain) {
+          existing.examDomains.push(deepClone(defDomain));
+          mutated = true;
+          return;
+        }
+
+        let domainMutated = false;
+        if (!Array.isArray(targetDomain.sections)) {
+          targetDomain.sections = [];
+          domainMutated = true;
+        }
+
+        defDomain.sections?.forEach((defSection) => {
+          const hasSection = targetDomain.sections.some((sec) => sec.id === defSection.id);
+          if (!hasSection) {
+            targetDomain.sections.push(deepClone(defSection));
+            domainMutated = true;
+          }
+        });
+
+        if (!targetDomain.description && defDomain.description) {
+          targetDomain.description = defDomain.description;
+          domainMutated = true;
+        }
+
+        if (!targetDomain.title && defDomain.title) {
+          targetDomain.title = defDomain.title;
+          domainMutated = true;
+        }
+
+        mutated = mutated || domainMutated;
+      });
+    }
+
     if (!Array.isArray(existing.categories)) {
       existing.categories = [];
       mutated = true;
@@ -3917,6 +3957,10 @@ viewToggles.forEach((toggle) => {
 
 subjectMenu?.addEventListener('mouseenter', openSubjectMenu);
 subjectMenu?.addEventListener('mouseleave', closeSubjectMenu);
+subjectMenuToggle?.addEventListener('mouseenter', openSubjectMenu);
+subjectMenuToggle?.addEventListener('focus', openSubjectMenu);
+subjectMenuPanel?.addEventListener('mouseenter', openSubjectMenu);
+subjectMenuPanel?.addEventListener('focusin', openSubjectMenu);
 subjectMenuToggle?.addEventListener('click', (event) => {
   event.preventDefault();
   if (subjectMenu.classList.contains('open')) {
