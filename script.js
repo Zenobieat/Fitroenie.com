@@ -373,12 +373,24 @@ function createDefaultSubjects() {
     }
   ];
 
+  const [osteologieHoofdstuk, arthrologieHoofdstuk] = vasteHoofdstukken;
+
   const anatomie = {
     name: 'Anatomie',
     summary: 'Hier komen de samenvattingen van Anatomie zodra ze beschikbaar zijn.',
     categories: [
       {
+        id: 'arthrologie-core',
+        domain: 'arthrologie',
+        section: 'arthrologie',
+        title: 'Arthrologie',
+        description: 'Examenvragen over gewrichten en ligamenten.',
+        quizSets: [arthrologieHoofdstuk]
+      },
+      {
         id: 'upper',
+        domain: 'osteologie',
+        section: 'osteo-upper',
         title: 'Bovenste ledematen',
         description: 'Van schoudergordel tot hand – meer vragen volgen snel.',
         quizSets: [
@@ -1031,8 +1043,10 @@ function createDefaultSubjects() {
       },
       {
         id: 'torso',
-        title: 'Nek tot os coxae',
-        description: 'Cervicaal, thoracaal en het bekkengebied.',
+        domain: 'osteologie',
+        section: 'osteo-axial',
+        title: 'As tot os coxae',
+        description: 'Van atlas en axis tot het bekkengebied.',
         quizSets: [
           {
             title: 'Quiz 1 — Atlas (C1) — 20 vragen',
@@ -1958,8 +1972,10 @@ function createDefaultSubjects() {
       },
       {
         id: 'lower',
+        domain: 'osteologie',
+        section: 'osteo-lower',
         title: 'Onderste ledematen',
-        description: 'Os coxae tot de phalanxen van de voet – klaar voor nieuwe blokken.',
+        description: 'Van os coxae tot de voet – per deel geoefend.',
         quizSets: [
           {
             title: 'Quiz 15 — Os coxae (20 vragen)',
@@ -2790,9 +2806,12 @@ function createDefaultSubjects() {
       },
       {
         id: 'osteologie-check',
-        title: 'Test Mijn Vak: Osteologie',
-        description: 'Een algemene osteologie-check van 20 vragen in één keer.',
+        domain: 'osteologie',
+        section: 'osteo-proef',
+        title: 'Proef examen',
+        description: 'Een compacte toets met de osteologie-examens.',
         quizSets: [
+          osteologieHoofdstuk,
           {
             title: 'Quiz — Algemene osteologie (20 vragen)',
             questions: [
@@ -2935,11 +2954,36 @@ function createDefaultSubjects() {
           }
         ]
       },
+    ],
+    examDomains: [
       {
-        id: 'hoofdstukken',
-        title: 'Vaste hoofdstukken',
-        description: 'Kant-en-klare blokken van 20 vragen.',
-        quizSets: vasteHoofdstukken
+        id: 'arthrologie',
+        title: 'Arthrologie',
+        description: 'Maak het gewrichtenblok van 20 vragen.',
+        sections: [
+          {
+            id: 'arthrologie',
+            title: 'Arthrologie',
+            categoryIds: ['arthrologie-core']
+          }
+        ]
+      },
+      {
+        id: 'osteologie',
+        title: 'Osteologie',
+        description: 'Botkunde gespreid over drie delen en een proef examen.',
+        sections: [
+          { id: 'osteo-upper', title: 'Bovenste ledematen', categoryIds: ['upper'] },
+          { id: 'osteo-axial', title: 'As tot os coxae', categoryIds: ['torso'] },
+          { id: 'osteo-lower', title: 'Onderste ledematen', categoryIds: ['lower'] },
+          { id: 'osteo-proef', title: 'Proef examen', categoryIds: ['osteologie-check'] }
+        ]
+      },
+      {
+        id: 'myologie',
+        title: 'Myologie',
+        description: 'Spieren volgen binnenkort.',
+        sections: []
       }
     ]
   };
@@ -2954,6 +2998,8 @@ let progress = loadProgress();
 let activeSubject = subjects[0]?.name ?? 'Anatomie';
 let activeView = 'home';
 let activePanel = 'quiz-panel';
+let activeExamDomain = null;
+let activeOsteologySection = null;
 let activeQuizSetTitle = null;
 let activeQuizQuestionIndex = 0;
 let quizMode = 'picker';
@@ -2990,6 +3036,67 @@ function getQuizSets(subject) {
     return subject.categories.flatMap((cat) => cat.quizSets || []);
   }
   return Array.isArray(subject.quizSets) ? subject.quizSets : [];
+}
+
+function getExamDomain(subject, domainId) {
+  return subject?.examDomains?.find((d) => d.id === domainId) || null;
+}
+
+function getDomainSections(subject, domainId) {
+  const domain = getExamDomain(subject, domainId);
+  return domain?.sections ?? [];
+}
+
+function getCategoriesByIds(subject, ids = []) {
+  if (!subject?.categories?.length || !ids?.length) return [];
+  return subject.categories.filter((cat) => ids.includes(cat.id));
+}
+
+function getDomainQuizSets(subject, domainId) {
+  if (!subject) return [];
+  const domain = getExamDomain(subject, domainId);
+  if (!domain) return [];
+
+  if (!domain.sections?.length) {
+    return subject.categories
+      ?.filter((cat) => cat.domain === domain.id)
+      .flatMap((cat) => cat.quizSets || []);
+  }
+
+  const categoryIds = domain.sections.flatMap((section) => section.categoryIds || []);
+  return getCategoriesByIds(subject, categoryIds).flatMap((cat) => cat.quizSets || []);
+}
+
+function getSectionQuizSets(subject, sectionId) {
+  if (!subject || !sectionId) return [];
+  const section = subject.examDomains
+    ?.flatMap((domain) => domain.sections || [])
+    .find((sec) => sec.id === sectionId);
+
+  const categories = section?.categoryIds?.length
+    ? getCategoriesByIds(subject, section.categoryIds)
+    : subject.categories?.filter((cat) => cat.section === sectionId) || [];
+
+  return categories.flatMap((cat) => cat.quizSets || []);
+}
+
+function getVisibleSets(subject) {
+  if (!subject) return [];
+  const domain = getExamDomain(subject, activeExamDomain);
+  if (!domain) return [];
+
+  const sections = domain.id === 'osteologie'
+    ? domain.sections.filter((s) => s.id === activeOsteologySection)
+    : domain.sections;
+
+  const categoryIds = sections?.length
+    ? sections.flatMap((section) => section.categoryIds || [])
+    : subject.categories
+        ?.filter((cat) => cat.domain === domain.id)
+        .map((cat) => cat.id) || [];
+
+  const categories = getCategoriesByIds(subject, categoryIds);
+  return categories.flatMap((cat) => cat.quizSets || []);
 }
 
 function mergeDefaultSubjects(currentSubjects, defaults) {
@@ -3117,6 +3224,8 @@ function setActivePanel(panelId) {
 function handleSubjectNavigation(subjectName, panelTarget = 'quiz-panel') {
   activeSubject = subjectName;
   quizMode = 'picker';
+  activeExamDomain = null;
+  activeOsteologySection = null;
   activeQuizSetTitle = null;
   activeQuizQuestionIndex = 0;
   render();
@@ -3160,30 +3269,11 @@ function renderSubjectMenu() {
   }
 
   subjects.forEach((subject) => {
-    const item = document.createElement('div');
+    const item = document.createElement('button');
+    item.type = 'button';
     item.className = 'subject-menu__item';
-
-    const title = document.createElement('p');
-    title.className = 'subject-menu__name';
-    title.textContent = subject.name;
-
-    const actions = document.createElement('div');
-    actions.className = 'subject-menu__actions';
-
-    const quizBtn = document.createElement('button');
-    quizBtn.type = 'button';
-    quizBtn.className = 'chip';
-    quizBtn.textContent = 'Quizzen';
-    quizBtn.addEventListener('click', () => handleSubjectNavigation(subject.name, 'quiz-panel'));
-
-    const summaryBtn = document.createElement('button');
-    summaryBtn.type = 'button';
-    summaryBtn.className = 'chip ghost';
-    summaryBtn.textContent = 'Samenvattingen';
-    summaryBtn.addEventListener('click', () => handleSubjectNavigation(subject.name, 'summary-panel'));
-
-    actions.append(quizBtn, summaryBtn);
-    item.append(title, actions);
+    item.textContent = subject.name;
+    item.addEventListener('click', () => handleSubjectNavigation(subject.name, 'quiz-panel'));
     subjectMenuPanel.appendChild(item);
   });
 }
@@ -3266,8 +3356,19 @@ function updateProgressBanner(subject) {
     return;
   }
 
-  const allSets = getQuizSets(subject);
-  const chips = allSets
+  const visibleSets = getVisibleSets(subject);
+  if (!visibleSets.length) {
+    progressBanner.innerHTML = `
+      <div class="progress-banner__top">
+        <p class="eyebrow">Examens</p>
+        <strong>Kies een discipline om voortgang te zien</strong>
+      </div>
+      <p class="caption">Selecteer eerst een examen en onderdeel.</p>
+    `;
+    return;
+  }
+
+  const chips = visibleSets
     .map((set) => {
       const state = getSetProgress(subject.name, set.title, set.questions);
       return `<span class="chip${set.title === activeQuizSetTitle ? ' active' : ''}">${set.title
@@ -3278,11 +3379,11 @@ function updateProgressBanner(subject) {
 
   progressBanner.innerHTML = `
     <div class="progress-banner__top">
-      <p class="eyebrow">Vaste hoofdstukken</p>
-      <strong>${allSets.length} quizzen · elk 20 punten</strong>
+      <p class="eyebrow">Examens</p>
+      <strong>${visibleSets.length} quizzen · elk 20 punten</strong>
     </div>
     <div class="progress-banner__chips">${chips}</div>
-    <p class="caption">Kies een hoofdstuk, maak de 20 vragen en bekijk daarna je score.</p>
+    <p class="caption">Kies een set, maak de vragen en bekijk daarna je score.</p>
   `;
 }
 
@@ -3301,75 +3402,234 @@ function renderQuizPicker(subject) {
     return;
   }
 
-  const categories = subject.categories?.length
-    ? subject.categories
-    : [{ title: 'Quizzen', description: 'Beschikbare sets', quizSets: getQuizSets(subject) }];
+  const domains = subject.examDomains || [];
+  const domain = activeExamDomain ? getExamDomain(subject, activeExamDomain) : null;
 
-  categories.forEach((category, catIndex) => {
+  const resetToDomains = () => {
+    activeExamDomain = null;
+    activeOsteologySection = null;
+    activeQuizSetTitle = null;
+    quizMode = 'picker';
+    render();
+  };
+
+  const resetToOsteologySections = () => {
+    activeOsteologySection = null;
+    activeQuizSetTitle = null;
+    quizMode = 'picker';
+    render();
+  };
+
+  const createSetCard = (set, setIndex) => {
+    const state = getSetProgress(subject.name, set.title, set.questions);
+    const status = state.completed ? 'Voltooid' : state.answered ? 'Bezig' : 'Niet gestart';
+
+    const card = document.createElement('article');
+    card.className = 'quiz-picker__card';
+    card.innerHTML = `
+      <header class="quiz-picker__header">
+        <div>
+          <p class="eyebrow">Set ${setIndex + 1}</p>
+          <h3>${set.title}</h3>
+        </div>
+        <div class="chip">${state.answered}/${set.questions.length} beantwoord</div>
+      </header>
+      <p class="caption">${status} · ${set.questions.length} vragen</p>
+    `;
+
+    const actions = document.createElement('div');
+    actions.className = 'quiz-picker__actions';
+
+    const primaryBtn = document.createElement('button');
+    primaryBtn.type = 'button';
+    primaryBtn.className = 'btn';
+    primaryBtn.textContent = state.completed ? 'Bekijk score' : state.answered ? 'Ga verder' : 'Start quiz';
+    primaryBtn.addEventListener('click', () => startQuiz(set.title));
+
+    const secondaryBtn = document.createElement('button');
+    secondaryBtn.type = 'button';
+    secondaryBtn.className = 'btn ghost';
+    secondaryBtn.textContent = 'Herstart';
+    secondaryBtn.addEventListener('click', () => {
+      resetSetProgress(subject.name, set.title);
+      if (activeQuizSetTitle === set.title) {
+        activeQuizQuestionIndex = 0;
+      }
+      render();
+    });
+
+    actions.append(primaryBtn, secondaryBtn);
+    card.appendChild(actions);
+    return card;
+  };
+
+  if (!domain) {
     const section = document.createElement('section');
     section.className = 'quiz-category';
     section.innerHTML = `
       <header class="quiz-category__header">
         <div>
-          <p class="eyebrow">${catIndex + 1}. ${category.title}</p>
-          <h3>${category.description || 'Kies een quizset in deze categorie.'}</h3>
+          <p class="eyebrow">Examens</p>
+          <h3>Kies je vak binnen Anatomie</h3>
         </div>
-        <span class="chip ghost">${category.quizSets?.length || 0} sets</span>
+        <span class="chip ghost">${domains.length} opties</span>
       </header>
     `;
 
     const list = document.createElement('div');
     list.className = 'quiz-category__list';
 
-    if (!category.quizSets || category.quizSets.length === 0) {
-      list.innerHTML = '<p class="caption">Nieuwe quizzen volgen hier zodra ze beschikbaar zijn.</p>';
-    } else {
-      category.quizSets.forEach((set, setIndex) => {
-        const state = getSetProgress(subject.name, set.title, set.questions);
-        const status = state.completed ? 'Voltooid' : state.answered ? 'Bezig' : 'Niet gestart';
+    domains.forEach((dom) => {
+      const totalSets = getDomainQuizSets(subject, dom.id).length;
+      const card = document.createElement('article');
+      card.className = 'quiz-picker__card';
+      card.innerHTML = `
+        <header class="quiz-picker__header">
+          <div>
+            <p class="eyebrow">Vak</p>
+            <h3>${dom.title}</h3>
+          </div>
+          <div class="chip">${totalSets} sets</div>
+        </header>
+        <p class="caption">${dom.description || 'Open om te starten.'}</p>
+      `;
 
-        const card = document.createElement('article');
-        card.className = 'quiz-picker__card';
-        card.innerHTML = `
-          <header class="quiz-picker__header">
-            <div>
-              <p class="eyebrow">Set ${setIndex + 1}</p>
-              <h3>${set.title}</h3>
-            </div>
-            <div class="chip">${state.answered}/${set.questions.length} beantwoord</div>
-          </header>
-          <p class="caption">${status} · ${set.questions.length} vragen</p>
-        `;
+      const actions = document.createElement('div');
+      actions.className = 'quiz-picker__actions';
 
-        const actions = document.createElement('div');
-        actions.className = 'quiz-picker__actions';
-
-        const primaryBtn = document.createElement('button');
-        primaryBtn.type = 'button';
-        primaryBtn.className = 'btn';
-        primaryBtn.textContent = state.completed ? 'Bekijk score' : state.answered ? 'Ga verder' : 'Start quiz';
-        primaryBtn.addEventListener('click', () => startQuiz(set.title));
-
-        const secondaryBtn = document.createElement('button');
-        secondaryBtn.type = 'button';
-        secondaryBtn.className = 'btn ghost';
-        secondaryBtn.textContent = 'Herstart';
-        secondaryBtn.addEventListener('click', () => {
-          resetSetProgress(subject.name, set.title);
-          if (activeQuizSetTitle === set.title) {
-            activeQuizQuestionIndex = 0;
-          }
-          render();
-        });
-
-        actions.append(primaryBtn, secondaryBtn);
-        card.appendChild(actions);
-        list.appendChild(card);
+      const openBtn = document.createElement('button');
+      openBtn.type = 'button';
+      openBtn.className = 'btn';
+      openBtn.textContent = 'Open';
+      openBtn.addEventListener('click', () => {
+        activeExamDomain = dom.id;
+        activeOsteologySection = null;
+        activeQuizSetTitle = null;
+        quizMode = 'picker';
+        render();
       });
-    }
+
+      actions.append(openBtn);
+      card.appendChild(actions);
+      list.appendChild(card);
+    });
 
     section.appendChild(list);
     quizPicker.appendChild(section);
+    return;
+  }
+
+  if (domain.id === 'osteologie' && !activeOsteologySection) {
+    const section = document.createElement('section');
+    section.className = 'quiz-category';
+    section.innerHTML = `
+      <header class="quiz-category__header">
+        <div>
+          <p class="eyebrow">${domain.title}</p>
+          <h3>Kies een onderdeel</h3>
+        </div>
+        <div class="quiz-picker__actions">
+          <button class="btn ghost" type="button" id="back-to-domains">← Terug</button>
+        </div>
+      </header>
+    `;
+
+    const list = document.createElement('div');
+    list.className = 'quiz-category__list';
+
+    domain.sections?.forEach((sec) => {
+      const totalSets = getSectionQuizSets(subject, sec.id).length;
+      const card = document.createElement('article');
+      card.className = 'quiz-picker__card';
+      card.innerHTML = `
+        <header class="quiz-picker__header">
+          <div>
+            <p class="eyebrow">Onderdeel</p>
+            <h3>${sec.title}</h3>
+          </div>
+          <div class="chip">${totalSets} sets</div>
+        </header>
+        <p class="caption">${domain.description || ''}</p>
+      `;
+
+      const actions = document.createElement('div');
+      actions.className = 'quiz-picker__actions';
+
+      const openBtn = document.createElement('button');
+      openBtn.type = 'button';
+      openBtn.className = 'btn';
+      openBtn.textContent = 'Open';
+      openBtn.addEventListener('click', () => {
+        activeOsteologySection = sec.id;
+        activeQuizSetTitle = null;
+        quizMode = 'picker';
+        render();
+      });
+
+      actions.append(openBtn);
+      card.appendChild(actions);
+      list.appendChild(card);
+    });
+
+    const backBtn = section.querySelector('#back-to-domains');
+    backBtn?.addEventListener('click', resetToDomains);
+
+    section.appendChild(list);
+    quizPicker.appendChild(section);
+    return;
+  }
+
+  const sections = domain.id === 'osteologie'
+    ? domain.sections.filter((s) => s.id === activeOsteologySection)
+    : domain.sections?.length
+      ? domain.sections
+      : [
+          {
+            id: domain.id,
+            title: domain.title,
+            categoryIds: subject.categories
+              ?.filter((cat) => cat.domain === domain.id)
+              .map((cat) => cat.id)
+          }
+        ];
+
+  sections.forEach((sec, catIndex) => {
+    const sectionEl = document.createElement('section');
+    sectionEl.className = 'quiz-category';
+    sectionEl.innerHTML = `
+      <header class="quiz-category__header">
+        <div>
+          <p class="eyebrow">${catIndex + 1}. ${domain.title}</p>
+          <h3>${sec.title}</h3>
+        </div>
+        <div class="quiz-picker__actions">
+          ${domain.id === 'osteologie'
+            ? '<button class="btn ghost" type="button" id="back-to-osteologie">← Terug</button>'
+            : '<button class="btn ghost" type="button" id="back-to-domains-plain">← Andere vakken</button>'}
+        </div>
+      </header>
+    `;
+
+    const list = document.createElement('div');
+    list.className = 'quiz-category__list';
+    const sets = getSectionQuizSets(subject, sec.id);
+
+    if (!sets.length) {
+      list.innerHTML = '<p class="caption">Nieuwe quizzen volgen hier zodra ze beschikbaar zijn.</p>';
+    } else {
+      sets.forEach((set, setIndex) => {
+        list.appendChild(createSetCard(set, setIndex));
+      });
+    }
+
+    const backOsteo = sectionEl.querySelector('#back-to-osteologie');
+    backOsteo?.addEventListener('click', resetToOsteologySections);
+
+    const backDomainsPlain = sectionEl.querySelector('#back-to-domains-plain');
+    backDomainsPlain?.addEventListener('click', resetToDomains);
+
+    sectionEl.appendChild(list);
+    quizPicker.appendChild(sectionEl);
   });
 }
 
