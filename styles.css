@@ -7,6 +7,7 @@
   --muted: #506555;
   --border: #d9e6dd;
   --shadow: 0 12px 30px rgba(15, 47, 30, 0.08);
+  --shadow-soft: 0 10px 22px rgba(15, 47, 30, 0.06);
   --danger: #d65050;
   --radius: 14px;
 }
@@ -165,35 +166,18 @@ body {
   box-shadow: var(--shadow);
 }
 
-.user-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: rgba(43, 182, 115, 0.06);
-}
-
-.status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: #d0d7d2;
-  box-shadow: 0 0 0 6px rgba(208, 215, 210, 0.4);
-  transition: background 0.2s ease, box-shadow 0.2s ease;
-}
-
-.status-dot.online {
-  background: #22b46a;
-  box-shadow: 0 0 0 6px rgba(34, 180, 106, 0.2);
-}
-
 .account {
   position: relative;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+.account.is-authenticated #login-btn {
+  background: var(--accent);
+  color: #0b1f14;
+  border-color: transparent;
+  box-shadow: 0 8px 26px rgba(34, 180, 106, 0.2);
 }
 
 .account .icon-btn {
@@ -333,22 +317,6 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.user-chip {
-  padding: 10px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: #f4fbf6;
-  font-weight: 600;
-  color: var(--muted);
-  transition: border 0.2s ease, color 0.2s ease, background 0.2s ease;
-}
-
-.user-chip.active {
-  border-color: #a9e7c4;
-  background: #e9fbf1;
-  color: #0f2717;
 }
 
 .hero {
@@ -650,9 +618,40 @@ body {
 }
 
 .quiz-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.quiz-category {
+  background: #f8fbf9;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-soft);
+  animation: floatIn 0.5s ease;
+}
+
+.quiz-category + .quiz-category {
+  margin-top: 4px;
+}
+
+.quiz-category__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.quiz-category__header h3 {
+  margin: 6px 0 0;
+}
+
+.quiz-category__list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 .quiz-picker__card {
   background: #ffffff;

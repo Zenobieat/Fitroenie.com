@@ -33,8 +33,6 @@ const authSubmit = document.getElementById('auth-submit');
 const authToggle = document.getElementById('auth-toggle');
 const authMessage = document.getElementById('auth-message');
 const googleBtn = document.getElementById('google-btn');
-const userChip = document.getElementById('user-chip');
-const statusDot = document.querySelector('.status-dot');
 const views = document.querySelectorAll('.view');
 const viewToggles = document.querySelectorAll('[data-view-target]');
 const subjectMenu = document.getElementById('subject-menu');
@@ -91,289 +89,2865 @@ let authMode = 'login';
 
 const STORAGE_KEY = 'fitroenie-anatomie';
 const PROGRESS_KEY = 'fitroenie-progress';
-const defaultSubjects = [
-  {
+
+function deepClone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function createDefaultSubjects() {
+  const vasteHoofdstukken = [
+    {
+      title: 'Osteologie – 20 examenvragen (A–D)',
+      questions: [
+        {
+          question: 'Een salto gebeurt in…',
+          options: [
+            'Sagittaal vlak – sagitale as',
+            'Frontaal vlak – sagittale as',
+            'Sagittaal vlak – breedte-as',
+            'Transversaal vlak – breedte-as'
+          ],
+          answerIndex: 2
+        },
+        {
+          question: 'De incisura trochlearis bevindt zich op de…',
+          options: ['Humerus', 'Radius', 'Ulna', 'Scapula'],
+          answerIndex: 2
+        },
+        {
+          question: 'De spina scapulae loopt uit in de…',
+          options: ['Processus coracoideus', 'Acromion', 'Glenoid', 'Tuberculum supraglenoidale'],
+          answerIndex: 1
+        },
+        {
+          question: 'Welk werveltype bevat een foramen transversarium?',
+          options: ['Thoracale wervel', 'Cervicale wervel', 'Lumbale wervel', 'Heiligbeen'],
+          answerIndex: 1
+        },
+        {
+          question: 'De atlas (C1) herken je aan…',
+          options: ['Een dens', 'Een massief corpus', 'Een ringvormige bouw', 'Een lange processus spinosus'],
+          answerIndex: 2
+        },
+        {
+          question: 'De dens hoort bij de…',
+          options: ['Atlas', 'Axis', 'C3', 'Th1'],
+          answerIndex: 1
+        },
+        {
+          question: 'De tuberositas tibiae dient voor…',
+          options: [
+            'Aanhechting hamstrings',
+            'Aanhechting patellaband',
+            'Aanhechting adductoren',
+            'Aanhechting quadricepspees'
+          ],
+          answerIndex: 1
+        },
+        {
+          question: 'De fovea capitis ligt op…',
+          options: ['Humerus', 'Femur', 'Radius', 'Ulna'],
+          answerIndex: 1
+        },
+        {
+          question: 'De sustentaculum tali bevindt zich op de…',
+          options: ['Talus', 'Naviculare', 'Calcaneus', 'Cuboideum'],
+          answerIndex: 2
+        },
+        {
+          question: 'De facies patellaris ligt op…',
+          options: ['Tibia', 'Femur', 'Patella', 'Fibula'],
+          answerIndex: 1
+        },
+        {
+          question: 'De trochlea humeri articuleert met…',
+          options: ['Caput radii', 'Incisura trochlearis', 'Fovea capitis radii', 'Olecranon'],
+          answerIndex: 1
+        },
+        {
+          question: 'Wat is GEEN functie van een tussenwervelschijf?',
+          options: ['Schokdemping', 'Drukverdeling', 'Verbinding tussen wervelbogen', 'Beweeglijkheid verhogen'],
+          answerIndex: 2
+        },
+        {
+          question: 'Welk botstuk maakt GEEN deel uit van het os coxae?',
+          options: ['Os pubis', 'Os ilium', 'Os sacrum', 'Os ischii'],
+          answerIndex: 2
+        },
+        {
+          question: 'Waar ligt de fossa subscapularis?',
+          options: [
+            'Op de ventrale zijde van de scapula',
+            'Op de dorsale zijde van de scapula',
+            'Op de humerus',
+            'Op de clavicula'
+          ],
+          answerIndex: 0
+        },
+        {
+          question: 'De processus spinosus is typisch…',
+          options: ['Lateraal gericht', 'Ventraal gericht', 'Dorsaal gericht', 'Mediaal gericht'],
+          answerIndex: 2
+        },
+        {
+          question: 'Welk botarticulatie vormt het dak boven de schouderkop?',
+          options: ['Glenoid', 'Tuberculum majus', 'Acromion', 'Spina scapulae'],
+          answerIndex: 2
+        },
+        {
+          question: 'Hoe herken je een thoracale wervel?',
+          options: ['Geen corpus', 'Foramen transversarium', 'Facetten voor ribben', 'Massief corpus'],
+          answerIndex: 2
+        },
+        {
+          question: 'De caput humeri ligt…',
+          options: ['Proximaal en mediaal', 'Proximaal en lateraal', 'Distaal en mediaal', 'Distaal en lateraal'],
+          answerIndex: 0
+        },
+        {
+          question: 'Welk bot draagt GEEN lichaamsgewicht?',
+          options: ['Talus', 'Calcaneus', 'Tibia', 'Fibula'],
+          answerIndex: 3
+        },
+        {
+          question: 'Een rotatie om de lengte-as wordt uitgevoerd in het…',
+          options: ['Frontaal vlak', 'Sagittaal vlak', 'Transversaal vlak', 'Horizontaal vlak'],
+          answerIndex: 3
+        }
+      ]
+    },
+    {
+      title: 'Arthrologie – 20 vragen + oplossingen',
+      questions: [
+        {
+          question: 'Wat is een diarthrose?',
+          options: [
+            'Een botverbinding zonder gewrichtsspleet',
+            'Een beweeglijke verbinding met gewrichtsspleet',
+            'Een kraakbeenknobbel tussen botstukken',
+            'Een volledig onbeweeglijk gewricht'
+          ],
+          answerIndex: 1
+        },
+        {
+          question: 'Welk onderdeel produceert synoviaal vocht?',
+          options: ['Ligamenten', 'Meniscus', 'Synoviale laag van het kapsel', 'Hyalien kraakbeen'],
+          answerIndex: 2
+        },
+        {
+          question: 'Wat is de functie van een discus of meniscus?',
+          options: [
+            'Spieractivatie verhogen',
+            'Congruentie vergroten',
+            'Beweging remmen',
+            'Pezen glijden'
+          ],
+          answerIndex: 1
+        },
+        {
+          question: 'Welke structuur hoort bij het scharniergewricht?',
+          options: ['Draaiing rond lengte-as', 'Flexie en extensie', 'Circumductie', 'Laterale glijbeweging'],
+          answerIndex: 1
+        },
+        {
+          question: 'Het AC-gewricht (acromioclaviculair) is een…',
+          options: ['Kogelgewricht', 'Vlak gewricht', 'Zadelgewricht', 'Rolgewricht'],
+          answerIndex: 1
+        },
+        {
+          question: 'Het SC-gewricht bevat een discus die zorgt voor…',
+          options: [
+            'Extra beweging',
+            'Stabiliteit en congruentie',
+            'Remming van elevatie',
+            'Vermindering synoviaal vocht'
+          ],
+          answerIndex: 1
+        },
+        {
+          question: 'Het ligamentum coracoacromiale heeft als functie…',
+          options: ['Abductie remmen', 'Humeruskop fixeren', 'Endorotatie beperken', 'Circumductie toelaten'],
+          answerIndex: 0
+        },
+        {
+          question: 'Het glenohumerale kapsel wordt versterkt door…',
+          options: [
+            'Lig. collaterale ulnare',
+            'Lig. glenohumeralia (superius/medium/inferius)',
+            'Lig. cruciatum anterius',
+            'Lig. deltoideum'
+          ],
+          answerIndex: 1
+        },
+        {
+          question: 'Het ligamentum anulare radii…',
+          options: [
+            'Houdt de ulna op zijn plaats',
+            'Houdt de radiuskop tegen de ulna',
+            'Fixeert humerus aan radius',
+            'Verbindt carpus met radius'
+          ],
+          answerIndex: 1
+        },
+        {
+          question: 'Welk gewricht laat pronatie en supinatie toe?',
+          options: [
+            'Articulatio humeri',
+            'Articulatio tibiofibularis',
+            'Articulatio radio-ulnaris',
+            'Articulatio coxae'
+          ],
+          answerIndex: 2
+        },
+        {
+          question: 'Het kniegewricht bevat 2 kruisbanden om…',
+          options: [
+            'Rotatie te vergroten',
+            'Luxatie te voorkomen',
+            'Tibia te fixeren in alle posities',
+            'Te dienen als schokdemper'
+          ],
+          answerIndex: 2
+        },
+        {
+          question: 'De meniscus medialis is…',
+          options: ['O-vormig en los', 'C-vormig en vaster', 'O-vormig en vast', 'C-vormig en los'],
+          answerIndex: 1
+        },
+        {
+          question: 'Het ligamentum collaterale laterale (LCL) verhindert…',
+          options: ['Valgus', 'Varus', 'Flexie', 'Extensie'],
+          answerIndex: 1
+        },
+        {
+          question: 'Het talocrurale gewricht is een…',
+          options: ['1-assig scharniergewricht', 'Kogelgewricht', 'Zadelgewricht', 'Rolgewricht'],
+          answerIndex: 0
+        },
+        {
+          question: 'Het ligamentum deltoideum (mediaal enkelband) bestaat uit…',
+          options: ['2 delen', '3 delen', '4 delen', '5 delen'],
+          answerIndex: 2
+        },
+        {
+          question: 'Welk ligament wordt het meest gekwetst bij een inversietrauma?',
+          options: [
+            'Lig. talofibulare anterius (ATFL)',
+            'Lig. talofibulare posterius',
+            'Lig. deltoideum',
+            'Lig. tibiofibulare posterius'
+          ],
+          answerIndex: 0
+        },
+        {
+          question: 'De articulatio tibiofibularis proximalis is een…',
+          options: ['Diarthrose met veel beweging', 'Amfiarthrose (weinig beweging)', 'Synchondrose', 'Syndesmose'],
+          answerIndex: 1
+        },
+        {
+          question: 'De distale tibiofibulaire verbinding is een…',
+          options: ['Scharniergewricht', 'Trochoïde', 'Syndesmose', 'Ellipsoïde'],
+          answerIndex: 2
+        },
+        {
+          question: 'Wat is GEEN functie van het gewrichtskapsel?',
+          options: [
+            'Afsluiting gewrichtsholte',
+            'Beweging sturen',
+            'Synoviaal vocht aanmaken',
+            'Stabiliteit leveren'
+          ],
+          answerIndex: 2
+        },
+        {
+          question: 'Een zadelgewricht laat toe…',
+          options: [
+            'Rotatie rond lengte-as',
+            'Flexie/extensie + abductie/adductie',
+            'Enorme circumductie',
+            'Enkel 1-as beweging'
+          ],
+          answerIndex: 1
+        }
+      ]
+    }
+  ];
+
+  const anatomie = {
     name: 'Anatomie',
     summary: 'Hier komen de samenvattingen van Anatomie zodra ze beschikbaar zijn.',
-    quizSets: [
+    categories: [
       {
-        title: 'Osteologie – 20 examenvragen (A–D)',
-        questions: [
+        id: 'upper',
+        title: 'Bovenste ledematen',
+        description: 'Van schoudergordel tot hand – meer vragen volgen snel.',
+        quizSets: [
           {
-            question: 'Een salto gebeurt in…',
-            options: [
-              'Sagittaal vlak – sagitale as',
-              'Frontaal vlak – sagittale as',
-              'Sagittaal vlak – breedte-as',
-              'Transversaal vlak – breedte-as'
-            ],
-            answerIndex: 2
+            title: 'Quiz 9 — Clavicula (20 vragen)',
+            questions: [
+              {
+                question: 'Welke vorm heeft de clavicula?',
+                options: ['Rechte buis', 'S-vormige kromming', 'Zwaardvorm', 'Volledig ronde staaf'],
+                answerIndex: 1
+              },
+              {
+                question: 'Met welk bot articuleert de laterale zijde van de clavicula?',
+                options: ['Sternum', 'Scapula', 'Humerus', 'Costa I'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het gewricht tussen clavicula en sternum?',
+                options: ['Acromioclaviculair gewricht', 'Sternoclaviculair gewricht', 'Glenohumerale gewricht', 'Costoclaviculair gewricht'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het gewricht tussen clavicula en acromion?',
+                options: ['Sternoclaviculair', 'Scapuloclaviculair', 'Acromioclaviculair', 'Claviculohumeral'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet het ruwe gebied onderaan de clavicula voor ligamentaanhechting?',
+                options: ['Linea costalis', 'Facies articularis', 'Tuberositas coracoidea', 'Conoid tubercle'],
+                answerIndex: 3
+              },
+              {
+                question: 'Welke zijde van de clavicula is bol naar voren gericht?',
+                options: ['Laterale zijde', 'Mediale zijde', 'Caudale zijde', 'Dorsale zijde'],
+                answerIndex: 1
+              },
+              {
+                question: 'De mediale clavicula is…',
+                options: ['Plat', 'Rond en dik', 'Ovaal en dun', 'Driehoekig'],
+                answerIndex: 1
+              },
+              {
+                question: 'De laterale clavicula articuleert met…',
+                options: ['Scapula (acromion)', 'Os coxae', 'Humeruskop', 'Sternum'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat is de belangrijkste functie van de clavicula?',
+                options: ['Bescherming van longen', 'Stabiliserende verbinding arm-romp', 'Aanmaken van bloedcellen', 'Draaipunt voor elleboog'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar ligt de impressio ligamenti costoclavicularis?',
+                options: ['Lateraal', 'Mediaal', 'Op dorsale zijde', 'Op craniale zijde'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke structuur ligt aan de laterale clavicula?',
+                options: ['Conoid tubercle', 'Impressio costalis', 'Sternal facet', 'Linea intermedia'],
+                answerIndex: 0
+              },
+              {
+                question: 'Hoe heet het vlak waarmee de clavicula met het sternum articuleert?',
+                options: ['Facies articularis sternalis', 'Facies glenoidalis', 'Facies costalis', 'Facies humeralis'],
+                answerIndex: 0
+              },
+              {
+                question: 'Waarvoor dient het conoid tubercle?',
+                options: ['Aanhechting coracoclaviculair ligament', 'Aanhechting van borstspieren', 'Aanhechting voor trapezius', 'Aanhechting voor deltoideus'],
+                answerIndex: 0
+              },
+              {
+                question: 'De clavicula is het enige bot dat…',
+                options: ['Met de ribben articuleert', 'De arm met de romp verbindt', 'Geen gewrichten heeft', 'Met twee wervels articuleert'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke zijde van de clavicula is vlakker en breder?',
+                options: ['Mediale', 'Laterale', 'Dorsale', 'Caudale'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar ligt het acromiale uiteinde?',
+                options: ['Mediaal', 'Lateraal', 'Ventraal', 'Dorsaal'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar ligt het sternale uiteinde?',
+                options: ['Lateraal', 'Dorsaal', 'Mediaal', 'Onder scapula'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke spier hecht aan de onderkant van de clavicula?',
+                options: ['Trapezius', 'Subclavius', 'Latissimus dorsi', 'Rhomboideus'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is typisch voor de clavicula bij een breuk?',
+                options: ['Breekt zelden', 'Breekt vaak in het midden', 'Breekt alleen aan de uiteinden', 'Breekt steeds verticaal'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat ligt ventraal van de clavicula?',
+                options: ['Scapula', 'Longtop', 'Humerus', 'Ribben'],
+                answerIndex: 3
+              }
+            ]
           },
           {
-            question: 'De incisura trochlearis bevindt zich op de…',
-            options: ['Humerus', 'Radius', 'Ulna', 'Scapula'],
-            answerIndex: 2
+            title: 'Quiz 10 — Scapula (20 vragen)',
+            questions: [
+              {
+                question: 'Welke structuur loopt uit in het acromion?',
+                options: ['Spina scapulae', 'Processus coracoideus', 'Cavitas glenoidalis', 'Fossa subscapularis'],
+                answerIndex: 0
+              },
+              {
+                question: 'Hoe heet het ravenbekvormige uitsteeksel van de scapula?',
+                options: ['Acromion', 'Angulus superior', 'Processus coracoideus', 'Tuberculum supraglenoidale'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet de gewrichtskom van de scapula?',
+                options: ['Fossa supraspinata', 'Cavitas glenoidalis', 'Angulus inferior', 'Fossa infraspinata'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat ligt er boven de spina scapulae?',
+                options: ['Fossa infraspinata', 'Fossa supraspinata', 'Cavitas glenoidalis', 'Fossa subscapularis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat ligt er onder de spina scapulae?',
+                options: ['Fossa supraspinata', 'Fossa subscapularis', 'Fossa infraspinata', 'Angulus superior'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet het botpunt onderaan de scapula?',
+                options: ['Angulus superior', 'Angulus inferor', 'Angulus inferior', 'Angulus medialis'],
+                answerIndex: 2
+              },
+              {
+                question: 'De margo medialis ligt…',
+                options: ['Tegen de wervelkolom', 'Tegen de ribben', 'Tegen de humerus', 'Tegen de clavicula'],
+                answerIndex: 0
+              },
+              {
+                question: 'De margo lateralis ligt…',
+                options: ['Naar het sternum gericht', 'Dicht bij de humerus', 'Tegen de wervelkolom', 'Achter de clavicula'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke structuur ligt aan de voorzijde van de scapula?',
+                options: ['Fossa subscapularis', 'Fossa infraspinata', 'Fossa supraspinata', 'Acromion'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat ligt er boven op de cavitas glenoidalis?',
+                options: ['Tuberculum infraglenoidale', 'Processus coracoideus', 'Tuberculum supraglenoidale', 'Acromion'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat ligt er onder de cavitas glenoidalis?',
+                options: ['Tuberculum supraglenoidale', 'Tuberculum infraglenoidale', 'Processus coracoideus', 'Fossa subscapularis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de functie van het acromion?',
+                options: ['Aanhechting hamstrings', 'Gewrichtsvlak voor clavicula', 'Bescherming van ribben', 'Aanhechting sternum'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de positie van de cavitas glenoidalis?',
+                options: ['Lateraal gericht', 'Mediaal gericht', 'Ventraal gericht', 'Dorsaal gericht'],
+                answerIndex: 0
+              },
+              {
+                question: 'Hoe noem je de bovenste hoek van de scapula?',
+                options: ['Angulus inferior', 'Angulus superior', 'Angulus medialis', 'Angulus centralis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe noem je de rand onder de cavitas glenoidalis richting de oksel?',
+                options: ['Margo medialis', 'Margo superior', 'Margo lateralis', 'Crista glenoidalis'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat vormt de spina scapulae?',
+                options: ['Een scheiding tussen supra- en infraspinata', 'De gewrichtskom', 'Het ventrale oppervlak', 'De mediale rand'],
+                answerIndex: 0
+              },
+              {
+                question: 'De facies costalis is het oppervlak dat…',
+                options: ['Tegen de ribben ligt', 'Tegen de wervels ligt', 'De humerus draagt', 'De clavicula draagt'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat bevindt zich op de dorsale zijde van de scapula?',
+                options: ['Fossa subscapularis', 'Cavitas costalis', 'Fossa supra- en infraspinata', 'Processus xiphoideus'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet de bovenste inkeping aan de medial bovenrand?',
+                options: ['Incisura scapulae', 'Incisura glenoidalis', 'Incisura medialis', 'Incisura coracoidea'],
+                answerIndex: 0
+              },
+              {
+                question: 'Waar articuleert de scapula rechtstreeks mee?',
+                options: ['Humerus & clavicula', 'Ribben & clavicula', 'Sternum & humerus', 'Sternum & clavicula'],
+                answerIndex: 0
+              }
+            ]
           },
           {
-            question: 'De spina scapulae loopt uit in de…',
-            options: ['Processus coracoideus', 'Acromion', 'Glenoid', 'Tuberculum supraglenoidale'],
-            answerIndex: 1
+            title: 'Quiz 11 — Humerus (20 vragen)',
+            questions: [
+              {
+                question: 'Hoe heet de kop van de humerus?',
+                options: ['Caput humeri', 'Tuberculum majus', 'Collum anatomicum', 'Glenoid head'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat articuleert met de cavitas glenoidalis van de scapula?',
+                options: ['Trochlea humeri', 'Caput humeri', 'Epicondylus lateralis', 'Fossa olecrani'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat ligt lateraal van de sulcus intertubercularis?',
+                options: ['Tuberculum minus', 'Tuberculum majus', 'Trochlea humeri', 'Fossa coronoidea'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat ligt mediaal van de sulcus intertubercularis?',
+                options: ['Tuberculum majus', 'Tuberculum minus', 'Caput humeri', 'Collum chirurgicum'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het smalle deel onder de caput humeri?',
+                options: ['Collum anatomicum', 'Corpus humeri', 'Collum chirurgicum', 'Crista humeri'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat zit er aan de achterzijde van de humerus distaal?',
+                options: ['Fossa olecrani', 'Fossa radialis', 'Tuberositas deltoidea', 'Fovea articularis'],
+                answerIndex: 0
+              },
+              {
+                question: 'Hoe heet het uitsteeksel aan de laterale zijde distaal?',
+                options: ['Epicondylus medialis', 'Epicondylus lateralis', 'Trochlea humeri', 'Caput laterale'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke structuur articuleert met de ulna?',
+                options: ['Capitulum humeri', 'Trochlea humeri', 'Tuberculum minus', 'Fossa radialis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke structuur articuleert met de radius?',
+                options: ['Trochlea humeri', 'Fossa olecrani', 'Capitulum humeri', 'Epicondylus medialis'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet de groeve voor de m. latissimus dorsi?',
+                options: ['Sulcus intertubercularis', 'Sulcus nervi radialis', 'Tuberositas deltoidea', 'Sulcus bicipitalis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat loopt door de sulcus nervi radialis?',
+                options: ['A. subclavia', 'N. medianus', 'N. radialis', 'N. musculocutaneus'],
+                answerIndex: 2
+              },
+              {
+                question: 'Waar ligt de tuberositas deltoidea?',
+                options: ['Helemaal distaal', 'Lateraal op het corpus humeri', 'Mediaal op de humeruskop', 'Op de trochlea'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat ligt boven de capitulum humeri?',
+                options: ['Fossa olecrani', 'Fossa radialis', 'Fossa coronoidea', 'Caput humeri'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat ligt boven de trochlea humeri?',
+                options: ['Fossa radialis', 'Fossa coronoidea', 'Epicondylus lateralis', 'Collum chirurgicum'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waarvoor dient het collum chirurgicum als klinisch punt?',
+                options: ['Breukgevoelig gebied', 'Aanhechting triceps', 'Gewrichtsvlak', 'Biceps-aanhechting'],
+                answerIndex: 0
+              },
+              {
+                question: 'Welke zijde heeft een grotere epicondylus?',
+                options: ['Lateraal', 'Mediaal', 'Distaal', 'Craniaal'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat ligt aan de voorzijde van de humerus distaal?',
+                options: ['Fossa olecrani', 'Fossa radialis & coronoidea', 'Tuberculum majus', 'Collum anatomicum'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke structuur maakt pronatie-supinatie mogelijk?',
+                options: ['Capitulum humeri', 'Trochlea humeri', 'Tuberculum minus', 'Epicondylus'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat is de aanhechtingsplaats voor de m. deltoideus?',
+                options: ['Tuberositas deltoidea', 'Tuberculum majus', 'Trochlea humeri', 'Sulcus intertubercularis'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat ligt posterieur op de humerus?',
+                options: ['Fossa radialis', 'Tuberculum minus', 'Sulcus nervi radialis', 'Capitulum humeri'],
+                answerIndex: 2
+              }
+            ]
           },
           {
-            question: 'Welk werveltype bevat een foramen transversarium?',
-            options: ['Thoracale wervel', 'Cervicale wervel', 'Lumbale wervel', 'Heiligbeen'],
-            answerIndex: 1
+            title: 'Quiz 12 — Ulna (20 vragen)',
+            questions: [
+              {
+                question: 'Hoe heet het grote proximale uitsteeksel van de ulna dat de punt van de elleboog vormt?',
+                options: ['Processus coronoideus', 'Tuberculum ulnare', 'Olecranon', 'Capitulum'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet de gewrichtsuitsparing op de ulna die met de trochlea humeri articuleert?',
+                options: ['Incisura radialis', 'Incisura trochlearis', 'Fovea ulnaris', 'Facies trochlearis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar ligt de incisura trochlearis?',
+                options: ['Distaal', 'Proximaal', 'Lateraal', 'Op de radius'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke structuur ligt onder de incisura trochlearis?',
+                options: ['Olecranon', 'Processus coronoideus', 'Caput ulnae', 'Incisura radialis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het kleine gewrichtsvlak voor de radius op de ulna?',
+                options: ['Processus styloideus', 'Incisura radialis', 'Fovea capitis', 'Sulcus radialis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat vormt de achterzijde van de elleboog?',
+                options: ['Processus styloideus', 'Tuberositas ulnae', 'Olecranon', 'Collum ulnae'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet de knokkelvormige verdikking aan het distale einde?',
+                options: ['Caput ulnae', 'Collum ulnare', 'Fovea carpalis', 'Tuberositas ulnaris'],
+                answerIndex: 0
+              },
+              {
+                question: 'Welk uitsteeksel ligt distaal aan de ulna?',
+                options: ['Trochlea', 'Processus styloideus', 'Tuberositas coronoidea', 'Facies carpalis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat articuleert met het caput ulnae?',
+                options: ['Humerus', 'Radius', 'Carpus direct', 'Scapula'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet de aanhechtingsplaats onder de processus coronoideus?',
+                options: ['Tuberositas ulnae', 'Tuberositas radii', 'Tuberculum carpale', 'Groove ulnaris'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat is de vorm van de ulna?',
+                options: ['Rechte buis', 'S-vormig', 'Licht gekromde pijp', 'Volledig plat'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke zijde van de onderarm vormt de ulna?',
+                options: ['Lateraal (duimzijde)', 'Mediaal (pinkzijde)', 'Craniaal', 'Caudaal'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke structuur articuleert met het olecranon?',
+                options: ['Fossa olecrani (humerus)', 'Fossa radialis', 'Capitulum', 'Collum humeri'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat articuleert met de incisura radialis?',
+                options: ['Caput humeri', 'Caput radii', 'Trochlea humeri', 'Carpus'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke structuur zorgt voor de belangrijkste aanhechting van de m. brachialis?',
+                options: ['Processus styloideus', 'Tuberculum ulnare', 'Tuberositas ulnae', 'Collum ulnae'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welk bot is langer, ulna of radius?',
+                options: ['Ulna', 'Radius', 'Beide even lang', 'Verschilt per persoon sterk'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat vormt het proximaal deel van het ellebooggewricht?',
+                options: ['Processus styloideus', 'Olecranon + incisura trochlearis', 'Caput ulnae', 'Incisura radialis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het eindpunt van de ulna aan de pols?',
+                options: ['Processus trochlearis', 'Processus styloideus ulnae', 'Olecranon', 'Tuberculum carpale'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar bevindt zich de incisura radialis op de ulna?',
+                options: ['Mediale zijde', 'Laterale zijde', 'Dorsale zijde', 'Distaal'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de functie van de ulna in de onderarm?',
+                options: [
+                  'Draaias voor pronatie-supinatie',
+                  'Hoofdondersteuning van pols',
+                  'Zorgt voor flexie-extensie elleboog',
+                  'Draagt bovenarmgewicht'
+                ],
+                answerIndex: 2
+              }
+            ]
           },
           {
-            question: 'De atlas (C1) herken je aan…',
-            options: ['Een dens', 'Een massief corpus', 'Een ringvormige bouw', 'Een lange processus spinosus'],
-            answerIndex: 2
+            title: 'Quiz 13 — Radius (20 vragen)',
+            questions: [
+              {
+                question: 'Hoe heet het bovenste uiteinde van de radius?',
+                options: ['Caput radii', 'Collum radii', 'Tuberositas radii', 'Facies radialis'],
+                answerIndex: 0
+              },
+              {
+                question: 'Welk deel articuleert met het capitulum humeri?',
+                options: ['Collum radii', 'Caput radii', 'Processus styloideus radii', 'Facies carpalis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het kleine nekje net onder de radiuskop?',
+                options: ['Fovea radii', 'Collum radii', 'Fossa radialis', 'Circumferentia radii'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat ligt er mediaal van de proximale radius?',
+                options: ['Tuberositas radii', 'Tuberculum dorsale', 'Incisura trochlearis', 'Processus styloideus'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat hecht aan op de tuberositas radii?',
+                options: ['Biceps brachii', 'Triceps brachii', 'Brachialis', 'Pronator teres'],
+                answerIndex: 0
+              },
+              {
+                question: 'Hoe heet het distale uitsteeksel dat je aan de duimzijde voelt?',
+                options: ['Olecranon', 'Tuberositas radii', 'Processus styloideus radii', 'Caput radii'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat articuleert er met de incisura ulnaris van de radius?',
+                options: ['Caput humeri', 'Olecranon', 'Caput ulnae', 'Carpus'],
+                answerIndex: 2
+              },
+              {
+                question: 'De radius ligt in anatomische houding…',
+                options: ['Pinkzijde', 'Mediaal', 'Duimzijde', 'Dorsaal'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke beweging maakt de radius mogelijk rond de ulna?',
+                options: ['Flexie', 'Extensie', 'Pronatie en supinatie', 'Circumductie'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat ligt op de distale voorzijde van de radius?',
+                options: ['Fovea carpalis', 'Facies articularis carpalis', 'Sulcus radialis', 'Trochlea radii'],
+                answerIndex: 1
+              },
+              {
+                question: 'Met welke carpale beenderen articuleert de radius?',
+                options: ['Pisiforme & triquetrum', 'Scaphoideum & lunatum', 'Trapezium & hamatum', 'Capitatum & trapezoideum'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet de achterste groef waar pezen doorheen lopen?',
+                options: ['Tuberositas dorsalis', 'Tuberculum dorsale', 'Crista radialis', 'Sulcus radii posterior'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waarvoor dient het tuberculum dorsale van Lister?',
+                options: ['Aanhechting carpalisch ligament', 'Katrol voor extensorpezen', 'Aanhechting bicepspees', 'Stabilisator van elleboog'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat loopt door de incisura ulnaris van de radius?',
+                options: ['Fovea capitis', 'Olecranon', 'Caput ulnae', 'Tuberositas ulnae'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke zijde van het distale radiusvlak is breder?',
+                options: ['Dorsaal', 'Ventraal', 'Lateraal', 'Mediaal'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de vorm van de caput radii?',
+                options: ['Zadelvormig', 'Schotelvormig', 'Ovaal', 'Hartvormig'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke structuur articuleert met de humerus bij flexie-extensie?',
+                options: ['Tuberositas radii', 'Caput radii', 'Circumferentia articularis', 'Fovea capitis radii'],
+                answerIndex: 3
+              },
+              {
+                question: 'Waar bevindt zich de tuberositas radii?',
+                options: ['Lateraal', 'Dorsaal', 'Mediaal', 'Distaal'],
+                answerIndex: 2
+              },
+              {
+                question: 'Waar ligt de circumferentia articularis radii?',
+                options: ['Rond de radiuskop', 'Op de distale rand', 'Op de radiusbasis', 'Bij de tuberositas'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat vormt samen met de ulna het ellebooggewricht?',
+                options: ['Caput radii', 'Trochlea en capitulum', 'Scaphoideum', 'Glenoid'],
+                answerIndex: 1
+              }
+            ]
           },
           {
-            question: 'De dens hoort bij de…',
-            options: ['Atlas', 'Axis', 'C3', 'Th1'],
-            answerIndex: 1
-          },
-          {
-            question: 'De tuberositas tibiae dient voor…',
-            options: [
-              'Aanhechting hamstrings',
-              'Aanhechting patellaband',
-              'Aanhechting adductoren',
-              'Aanhechting quadricepspees'
-            ],
-            answerIndex: 1
-          },
-          {
-            question: 'De fovea capitis ligt op…',
-            options: ['Humerus', 'Femur', 'Radius', 'Ulna'],
-            answerIndex: 1
-          },
-          {
-            question: 'De sustentaculum tali bevindt zich op de…',
-            options: ['Talus', 'Naviculare', 'Calcaneus', 'Cuboideum'],
-            answerIndex: 2
-          },
-          {
-            question: 'De facies patellaris ligt op…',
-            options: ['Tibia', 'Femur', 'Patella', 'Fibula'],
-            answerIndex: 1
-          },
-          {
-            question: 'De trochlea humeri articuleert met…',
-            options: ['Caput radii', 'Incisura trochlearis', 'Fovea capitis radii', 'Olecranon'],
-            answerIndex: 1
-          },
-          {
-            question: 'Wat is GEEN functie van een tussenwervelschijf?',
-            options: ['Schokdemping', 'Drukverdeling', 'Verbinding tussen wervelbogen', 'Beweeglijkheid verhogen'],
-            answerIndex: 2
-          },
-          {
-            question: 'Welk botstuk maakt GEEN deel uit van het os coxae?',
-            options: ['Os pubis', 'Os ilium', 'Os sacrum', 'Os ischii'],
-            answerIndex: 2
-          },
-          {
-            question: 'Waar ligt de fossa subscapularis?',
-            options: [
-              'Op de ventrale zijde van de scapula',
-              'Op de dorsale zijde van de scapula',
-              'Op de humerus',
-              'Op de clavicula'
-            ],
-            answerIndex: 0
-          },
-          {
-            question: 'De processus spinosus is typisch…',
-            options: ['Lateraal gericht', 'Ventraal gericht', 'Dorsaal gericht', 'Mediaal gericht'],
-            answerIndex: 2
-          },
-          {
-            question: 'Welk botarticulatie vormt het dak boven de schouderkop?',
-            options: ['Glenoid', 'Tuberculum majus', 'Acromion', 'Spina scapulae'],
-            answerIndex: 2
-          },
-          {
-            question: 'Hoe herken je een thoracale wervel?',
-            options: ['Geen corpus', 'Foramen transversarium', 'Facetten voor ribben', 'Massief corpus'],
-            answerIndex: 2
-          },
-          {
-            question: 'De caput humeri ligt…',
-            options: ['Proximaal en mediaal', 'Proximaal en lateraal', 'Distaal en mediaal', 'Distaal en lateraal'],
-            answerIndex: 0
-          },
-          {
-            question: 'Welk bot draagt GEEN lichaamsgewicht?',
-            options: ['Talus', 'Calcaneus', 'Tibia', 'Fibula'],
-            answerIndex: 3
-          },
-          {
-            question: 'Een rotatie om de lengte-as wordt uitgevoerd in het…',
-            options: ['Frontaal vlak', 'Sagittaal vlak', 'Transversaal vlak', 'Horizontaal vlak'],
-            answerIndex: 3
+            title: 'Quiz 14 — Ossa carpi (20 vragen)',
+            questions: [
+              {
+                question: 'Hoeveel handwortelbeentjes heeft een mens?',
+                options: ['6', '7', '8', '9'],
+                answerIndex: 2
+              },
+              {
+                question: 'In welke volgorde liggen de proximale carpalia van radiaal naar ulna?',
+                options: [
+                  'Trapezium – trapezoideum – capitatum – hamatum',
+                  'Pisiforme – triquetrum – lunatum – scaphoideum',
+                  'Scaphoideum – lunatum – triquetrum – pisiforme',
+                  'Lunatum – scaphoideum – pisiforme – hamatum'
+                ],
+                answerIndex: 2
+              },
+              {
+                question: 'Welk os ligt het meest radiaal in de proximale rij?',
+                options: ['Lunatum', 'Scaphoideum', 'Triquetrum', 'Pisiforme'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welk os ligt het meest ulnair in de proximale rij?',
+                options: ['Scaphoideum', 'Hamatum', 'Pisiforme', 'Capitatum'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welk bot hecht aan op het os pisiforme?',
+                options: ['Flexor carpi radialis', 'Flexor carpi ulnaris', 'Extensor digitorum', 'Pronator quadratus'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welk carpale bot articuleert met de radius?',
+                options: ['Hamatus', 'Capitatum', 'Scaphoideum en lunatum', 'Triquetrum en pisiforme'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat is het grootste carpale bot?',
+                options: ['Trapezoideum', 'Hamatum', 'Capitatum', 'Scaphoideum'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welk bot heeft een haakvormig uitsteeksel (“hamulus”)?',
+                options: ['Hamatum', 'Capitatum', 'Trapezium', 'Pisiforme'],
+                answerIndex: 0
+              },
+              {
+                question: 'Welk carpale bot ligt onder de duim?',
+                options: ['Pisiforme', 'Trapezium', 'Hamatum', 'Lunatum'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke botten vormen de distale carpale rij?',
+                options: [
+                  'Scaphoideum – lunatum – triquetrum – pisiforme',
+                  'Trapezium – trapezoideum – capitatum – hamatum',
+                  'Radius – ulna – pisiforme – scaphoideum',
+                  'Capitatum – lunatum – pisiforme – trapezoideum'
+                ],
+                answerIndex: 1
+              },
+              {
+                question: 'Welk bot vormt een belangrijk deel van het “snuff box”-gebied?',
+                options: ['Triquetrum', 'Capitatum', 'Scaphoideum', 'Lunatum'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welk carpale bot luxeert het snelst?',
+                options: ['Capitatum', 'Scaphoideum', 'Lunatum', 'Trapezoideum'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welk bot ligt direct ventraal op het triquetrum?',
+                options: ['Pisiforme', 'Lunatum', 'Capitatum', 'Trapezium'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat articuleert met het trapezium?',
+                options: ['Ulna', 'Duimmetacarpale (MC I)', 'Radius', 'Hamatum'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welk bot ligt centraal in de distale rij?',
+                options: ['Trapezium', 'Trapezoideum', 'Capitatum', 'Hamatum'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat is de functie van het hamulus ossis hamati?',
+                options: ['Aanhechting biceps', 'Beschermen van zenuwen en pezen', 'Hechting aan de ulna', 'Ondersteunen van duimoppositie'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is het kleinste carpale bot?',
+                options: ['Pisiforme', 'Scaphoideum', 'Lunatum', 'Trapezium'],
+                answerIndex: 0
+              },
+              {
+                question: 'Welk bot ligt tussen scaphoideum en capitatum?',
+                options: ['Lunatum', 'Pisiforme', 'Hamatum', 'Trapezoideum'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat articuleert met het hamatum aan de laterale zijde?',
+                options: ['Trapezium', 'Pisiforme', 'Capitatum', 'Scaphoideum'],
+                answerIndex: 2
+              },
+              {
+                question: 'Met welke twee botten articuleert het triquetrum?',
+                options: ['Scaphoideum & trapezium', 'Lunatum & pisiforme', 'Radius & ulna', 'Trapezoideum & capitatum'],
+                answerIndex: 1
+              }
+            ]
           }
         ]
       },
       {
-        title: 'Arthrologie – 20 vragen + oplossingen',
-        questions: [
+        id: 'torso',
+        title: 'Nek tot os coxae',
+        description: 'Cervicaal, thoracaal en het bekkengebied.',
+        quizSets: [
           {
-            question: 'Wat is een diarthrose?',
-            options: [
-              'Een botverbinding zonder gewrichtsspleet',
-              'Een beweeglijke verbinding met gewrichtsspleet',
-              'Een kraakbeenknobbel tussen botstukken',
-              'Een volledig onbeweeglijk gewricht'
-            ],
-            answerIndex: 1
+            title: 'Quiz 1 — Atlas (C1) — 20 vragen',
+            questions: [
+              {
+                question: 'Waar zit de fovea dentis?',
+                options: [
+                  'Op de arcus posterior',
+                  'Op de massa lateralis',
+                  'Op de arcus anterior',
+                  'Op het processus transversus'
+                ],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat schuift in de fovea dentis?',
+                options: ['Caput radii', 'Dens van axis', 'Tuberculum posterius', 'Processus costalis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet de voorkant van de ring van de atlas?',
+                options: ['Arcus posterior', 'Arcus anterior', 'Lamina arcus', 'Crista anterior'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welk deel van de atlas draagt het gewicht van het hoofd?',
+                options: ['Tuberculum anterius', 'Massa lateralis', 'Arcus posterior', 'Foramen transversarium'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat loopt door het foramen transversarium?',
+                options: ['Ruggenmerg', 'Vertebrale arteriën', 'N. phrenicus', 'V. jugularis interna'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het kleine knobbeltje aan de achterkant van de atlas?',
+                options: ['Tuberculum posterius', 'Spina atlas', 'Processus spinosus', 'Crista dorsalis'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat ontbreekt bij de atlas t.o.v. andere wervels?',
+                options: ['Arcus', 'Processus transversus', 'Corpus vertebrae', 'Foramen vertebrale'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet het gewrichtsvlak voor de condyli occipitales?',
+                options: [
+                  'Facies costalis',
+                  'Facies articularis superior',
+                  'Facies articularis inferior',
+                  'Fovea cranialis'
+                ],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de functie van de massa lateralis?',
+                options: [
+                  'Aanhechting ribben',
+                  'Draaibeweging mogelijk maken',
+                  'Gewrichtsvlak voor schedel dragen',
+                  'Aanhechting rugspieren'
+                ],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat is kenmerkend voor de atlas?',
+                options: [
+                  'Een dikke processus spinosus',
+                  'Een dens',
+                  'Een ringvormige structuur',
+                  'Een groot corpus'
+                ],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat ligt er direct achter de arcus anterior?',
+                options: [
+                  'Tuberculum posterius',
+                  'Fovea dentis',
+                  'Facies articularis superior',
+                  'Foramen transversarium'
+                ],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het grote gat in de atlas?',
+                options: [
+                  'Foramen transversarium',
+                  'Foramen magnum',
+                  'Foramen vertebrale',
+                  'Foramen intervertebrale'
+                ],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke structuur articuleert met de axis?',
+                options: [
+                  'Facies articularis superior',
+                  'Fovea dentis',
+                  'Facies articularis inferior',
+                  'Arcus posterior'
+                ],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat is de functie van de arcus posterior?',
+                options: [
+                  'Beschermt ruggenmerg',
+                  'Verankert ribben',
+                  'Vormt draaipunt met dens',
+                  'Vormt gewricht met schedel'
+                ],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat is de naam van het knobbeltje aan de voorzijde?',
+                options: [
+                  'Tuberculum anterius',
+                  'Tuberculum laterale',
+                  'Tuberculum articulare',
+                  'Processus anterior'
+                ],
+                answerIndex: 0
+              },
+              {
+                question: 'De atlas laat voornamelijk welke beweging toe?',
+                options: ['“Nee”-beweging', '“Ja”-beweging', 'Lateroflexie', 'Hyperextensie'],
+                answerIndex: 1
+              },
+              {
+                question: 'Op welke structuur rust de schedel?',
+                options: [
+                  'Facies articularis inferior',
+                  'Tuberculum anterius',
+                  'Facies articularis superior',
+                  'Arcus posterior'
+                ],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat vormt het dorsale deel van de ring?',
+                options: ['Arcus anterior', 'Tuberculum anterius', 'Arcus posterior', 'Massa lateralis'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat bevindt zich posterieur aan het foramen vertebrale?',
+                options: ['Arcus posterior', 'Dens', 'Corpus vertebrae', 'Massa lateralis'],
+                answerIndex: 0
+              },
+              {
+                question: 'Welke uitspraak klopt?',
+                options: [
+                  'Atlas heeft een corpus',
+                  'Atlas heeft geen processus transversus',
+                  'Atlas heeft een typische processus spinosus',
+                  'Atlas heeft geen corpus'
+                ],
+                answerIndex: 3
+              }
+            ]
           },
           {
-            question: 'Welk onderdeel produceert synoviaal vocht?',
-            options: ['Ligamenten', 'Meniscus', 'Synoviale laag van het kapsel', 'Hyalien kraakbeen'],
-            answerIndex: 2
+            title: 'Quiz 2 — Axis (C2) — 20 vragen',
+            questions: [
+              {
+                question: 'Wat is het meest kenmerkende deel van de axis?',
+                options: ['Tuberculum anterius', 'Dens', 'Corpus vertebrae ontbreekt', 'Foramen transversarium ontbreekt'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het puntje bovenaan de dens?',
+                options: ['Crista dentis', 'Apex dentis', 'Tuberculum dentale', 'Spina dentis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar articuleert de dens mee?',
+                options: [
+                  'Arcus posterior van de atlas',
+                  'Facies articularis inferior van de atlas',
+                  'Fovea dentis in de atlas',
+                  'Corpus atlantis'
+                ],
+                answerIndex: 2
+              },
+              {
+                question: 'Waarvoor dient de dens?',
+                options: ['Voor flexie/extensie', 'Voor de draaibeweging (“nee”-beweging)', 'Voor lateroflexie', 'Voor stabiliteit van het sacrum'],
+                answerIndex: 1
+              },
+              {
+                question: 'De axis heeft een duidelijk ontwikkeld…',
+                options: ['Corpus vertebrae', 'Apex costalis', 'Ramus vertebralis', 'Tuberculum posterior'],
+                answerIndex: 0
+              },
+              {
+                question: 'De processus spinosus van de axis is…',
+                options: ['Niet aanwezig', 'Dubbel gespleten', 'Zeer lang', 'Glad en rond'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar liggen de facies articulares superiores van de axis?',
+                options: ['Boven op de dens', 'Lateraal van de dens', 'Onder de massa lateralis', 'Dorsaal van de arcus anterior'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat loopt door het foramen transversarium van de axis?',
+                options: ['Spinale zenuwen', 'Vena cava', 'A. vertebralis', 'Slagaders naar het sacrum'],
+                answerIndex: 2
+              },
+              {
+                question: 'Waar bevindt zich het corpus vertebrae van de axis?',
+                options: ['Het is afwezig', 'Onder de dens', 'Op de arcus posterior', 'Onder de fovea dentis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke beweging gebeurt in articulatie tussen atlas en axis?',
+                options: ['“Ja”-beweging', 'Lateroflexie', '“Nee”-beweging', 'Extensie'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welk deel van de axis articuleert met de atlas?',
+                options: ['Processus spinosus', 'Facies articularis superior', 'Arcus posterior', 'Apex dentis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar ligt de dens t.o.v. de axis?',
+                options: ['Ventraal', 'Dorsaal', 'Lateraal', 'Caudaal'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat ligt dorsaal van het corpus van de axis?',
+                options: ['Dens', 'Foramen vertebrale', 'Processus spinosus', 'Processus articularis inferior'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het botdeel waar ruggenmerg doorheen loopt?',
+                options: ['Foramen dentis', 'Foramen transversarium', 'Foramen articulare', 'Foramen vertebrale'],
+                answerIndex: 3
+              },
+              {
+                question: 'Welke structuur ligt direct achter de dens?',
+                options: ['Ligamenten', 'Ruggenmerg', 'Arcus posterior atlas', 'Fovea dentis'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat zit er op de apex dentis?',
+                options: ['Niets, het is een punt', 'Een gewrichtsvlak', 'Aanhechting voor ribben', 'Een peesgroeve'],
+                answerIndex: 0
+              },
+              {
+                question: 'De processus articularis inferior staat in verbinding met…',
+                options: ['Axis', 'Atlas', 'C3 cervicale wervel', 'Sacrum'],
+                answerIndex: 2
+              },
+              {
+                question: 'De axis maakt deel uit van welke groep wervels?',
+                options: ['Thoracaal', 'Sacraal', 'Cervicaal', 'Lumbaal'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat ligt er lateraal op de axis?',
+                options: ['Processus transversus', 'Dens', 'Apex dentis', 'Tuberculum transversum'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat is de functie van de processus spinosus bij de axis?',
+                options: ['Draagt schedel', 'Geeft aanhechting aan spieren', 'Articuleert met atlas', 'Maakt rotatie mogelijk'],
+                answerIndex: 1
+              }
+            ]
           },
           {
-            question: 'Wat is de functie van een discus of meniscus?',
-            options: [
-              'Spieractivatie verhogen',
-              'Congruentie vergroten',
-              'Beweging remmen',
-              'Pezen glijden'
-            ],
-            answerIndex: 1
+            title: 'Quiz 3 — Cervicale wervels C3–C7 — 20 vragen',
+            questions: [
+              {
+                question: 'Wat is het typische kenmerk van cervicale wervels?',
+                options: [
+                  'Geen foramen transversarium',
+                  'Foramen transversarium aanwezig',
+                  'Ze hebben een dens',
+                  'Ze hebben zeer lange spinosi'
+                ],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke vorm heeft het corpus van een cervicale wervel?',
+                options: ['Rond', 'Driehoekig', 'Rechthoekig', 'Hartvormig'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe ziet het foramen vertebrale eruit bij cervicale wervels?',
+                options: ['Rond', 'Driehoekig', 'Ovaal', 'Klein en smal'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat loopt door het foramen transversarium?',
+                options: ['Ruggenmerg', 'A. vertebralis', 'N. vagus', 'V. cava superior'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is kenmerkend voor de processus spinosus bij C3–C6?',
+                options: ['Ze zijn gespleten', 'Ze zijn niet aanwezig', 'Ze zijn massief en rond', 'Ze wijzen recht naar boven'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat is het belangrijkste verschil tussen C7 en andere cervicale wervels?',
+                options: [
+                  'C7 heeft geen corpus',
+                  'C7 heeft geen foramen transversarium',
+                  'C7 heeft een zeer prominente processus spinosus',
+                  'C7 heeft een dens'
+                ],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe noemt men de wervel C7?',
+                options: ['Atlas', 'Axis', 'Vertebra prominens', 'Cervicale tuberculum'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat is de functie van de processus transversus?',
+                options: [
+                  'Beschermen van ruggenmerg',
+                  'Aanhechting van spieren',
+                  'Draaipunt van rotatie',
+                  'Contactvlak met ribben'
+                ],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe staat de processus spinosus t.o.v. de wervelboog?',
+                options: ['Ventraal', 'Lateraal', 'Dorsaal', 'Craniaal'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat ligt er direct achter het corpus vertebrae?',
+                options: ['Processus transversus', 'Foramen transversarium', 'Arcus vertebrae', 'Processus articularis superior'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke structuur vormt het gewricht met bovenliggende wervel?',
+                options: ['Facies articularis superior', 'Facies costalis', 'Fovea ribalis', 'Tuberculum articulare'],
+                answerIndex: 0
+              },
+              {
+                question: 'Hoe ziet de processus transversus eruit in cervicale wervels?',
+                options: ['Verdikt en naar boven gericht', 'Bevat een opening (foramen)', 'Zeer kort', 'Naar mediaal gericht'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke bewegingen zijn het meest mogelijk in de cervicale regio?',
+                options: ['Rotatie', 'Flexie-extensie + rotatie', 'Alleen extensie', 'Enkel lateroflexie'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat ligt er in het foramen vertebrale?',
+                options: ['Longslagaders', 'Ruggenmerg', 'Slokdarm', 'Luchtpijp'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waarvoor dient het corpus vertebrae vooral?',
+                options: ['Bescherming', 'Aanhechting spieren', 'Dragende functie', 'Rotatiefunctie'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke structuur hoort NIET bij cervicale wervels?',
+                options: ['Foramen transversarium', 'Dens', 'Processus spinosus', 'Corpus vertebrae'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe staan de gewrichtsoppervlakken bij cervicale wervels?',
+                options: ['Heel vlak', 'Heel steil', 'Loodrecht', 'Horizontaal'],
+                answerIndex: 0
+              },
+              {
+                question: 'Welke wervel is het meest beweeglijk?',
+                options: ['Sacraal', 'Lumbaal', 'Thoracaal', 'Cervicaal'],
+                answerIndex: 3
+              },
+              {
+                question: 'Hoe heet het deel tussen corpus en processus spinosus?',
+                options: ['Arcus vertebrae', 'Tuberculum posterior', 'Ramus dorsalis', 'Fovea arcus'],
+                answerIndex: 0
+              },
+              {
+                question: 'Waar zit de processus articularis inferior?',
+                options: [
+                  'Boven de massa lateralis',
+                  'Onder de processus articularis superior',
+                  'Op het corpus',
+                  'In het foramen vertebrale'
+                ],
+                answerIndex: 1
+              }
+            ]
           },
           {
-            question: 'Welke structuur hoort bij het scharniergewricht?',
-            options: ['Draaiing rond lengte-as', 'Flexie en extensie', 'Circumductie', 'Laterale glijbeweging'],
-            answerIndex: 1
+            title: 'Quiz 4 — Thoracale wervels (T1–T12)',
+            questions: [
+              {
+                question: 'Wat is het typische kenmerk van thoracale wervels?',
+                options: ['Ze hebben foramen transversarium', 'Ze articuleren met ribben', 'Ze hebben een dens', 'Ze hebben geen processus spinosus'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke vorm heeft het foramen vertebrale bij thoracale wervels?',
+                options: ['Driehoekig', 'Rond', 'Rechthoekig', 'Hartvormig'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat is de vorm van het corpus bij een thoracale wervel?',
+                options: ['Rechthoekig', 'Klein en rond', 'Hartvormig', 'Zeer plat'],
+                answerIndex: 2
+              },
+              {
+                question: 'Waarvoor dient de fovea costalis op de wervel?',
+                options: ['Bevestiging van ligamenten', 'Aanhechting van spieren', 'Gewrichtsvlak voor ribben', 'Doorlaat voor bloedvaten'],
+                answerIndex: 2
+              },
+              {
+                question: 'Waar bevindt de fovea costalis superior/inferior zich?',
+                options: ['Op het corpus vertebrae', 'Op de arcus', 'Op de processus transversus', 'Op de processus spinosus'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat ligt er op de processus transversus van een thoracale wervel?',
+                options: ['Fovea costalis transversalis', 'Fovea dentis', 'Fovea capitis', 'Fovea transversaria'],
+                answerIndex: 0
+              },
+              {
+                question: 'Hoe ziet de processus spinosus eruit bij thoracale wervels?',
+                options: ['Kort en gespleten', 'Lang en naar caudaal gericht', 'Helemaal afwezig', 'Zeer horizontaal'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de oriëntatie van de gewrichtsvlakken bij thoracaal?',
+                options: ['Heel vlak', 'Steil en gehoekt', 'Loodrecht', 'Naar boven gedraaid'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke beweging is in thoracale wervels het meest mogelijk?',
+                options: ['Flexie-extensie', 'Rotatie', 'Circumductie', 'Hyperextensie'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat ligt er achter het corpus van de wervel?',
+                options: ['Processus transversus', 'Arcus vertebrae', 'Foramen transversarium', 'Discus articularis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke structuur articuleert met het tuberculum costae van de rib?',
+                options: ['Corpus', 'Processus transversus', 'Lamina', 'Processus spinosus'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat vormt samen de arcus vertebrae?',
+                options: ['Lamina + pediculi', 'Corpus + processus spinosus', 'Discus + foramen', 'Rib + tuberculum'],
+                answerIndex: 0
+              },
+              {
+                question: 'Met welke wervelkolomregio vormt de thoracale wervel een kyfose?',
+                options: ['Lumbaal', 'Cervicaal', 'Sacraal', 'Thoracaal zelf'],
+                answerIndex: 3
+              },
+              {
+                question: 'Het corpus van thoracale wervels is…',
+                options: ['Slecht ontwikkeld', 'Erg klein', 'Meer ontwikkeld dan cervicaal', 'Minder ontwikkeld dan lumbaal'],
+                answerIndex: 2
+              },
+              {
+                question: 'De rib articuleert met…',
+                options: ['Alleen corpus', 'Alleen processus transversus', 'Corpus én processus transversus', 'Alleen lamina'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke wervelregio is het minst beweeglijk?',
+                options: ['Lumbaal', 'Thoracaal', 'Cervicaal', 'Sacraal'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe ziet de processus transversus eruit?',
+                options: ['Kort en dun', 'Groot met fovea costalis', 'Verdikt en naar craniaal gericht', 'Naar mediaal gericht'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de belangrijkste reden voor beperkte beweging in thoracaal?',
+                options: ['Discus is te groot', 'De ribben beperken beweging', 'De processus spinosus is te kort', 'De wervel is te klein'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar bevindt zich het gewrichtsvlak voor het caput costae?',
+                options: ['Op lamina', 'Op corpus vertebrae', 'Op het foramen', 'Op de spinosus'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is het meest herkenbare kenmerk van T-wervels?',
+                options: ['Fovea costalis', 'Dens', 'Gespleten spinosus', 'Groot foramen transversarium'],
+                answerIndex: 0
+              }
+            ]
           },
           {
-            question: 'Het AC-gewricht (acromioclaviculair) is een…',
-            options: ['Kogelgewricht', 'Vlak gewricht', 'Zadelgewricht', 'Rolgewricht'],
-            answerIndex: 1
+            title: 'Quiz 5 — Lumbale wervels (L1–L5)',
+            questions: [
+              {
+                question: 'Wat is het meest herkenbare kenmerk van lumbale wervels?',
+                options: ['Een dens', 'Groot en massief corpus', 'Fovea costalis', 'Foramen transversarium'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe ziet het corpus vertebrae eruit bij een lumbale wervel?',
+                options: ['Driehoekig', 'Hartvormig', 'Boonvormig', 'Rond'],
+                answerIndex: 2
+              },
+              {
+                question: 'Waarom is het corpus zo groot?',
+                options: ['Voor rotatie', 'Om ribben te dragen', 'Om gewicht te dragen', 'Voor lateroflexie'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe ziet het foramen vertebrale eruit bij L-wervels?',
+                options: ['Cirkelvormig', 'Driehoekig', 'Zeer klein', 'Onderbroken'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe ziet de processus spinosus eruit?',
+                options: ['Lang en caudaal gericht', 'Kort en stomp', 'Gespleten', 'Niet aanwezig'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is een typisch kenmerk van de processus transversus in lumbaal?',
+                options: ['Zeer groot', 'Horizontaal gericht', 'Met foramen transversarium', 'Naar craniaal gericht'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de oriëntatie van de gewrichtsvlakken bij lumbaal?',
+                options: ['Horizontaal', 'Verticaler/loodrecht', 'Steil en gehoekt', 'Plat en ovaal'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke beweging is het minst mogelijk in de lumbale regio?',
+                options: ['Flexie', 'Extensie', 'Lateroflexie', 'Rotatie'],
+                answerIndex: 3
+              },
+              {
+                question: 'Wat bevindt zich tussen twee corpussen van lumbale wervels?',
+                options: ['Geen schijf', 'Tussenwervelschijf', 'Ligament transversum', 'Fovea lumbalis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is een functie van de lumbale wervelkolom?',
+                options: ['Rotatie zoals in cervicale regio', 'Draagt het bovenlichaam', 'Verbinding met ribben', 'Ondersteunt de schedel'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe ziet de arcus vertebrae eruit in een lumbale wervel?',
+                options: ['Heel dik en stevig', 'Dun en lang', 'Geen arcus aanwezig', 'Zoals cervicaal'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat vormt het foramen vertebrale?',
+                options: ['Corpus + spieraanhechtingen', 'Arcus + corpus', 'Tuberculum + processus', 'Costale koppelingen'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat ligt er dorsaal van het corpus vertebrae?',
+                options: ['Discus', 'Arcus vertebrae', 'Ribben', 'Processus transversus'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het uitsteeksel dat achteraan zit?',
+                options: ['Processus articularis', 'Arcus posterior', 'Processus spinosus', 'Manubrium'],
+                answerIndex: 2
+              },
+              {
+                question: 'Waarom is rotatie beperkt in lumbaal?',
+                options: ['Door ribben', 'Door hoge processus spinosus', 'Door oriëntatie gewrichtsvlakken', 'Door dens'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke wervelregio is het meest stabiel?',
+                options: ['Cervicaal', 'Thoracaal', 'Lumbaal', 'Sacraal'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heten de gewrichtsuitsteeksels?',
+                options: ['Processus dentales', 'Processus articularis', 'Processus obliqui', 'Tuberculum anterior'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe ziet de processus transversus eruit t.o.v. cervicale wervels?',
+                options: ['Groter en zonder foramen', 'Kleiner en met foramen', 'Gespleten', 'Niet aanwezig'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat ligt er in het foramen vertebrale?',
+                options: ['Nieren', 'Ruggenmerg', 'Longen', 'Slokdarm'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waarvoor dient de lumbale lordose?',
+                options: ['Voor bescherming van ribben', 'Voor balans en schokabsorptie', 'Om rotaties mogelijk te maken', 'Om het sacrum te verbinden'],
+                answerIndex: 1
+              }
+            ]
           },
           {
-            question: 'Het SC-gewricht bevat een discus die zorgt voor…',
-            options: [
-              'Extra beweging',
-              'Stabiliteit en congruentie',
-              'Remming van elevatie',
-              'Vermindering synoviaal vocht'
-            ],
-            answerIndex: 1
+            title: 'Quiz 6 — Os sacrum (20 vragen)',
+            questions: [
+              {
+                question: 'Waaruit bestaat het os sacrum?',
+                options: ['3 vergroeide wervels', '5 vergroeide wervels', '7 vergroeide wervels', '2 vergroeide wervels'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet de bovenste uitstekende rand van het sacrum?',
+                options: ['Basis ossis sacri', 'Ala sacralis', 'Promontorium', 'Crista sacralis'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat loopt door het canalis sacralis?',
+                options: ['Ruggenmerg', 'Zenuwwortels', 'Aorta', 'Slokdarm'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe noemen we de openingen aan de voorzijde van het sacrum?',
+                options: ['Foramina sacralia posteriora', 'Foramina sacralia anteriora', 'Hiatus sacralis', 'Foramen obturatum'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat bevindt zich op de dorsale middenlijn van het sacrum?',
+                options: ['Crista sacralis mediana', 'Processus dentatus', 'Processus spinosus', 'Linea glutea'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat ligt er lateraal van de crista sacralis mediana?',
+                options: ['Foramina anteriora', 'Tuberositas sacralis', 'Crista sacralis lateralis', 'Ala ossis sacri'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet de achterste opening van het sacraal kanaal?',
+                options: ['Hiatus sacralis', 'Foramen sacrale', 'Fossa sacralis', 'Incisura sacralis'],
+                answerIndex: 0
+              },
+              {
+                question: 'Hoe heet de ruwe zone voor ligamentaanhechting?',
+                options: ['Facies auricularis', 'Tuberositas ossis sacri', 'Fovea sacralis', 'Sinus sacralis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Met welk bot articuleert het sacrum lateraal?',
+                options: ['Os pubis', 'Os ilium', 'Os ischii', 'Femur'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het oorvormige gewrichtsvlak?',
+                options: ['Facies ophthalmica', 'Facies auricularis', 'Facies articularis superior', 'Facies sacralis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat vormen de vergroeide processus spinosi van het sacrum?',
+                options: ['Crista glutea', 'Crista sacralis mediana', 'Crista sacralis posterior', 'Crista intermedia'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de functie van het sacrum?',
+                options: ['Beweging mogelijk maken', 'Verbinding tussen beide os coxae', 'Rotatie van wervelkolom', 'Aanhechting van ribben'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat loopt door de foramina sacralia anteriora?',
+                options: ['Slagaders', 'Spinale zenuwen', 'Wervelslagader', 'Spieraanhechtingen'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke structuur ligt direct boven het sacrum?',
+                options: ['L2', 'L3', 'L4', 'L5'],
+                answerIndex: 3
+              },
+              {
+                question: 'Wat bevindt zich naast de ala ossis sacri?',
+                options: ['Foramina posteriora', 'Facies auricularis', 'Foramen obturatum', 'Symphysis pubica'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar eindigt het canalis sacralis caudaal?',
+                options: ['Promontorium', 'Crista sacralis', 'Hiatus sacralis', 'Corpus sacri'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat is de vorm van het sacrum dorsaal gezien?',
+                options: ['Recht', 'Hol', 'Bol', 'Driehoekig'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet de laterale rand van het sacrum?',
+                options: ['Tuberositas arcuata', 'Margo lateralis', 'Linea arcuata', 'Linea intermedia'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat zit er ventraal op het sacrum?',
+                options: ['Crista sacralis medialis', 'Lineae transversae', 'Facies auricularis', 'Foramina posteriora'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is typisch aan het sacrum?',
+                options: ['Zeer beweeglijk', 'Geen tussenwervelschijven', '7 processus transversi', 'Het bevat een dens'],
+                answerIndex: 1
+              }
+            ]
           },
           {
-            question: 'Het ligamentum coracoacromiale heeft als functie…',
-            options: ['Abductie remmen', 'Humeruskop fixeren', 'Endorotatie beperken', 'Circumductie toelaten'],
-            answerIndex: 0
+            title: 'Quiz 7 — Os coccygis (20 vragen)',
+            questions: [
+              {
+                question: 'Waaruit bestaat het os coccygis?',
+                options: ['2–3 vergroeide wervels', '3–5 vergroeide wervels', '7 vergroeide wervels', '1 wervel'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar bevindt het staartbeen zich?',
+                options: ['Tussen de lumbale wervels', 'Onder het sacrum', 'Voor het os pubis', 'Achter de ribben'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het gewricht tussen sacrum en coccyx?',
+                options: ['Articulatio sacrococcygea', 'Articulatio sacroiliaca', 'Articulatio interpubica', 'Articulatio lumbo-sacralis'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat is de belangrijkste functie van het os coccygis?',
+                options: ['Gewicht dragen', 'Spier- en ligamentaanhechting', 'Bescherming van organen', 'Articulatie met femur'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe is de vorm van het coccyx best te omschrijven?',
+                options: ['Hartvormig', 'Driehoekig', 'Zwaardvormig', 'Boogvormig'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat bevindt zich boven het os coccygis?',
+                options: ['Femur', 'Sacrum', 'L3', 'Pubis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het eerste segment van het staartbeen?',
+                options: ['Cornu coccygeum', 'Corpus coccygis', 'Basis coccygis', 'Apex coccygis'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet het onderste puntje van het coccyx?',
+                options: ['Apex coccygis', 'Promontorium', 'Tuberositas coccygea', 'Cornu sacralis'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat zijn de cornua coccygea?',
+                options: ['Kleine ribuitsteeksels', 'Processus spinosi', 'Uitsteeksels die naar het sacrum wijzen', 'Inkepingen voor zenuwen'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat gebeurt er meestal met het coccyx bij volwassenen?',
+                options: ['Het vergroot', 'Het wordt botweefsel met tussenwervelschijven', 'Het vergroeid volledig', 'Het draait naar craniaal'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke beweging is mogelijk in de articulatio sacrococcygea?',
+                options: ['Rotatie', 'Extensie', 'Lichte flexie', 'Geen enkele beweging'],
+                answerIndex: 2
+              },
+              {
+                question: 'Bij vrouwen is het coccyx vaak…',
+                options: ['Veel korter', 'Naar ventraal gericht', 'Meer beweeglijk', 'Groter dan bij mannen'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat hecht er onder meer aan het os coccygis?',
+                options: ['Gluteus medius', 'Ligamenten van bekkenbodem', 'Hamstrings', 'Quadriceps'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat ligt er ventraal van het coccyx?',
+                options: ['Sacraal kanaal', 'Rectum', 'Spina ischiadica', 'Blaswand'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe noemen we een pijnlijke kneuzing van het coccyx?',
+                options: ['Coccygodynie', 'Sacrodynie', 'Coccytitis', 'Coxalgie'],
+                answerIndex: 0
+              },
+              {
+                question: 'Het coccyx bevat…',
+                options: ['Grote gewrichtsvlakken', 'Kleine rudimentaire processus', 'Een dens', 'Foramina zoals het sacrum'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de positie van het coccyx bij anatomische houding?',
+                options: ['Ventraal gekromd', 'Dorsaal gekromd', 'Helemaal recht', 'Naar links gericht'],
+                answerIndex: 0
+              },
+              {
+                question: 'De coccygeale wervels bevatten…',
+                options: ['Geen corpus', 'Een zeer klein corpus', 'Grote processus transversi', 'Een volledig wervellichaam zoals L1'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is het grootste verschil met het sacrum?',
+                options: ['Het sacrum beweegt veel meer', 'Het coccyx is langer', 'Het coccyx is veel kleiner en eenvoudiger', 'Het coccyx articuleert met ribben'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat is de bovenste rand van het os coccygis?',
+                options: ['Apex', 'Basis', 'Cornu', 'Tuberositas'],
+                answerIndex: 1
+              }
+            ]
           },
           {
-            question: 'Het glenohumerale kapsel wordt versterkt door…',
-            options: [
-              'Lig. collaterale ulnare',
-              'Lig. glenohumeralia (superius/medium/inferius)',
-              'Lig. cruciatum anterius',
-              'Lig. deltoideum'
-            ],
-            answerIndex: 1
-          },
-          {
-            question: 'Het ligamentum anulare radii…',
-            options: [
-              'Houdt de ulna op zijn plaats',
-              'Houdt de radiuskop tegen de ulna',
-              'Fixeert humerus aan radius',
-              'Verbindt carpus met radius'
-            ],
-            answerIndex: 1
-          },
-          {
-            question: 'Welk gewricht laat pronatie en supinatie toe?',
-            options: [
-              'Articulatio humeri',
-              'Articulatio tibiofibularis',
-              'Articulatio radio-ulnaris',
-              'Articulatio coxae'
-            ],
-            answerIndex: 2
-          },
-          {
-            question: 'Het kniegewricht bevat 2 kruisbanden om…',
-            options: [
-              'Rotatie te vergroten',
-              'Luxatie te voorkomen',
-              'Tibia te fixeren in alle posities',
-              'Te dienen als schokdemper'
-            ],
-            answerIndex: 2
-          },
-          {
-            question: 'De meniscus medialis is…',
-            options: ['O-vormig en los', 'C-vormig en vaster', 'O-vormig en vast', 'C-vormig en los'],
-            answerIndex: 1
-          },
-          {
-            question: 'Het ligamentum collaterale laterale (LCL) verhindert…',
-            options: ['Valgus', 'Varus', 'Flexie', 'Extensie'],
-            answerIndex: 1
-          },
-          {
-            question: 'Het talocrurale gewricht is een…',
-            options: ['1-assig scharniergewricht', 'Kogelgewricht', 'Zadelgewricht', 'Rolgewricht'],
-            answerIndex: 0
-          },
-          {
-            question: 'Het ligamentum deltoideum (mediaal enkelband) bestaat uit…',
-            options: ['2 delen', '3 delen', '4 delen', '5 delen'],
-            answerIndex: 2
-          },
-          {
-            question: 'Welk ligament wordt het meest gekwetst bij een inversietrauma?',
-            options: [
-              'Lig. talofibulare anterius (ATFL)',
-              'Lig. talofibulare posterius',
-              'Lig. deltoideum',
-              'Lig. tibiofibulare posterius'
-            ],
-            answerIndex: 0
-          },
-          {
-            question: 'De articulatio tibiofibularis proximalis is een…',
-            options: ['Diarthrose met veel beweging', 'Amfiarthrose (weinig beweging)', 'Synchondrose', 'Syndesmose'],
-            answerIndex: 1
-          },
-          {
-            question: 'De distale tibiofibulaire verbinding is een…',
-            options: ['Scharniergewricht', 'Trochoïde', 'Syndesmose', 'Ellipsoïde'],
-            answerIndex: 2
-          },
-          {
-            question: 'Wat is GEEN functie van het gewrichtskapsel?',
-            options: [
-              'Afsluiting gewrichtsholte',
-              'Beweging sturen',
-              'Synoviaal vocht aanmaken',
-              'Stabiliteit leveren'
-            ],
-            answerIndex: 2
-          },
-          {
-            question: 'Een zadelgewricht laat toe…',
-            options: [
-              'Rotatie rond lengte-as',
-              'Flexie/extensie + abductie/adductie',
-              'Enorme circumductie',
-              'Enkel 1-as beweging'
-            ],
-            answerIndex: 1
+            title: 'Quiz 8 — Sternum (20 vragen)',
+            questions: [
+              {
+                question: 'Uit welke delen bestaat het sternum?',
+                options: ['Manubrium – Corpus – Processus xiphoideus', 'Basis – Corpus – Ala', 'Caput – Collum – Corpus', 'Manubrium – Arcus – Tuberculum'],
+                answerIndex: 0
+              },
+              {
+                question: 'Hoe heet de bovenste inkeping van het sternum?',
+                options: ['Incisura costalis', 'Incisura clavicularis', 'Incisura jugularis', 'Fovea sternalis'],
+                answerIndex: 2
+              },
+              {
+                question: 'Waar articuleren de claviculae met het sternum?',
+                options: ['Op het corpus sterni', 'Op de incisura costalis', 'Op de incisura clavicularis', 'Op het xiphoïd'],
+                answerIndex: 2
+              },
+              {
+                question: 'Waar articuleren de ribben met het sternum?',
+                options: ['Incisura jugularis', 'Incisura costalis', 'Foramen sternale', 'Crista sterni'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het onderste deel van het sternum?',
+                options: ['Processus xiphoideus', 'Corpus sterni', 'Manubrium', 'Tuberculum sterni'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat ligt er tussen het manubrium en corpus sterni?',
+                options: ['Corpus costae', 'Angulus sterni', 'Tuberositas sterni', 'Arcus sterni'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is het Angulus Sterni?',
+                options: ['Een aanhechtingsplaats voor de ribben', 'De overgang tussen corpus en xiphoid', 'Een voelbare hoek tussen manubrium en corpus', 'De verbinding tussen sternum en clavicula'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoeveel incisurae costales zijn er aan elke zijde van het sternum?',
+                options: ['3', '5', '7', '12'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat hecht vast aan de Processus xiphoideus?',
+                options: ['Rib 1', 'Clavicula', 'Buikspieren', 'Trapzius'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet het kraakbeen dat ribben met sternum verbindt?',
+                options: ['Cartilago costalis', 'Ligamentum costosternale', 'Capsula costalis', 'Cartilago sternale'],
+                answerIndex: 0
+              },
+              {
+                question: 'Waar ligt het sternum anatomisch?',
+                options: ['Lateraal in de thorax', 'Dorsaal in de thorax', 'Anterieur in de thorax', 'Onder de clavicula alleen'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke vorm heeft het sternum?',
+                options: ['Driehoekig', 'Zwaardvormig', 'Kubusvormig', 'C-vormig'],
+                answerIndex: 1
+              },
+              {
+                question: 'Het sternum beschermt vooral…',
+                options: ['Hersenen', 'Ruggenmerg', 'Longen en hart', 'Bekkenorganen'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat is een kenmerk van het corpus sterni?',
+                options: ['Heeft een incisura jugularis', 'Heeft meerdere incisurae costales', 'Articuleert met clavicula', 'Heeft de dens'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is een klinisch herkenningspunt voor borstcompressies?',
+                options: ['Angulus sterni', 'Incisura clavicularis', 'Processus xiphoideus', 'Corpus sterni'],
+                answerIndex: 3
+              },
+              {
+                question: 'Wat ligt er onder de Processus xiphoideus?',
+                options: ['Diaphragma', 'Patella', 'Pubis', 'Humerus'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat gebeurt er met het sternum bij ouder worden?',
+                options: ['Het verkalkt en kan vergroeien', 'Het wordt zachter', 'Het verdwijnt', 'Het wordt cartilage'],
+                answerIndex: 0
+              },
+              {
+                question: 'Hoe heet het gewricht tussen sternum en ribkraakbeen?',
+                options: ['Articulatio sternoclavicularis', 'Articulatio costosternalis', 'Articulatio sternoxiphoidea', 'Articulatio manubristerni'],
+                answerIndex: 1
+              },
+              {
+                question: 'Met welk bot vormt het sternum een gewricht aan de bovenkant?',
+                options: ['Scapula', 'Clavicula', 'Costae III', 'Vertebra C7'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is het middenste en grootste deel van het sternum?',
+                options: ['Manubrium sterni', 'Corpus sterni', 'Processus xiphoideus', 'Tuberculum costae'],
+                answerIndex: 1
+              }
+            ]
           }
         ]
+      },
+      {
+        id: 'lower',
+        title: 'Onderste ledematen',
+        description: 'Os coxae tot de phalanxen van de voet – klaar voor nieuwe blokken.',
+        quizSets: [
+          {
+            title: 'Quiz 15 — Os coxae (20 vragen)',
+            questions: [
+              {
+                question: 'Uit welke drie botstukken bestaat het os coxae bij kinderen?',
+                options: ['Ilium – sacrum – pubis', 'Ilium – ischium – pubis', 'Ilium – femur – pubis', 'Ilium – ischium – coccyx'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar komen deze drie botten samen?',
+                options: ['Fossa iliaca', 'Ala ossis ilii', 'Acetabulum', 'Foramen obturatum'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet de grote holte waar de femurkop in past?',
+                options: ['Fovea capitis', 'Cavitas glenoidalis', 'Acetabulum', 'Fossa iliaca'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet het grote gat in het os coxae?',
+                options: ['Foramen vertebrale', 'Foramen obturatum', 'Foramen magnum', 'Foramen ischiadicum majus'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet de bovenrand van het ilium?',
+                options: ['Crista iliaca', 'Margo superioris', 'Linea arcuata', 'Arcus iliacus'],
+                answerIndex: 0
+              },
+              {
+                question: 'Hoe heet de voorste bovenste uitsteeksel van het ilium?',
+                options: ['AIIS', 'PIIS', 'ASIS', 'PSIS'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat is de afkorting voor “anterior inferior iliac spine”?',
+                options: ['ASIS', 'AIIS', 'PIIS', 'PSIS'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke structuur voel je achteraan bovenaan op je bekken?',
+                options: ['ASIS', 'PSIS', 'Ischiale knobbel', 'Acetabular rim'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar ligt de tuber ischiadicum?',
+                options: ['Onderkant van het ischium', 'Voorzijde van de pubis', 'Laterale zijde van het ilium', 'Bovenrand van het acetabulum'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat vormt de zitknobbel?',
+                options: ['Tuber pubicum', 'Tuber ischiadicum', 'Crista iliaca', 'Spina iliaca posterior'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet de scherpe rand aan de binnenzijde van het bekken?',
+                options: ['Linea intertrochanterica', 'Linea arcuata', 'Linea glutea', 'Linea terminalis'],
+                answerIndex: 3
+              },
+              {
+                question: 'Welke structuur vormt de bovenrand van het acetabulum?',
+                options: ['Limbus acetabuli', 'Fovea capitis', 'Ala ossis ilii', 'Incisura ischiadica major'],
+                answerIndex: 0
+              },
+              {
+                question: 'Hoe heet de diepe inkeping achteraan het os coxae?',
+                options: ['Incisura acetabuli', 'Incisura ischiadica major', 'Incisura iliaca', 'Incisura obturatoria'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welk ligament passeert door de incisura ischiadica major?',
+                options: ['Lig. inguinale', 'Lig. sacrotuberale', 'Lig. capitis femoris', 'Lig. pubicum'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het voorste deel van het os coxae?',
+                options: ['Ilium', 'Pubis', 'Sacrum', 'Femur'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet de verbinding tussen beide pubisbeenderen?',
+                options: ['Symphysis pubica', 'Articulatio sacroiliaca', 'Fissura pelvis', 'Linea terminalis'],
+                answerIndex: 0
+              },
+              {
+                question: 'Welke zijde van het os coxae is bol en naar buiten gericht?',
+                options: ['Facies pelvina', 'Facies glutea', 'Facies obturatoria', 'Facies sacralis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het kleine uitsteeksel boven de acetabulumrand?',
+                options: ['Spina ischiadica', 'Spina iliaca anterior superior', 'Tuberculum pubicum', 'Eminentia iliopubica'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat ligt posterieur van het acetabulum?',
+                options: ['Foramen obturatum', 'Incisura ischiadica major', 'Symfyse', 'Pubisramus'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar ligt de facies lunata?',
+                options: ['Op de femurkop', 'Binnenin het acetabulum', 'Op de crista iliaca', 'Aan de voorzijde van de pubis'],
+                answerIndex: 1
+              }
+            ]
+          },
+          {
+            title: 'Quiz 16 — Femur (20 vragen)',
+            questions: [
+              {
+                question: 'Hoe heet de kop van het femur?',
+                options: ['Condylus femoris', 'Caput femoris', 'Eminentia femoris', 'Fovea capitis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het smalle gedeelte onder de femurkop?',
+                options: ['Collum femoris', 'Corpus femoris', 'Trochanter major', 'Linea aspera'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat verbindt de femurkop met de heupkom?',
+                options: ['Fossa acetabuli', 'Ligamentum capitis femoris', 'Margo acetabuli', 'Linea terminalis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet de grote knobbel lateraal op het proximale femur?',
+                options: ['Trochanter major', 'Trochanter minor', 'Epicondylus lateralis', 'Caput femoris'],
+                answerIndex: 0
+              },
+              {
+                question: 'Hoe heet de kleine knobbel mediaal en posterieur?',
+                options: ['Trochanter major', 'Tuberculum minus', 'Trochanter minor', 'Condylus medialis'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke structuur ligt tussen trochanter major & minor?',
+                options: ['Fovea capitis', 'Christa femoralis', 'Linea intertrochanterica', 'Linea aspera'],
+                answerIndex: 2
+              },
+              {
+                question: 'Waar bevindt zich de fovea capitis?',
+                options: ['Op het collum', 'In de femurkop', 'Op de trochanter', 'Distaal'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet de scherpe lijn op de dorsale zijde van het femur?',
+                options: ['Linea alba', 'Linea glutea', 'Linea intermedia', 'Linea aspera'],
+                answerIndex: 3
+              },
+              {
+                question: 'Welke structuur ligt mediaal op het distale femur?',
+                options: ['Condylus lateralis', 'Epicondylus lateralis', 'Condylus medialis', 'Linea aspera'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat ligt er tussen de beide condylen posterieur?',
+                options: ['Fossa intercondylaris', 'Tuberositas glenoidea', 'Fovea condyli', 'Linea poplitea'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat ligt er tussen de condylen aan de voorzijde?',
+                options: ['Tuberculum femoris', 'Trochlea femoris', 'Linea intertrochanterica', 'Eminentia intercondylaris'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat articuleert met de trochlea femoris?',
+                options: ['Tibia', 'Patella', 'Fibula', 'Acetabulum'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat ligt het meest lateraal aan het distale uiteinde?',
+                options: ['Epicondylus medialis', 'Condylus medialis', 'Epicondylus lateralis', 'Caput femoris'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet de ruwe verhevenheid op de femurdiaphyse?',
+                options: ['Tuberositas tibiae', 'Tuberositas glutea', 'Tuberositas quadriceps', 'Tuberositas ischiadica'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar ligt de trochanter minor?',
+                options: ['Lateraal en craniaal', 'Mediaal en dorsaal', 'Lateraal en ventraal', 'Mediaal en ventraal'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de functie van de lineae supracondylares?',
+                options: ['Aanhechting spieren', 'Articulatie met tibia', 'Beweging van heup', 'Stabilisatie van wervels'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat bevindt zich tussen de femurcondylen op de tibia?',
+                options: ['Tuberculum intermedium', 'Eminentia intercondylaris', 'Fovea tibiae', 'Condylus tibiae'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de orientatie van het collum femoris tov corpus?',
+                options: ['45°', '60°', '125°', '150°'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat ligt posterieur en distaal op het femur voor de gastrocnemius?',
+                options: ['Linea glutea', 'Fossa intercondylaris', 'Fossa poplitea', 'Trochlea femoris'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat is het langste bot van het menselijk lichaam?',
+                options: ['Tibia', 'Humerus', 'Femur', 'Radius'],
+                answerIndex: 2
+              }
+            ]
+          },
+          {
+            title: 'Patella — Mini quiz (5 vragen)',
+            questions: [
+              {
+                question: 'In welke pees ligt de patella?',
+                options: ['Bicepspees', 'Quadricepspees', 'Hamstringpees', 'Tricepspees'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet de onderpunt van de patella?',
+                options: ['Basis', 'Apex', 'Trochlea', 'Fossa'],
+                answerIndex: 1
+              },
+              {
+                question: 'Met welk bot articuleert de patella?',
+                options: ['Tibia', 'Femur', 'Fibula', 'Talus'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het achterste gewrichtsoppervlak van de patella?',
+                options: ['Facies dorsalis', 'Facies muscularis', 'Facies articularis', 'Facies poplitea'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat is de belangrijkste functie van de patella?',
+                options: [
+                  'Stabilisatie van de heup',
+                  'Vergroten van de kracht van de quadriceps',
+                  'Bescherming van de tibia',
+                  'Rotatie van de femurkop'
+                ],
+                answerIndex: 1
+              }
+            ]
+          },
+          {
+            title: 'Quiz 18 — Tibia (20 vragen)',
+            questions: [
+              {
+                question: 'Hoe heet de bovenkant van de tibia?',
+                options: ['Condylus superior', 'Tibia plateau', 'Caput tibiae', 'Basis tibiae'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet het vooraan uitstekende punt onderaan de knie?',
+                options: ['Tuberositas tibiae', 'Margo anterior', 'Eminentia intercondylaris', 'Linea musculi'],
+                answerIndex: 0
+              },
+              {
+                question: 'Welk ligament hecht aan de tuberositas tibiae?',
+                options: ['Lig. collaterale mediale', 'Lig. cruciatum', 'Lig. patellae', 'Lig. popliteum'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet de scherpe voorrand van de tibia?',
+                options: ['Margo posterior', 'Margo lateralis', 'Margo anterior', 'Crista tibialis'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat ligt tussen de twee tibiacondylen?',
+                options: ['Margo intermedius', 'Eminentia intercondylaris', 'Fovea tibiae', 'Tuberculum popliteum'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke condyl is groter?',
+                options: ['Lateralis', 'Medialis', 'Beiden even groot', 'Geen condylen aanwezig'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het vlak dat met de femurcondylen articuleert?',
+                options: ['Facies carpalis', 'Facies auricularis', 'Facies articularis superior', 'Facies patellaris'],
+                answerIndex: 2
+              },
+              {
+                question: 'Waar articuleert de laterale condyl van de tibia nog mee?',
+                options: ['Fibula', 'Patella', 'Talus', 'Femur'],
+                answerIndex: 0
+              },
+              {
+                question: 'Hoe heet het concave vlak dat met het talus articuleert?',
+                options: ['Facies malleolaris', 'Facies articularis inferior', 'Facies tibionavicularis', 'Fovea talaris'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het enkeluitsteeksel van de tibia?',
+                options: ['Malleolus medialis', 'Malleolus lateralis', 'Malleolus tibialis superior', 'Apex medialis'],
+                answerIndex: 0
+              },
+              {
+                question: 'Hoe heet de achterkant van de tibia waar de m. popliteus hecht?',
+                options: ['Linea poplitea', 'Sulcus popliteus', 'Linea solei', 'Facies posterior'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar ligt de linea musculi solei?',
+                options: ['Op het laterale vlak', 'Ventraal', 'Posterieur', 'Op de malleolus'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat articuleert met de fibula proximaal?',
+                options: ['Condylus medialis', 'Condylus lateralis', 'Tuberositas tibiae', 'Malleolus medialis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet de punt distaal aan de tibia?',
+                options: ['Apex tibiae', 'Malleolus medialis', 'Tuberositas distalis', 'Eminentia inferior'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat vormt samen het tibiaplateau?',
+                options: ['Corpus + eminentia', 'De twee condylen', 'Malleolus + corpus', 'Facies anterior + posterior'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat ligt ventraal op de tibia?',
+                options: ['Linea solei', 'Margo anterior', 'Linea intercondylaris', 'Margo medialis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het driehoekige achtervlak van de tibia?',
+                options: ['Facies articularis posterior', 'Facies poplitea', 'Facies tibialis', 'Linea posterior'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke beweging is afhankelijk van de tibia in het kniegewricht?',
+                options: ['Flexie–extensie', 'Pronatie', 'Supinatie', 'Circumductie'],
+                answerIndex: 0
+              },
+              {
+                question: 'Met welk bot vormt de tibia distaal een gewricht voor de enkel?',
+                options: ['Calcaneus', 'Talus', 'Naviculare', 'Cuboideum'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet de groeve achter de malleolus medialis?',
+                options: ['Sulcus malleolaris', 'Sulcus tibialis', 'Sulcus posterior', 'Sulcus calcaneus'],
+                answerIndex: 0
+              }
+            ]
+          },
+          {
+            title: 'Quiz 19 — Fibula (20 vragen)',
+            questions: [
+              {
+                question: 'Hoe heet de kop van de fibula?',
+                options: ['Apex fibulae', 'Caput fibulae', 'Collum fibulae', 'Malleolus lateralis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar ligt de fibula t.o.v. de tibia?',
+                options: ['Mediaal', 'Lateraal', 'Ventraal', 'Dorsaal'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de functie van de fibula?',
+                options: [
+                  'Draagt lichaamsgewicht',
+                  'Stabiliseert enkel & dient als spieraanhechting',
+                  'Articuleert met femur',
+                  'Sluit de knieschijf in'
+                ],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat articuleert met de caput fibulae?',
+                options: ['Femur', 'Tibia', 'Talus', 'Calcaneus'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het smalle deel onder de kop?',
+                options: ['Apex', 'Collum fibulae', 'Margo fibularis', 'Corpus fibrosis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat vormt de laterale enkelknobbel?',
+                options: ['Malleolus medialis', 'Malleolus lateralis', 'Apex fibulae', 'Caput fibulae'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar articuleert de fibula distaal mee?',
+                options: ['Femur', 'Calcaneus', 'Talus', 'Patella'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat is breder: het proximale of distale uiteinde?',
+                options: ['Proximaal', 'Distaal', 'Ze zijn gelijk', 'Verschilt per persoon'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet de gewrichtsverbinding tussen tibia en fibula bovenaan?',
+                options: [
+                  'Art. tibiofibularis proximalis',
+                  'Art. intercondylaris',
+                  'Art. fibulotalaris',
+                  'Art. tibiofibularis inferior'
+                ],
+                answerIndex: 0
+              },
+              {
+                question: 'Hoe heet de bindweefselverbinding tussen tibia en fibula?',
+                options: [
+                  'Syndesmosis tibiofibularis',
+                  'Membrana interossea',
+                  'Fascia intercruralis',
+                  'Ligamentum fibulare'
+                ],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat ligt aan de laterale kant van de fibula?',
+                options: ['Margo medialis', 'Margo posterior', 'Margo lateralis', 'Margo anterior'],
+                answerIndex: 2
+              },
+              {
+                question: 'Waar ligt de sulcus malleolaris van de fibula?',
+                options: [
+                  'Op de mediale enkel',
+                  'Op de laterale malleolus',
+                  'Proximaal bij de kop',
+                  'Ventraal op het corpus'
+                ],
+                answerIndex: 1
+              },
+              {
+                question: 'Welk bot draagt NIET bij aan het kniegewricht?',
+                options: ['Femur', 'Tibia', 'Fibula', 'Patella'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke spieren hechten vooral aan de fibula?',
+                options: [
+                  'Extensoren van de knie',
+                  'Hamstrings',
+                  'Peroneus (fibularis) spieren',
+                  'Quadriceps'
+                ],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet de achterste rand van de fibula?',
+                options: ['Margo interosseus', 'Margo posterior', 'Margo anterior', 'Crista posterior'],
+                answerIndex: 1
+              },
+              {
+                question: 'De malleolus lateralis bevindt zich…',
+                options: [
+                  'Meer proximaal dan de mediale malleolus',
+                  'Op exact dezelfde hoogte',
+                  'Meer distaal dan de mediale malleolus',
+                  'Totaal niet aan de enkel'
+                ],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat articuleert met het mediale oppervlak van de malleolus lateralis?',
+                options: ['Femur', 'Calcaneus', 'Talus', 'Naviculare'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet de driehoekige schacht van de fibula?',
+                options: ['Corpus fibulae', 'Fascia fibularis', 'Collum fibulae', 'Fovea fibularis'],
+                answerIndex: 0
+              },
+              {
+                question: 'Waar ligt de incisura fibularis?',
+                options: ['Op de fibula', 'Op de tibia distaal', 'Op de talus', 'Op de calcaneus'],
+                answerIndex: 1
+              },
+              {
+                question: 'De fibula draagt ongeveer…',
+                options: ['50% van het gewicht', '25%', '10%', '0–2%'],
+                answerIndex: 3
+              }
+            ]
+          },
+          {
+            title: 'Quiz 20 — Tarsalia (20 vragen)',
+            questions: [
+              {
+                question: 'Hoeveel tarsale beenderen heeft de mens?',
+                options: ['5', '7', '8', '10'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke twee tarsale botten dragen het lichaamsgewicht?',
+                options: ['Talus & naviculare', 'Calcaneus & talus', 'Cuboideum & calcaneus', 'Cuneiforme mediale & talus'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welk bot vormt de hiel?',
+                options: ['Talus', 'Calcaneus', 'Naviculare', 'Cuboideum'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke structuur articuleert met de tibia?',
+                options: ['Calcaneus', 'Talus', 'Naviculare', 'Cuneiforme laterale'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het schipvormige tarsale bot?',
+                options: ['Calcaneus', 'Talus', 'Naviculare', 'Cuboideum'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke drie tarsale botten liggen in een rij naast elkaar?',
+                options: [
+                  'Cuneiforme mediale – intermedium – laterale',
+                  'Talus – calcaneus – naviculare',
+                  'Cuboideum – naviculare – talus',
+                  'Calcaneus – cuboideum – naviculare'
+                ],
+                answerIndex: 0
+              },
+              {
+                question: 'Welk bot ligt lateraal van het naviculare?',
+                options: ['Calcaneus', 'Talus', 'Cuboideum', 'Cuneiforme mediale'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet het uitsteeksel onder de talus op de calcaneus?',
+                options: ['Sustentaculum tali', 'Tuber calcanei', 'Apex calcanei', 'Processus calcaneus'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat is de functie van het sustentaculum tali?',
+                options: ['Aanhechting quadriceps', 'Ondersteunen van de talus', 'Aanhechting hamstrings', 'Articuleren met tibia'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welk bot articuleert met het cuboideum?',
+                options: ['Talus', 'Calcaneus', 'Naviculare', 'Alle bovenstaande'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke botten vormen het Chopart-gewricht?',
+                options: [
+                  'Talus-calcaneus',
+                  'Calcaneus-cuboideum + talus-naviculare',
+                  'Naviculare-cuneiforme',
+                  'Cuneiforme combinatie'
+                ],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar ligt het tuber calcanei?',
+                options: ['Op de talus', 'Op de calcaneus (hielknobbel)', 'Op het naviculare', 'Op het cuboideum'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welk bot ligt direct voor de talus?',
+                options: ['Cuboideum', 'Naviculare', 'Calcaneus', 'Cuneiforme mediale'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke botten articuleren met het naviculare?',
+                options: ['Talus + 3 cuneiformia', 'Calcaneus + cuboideum', 'Talus + cuboideum', 'Alleen cuneiforme intermedium'],
+                answerIndex: 0
+              },
+              {
+                question: 'Welk bot ligt lateraal van de calcaneus?',
+                options: ['Cuboideum', 'Naviculare', 'Talus', 'Cuneiforme laterale'],
+                answerIndex: 0
+              },
+              {
+                question: 'Welk tarsaal bot is het hoogste in de voet?',
+                options: ['Cuboideum', 'Calcaneus', 'Talus', 'Naviculare'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet het puntje achteraan de calcaneus voor de aanhechting van de achillespees?',
+                options: ['Tuber calcanei', 'Apex calci', 'Processus acromialis', 'Tuber naviculare'],
+                answerIndex: 0
+              },
+              {
+                question: 'Welk bot ligt direct mediaal van het cuboideum?',
+                options: ['Calcaneus', 'Naviculare', 'Talus', 'Cuneiforme laterale'],
+                answerIndex: 3
+              },
+              {
+                question: 'Welke tarsale botten liggen tussen de metatarsalen en het naviculare?',
+                options: ['Calcaneus', 'Talus', 'Cuneiforme-botjes', 'Cuboideum'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat is het enige tarsale bot dat GEEN spieraanhechtingen heeft?',
+                options: ['Calcaneus', 'Naviculare', 'Talus', 'Cuboideum'],
+                answerIndex: 2
+              }
+            ]
+          },
+          {
+            title: 'Quiz 21 — Talus (20 vragen)',
+            questions: [
+              {
+                question: 'Welk bot articuleert direct met de tibia?',
+                options: ['Calcaneus', 'Talus', 'Naviculare', 'Cuboideum'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het bovenste gewrichtsvlak van de talus?',
+                options: ['Trochlea tali', 'Facies navicularis', 'Sustentaculum tali', 'Caput tali'],
+                answerIndex: 0
+              },
+              {
+                question: 'Hoe heet het voorste deel van de talus?',
+                options: ['Corpus tali', 'Caput tali', 'Collum tali', 'Basis tali'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat ligt tussen caput en corpus van de talus?',
+                options: ['Sulcus tali', 'Collum tali', 'Fovea tali', 'Crista tali'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welk tarsaal bot ligt direct onder de talus?',
+                options: ['Cuboideum', 'Naviculare', 'Calcaneus', 'Cuneiforme laterale'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet de achterste knobbel van de talus?',
+                options: ['Tuber tali', 'Sustentaculum tali', 'Processus posterior tali', 'Spina tali'],
+                answerIndex: 2
+              },
+              {
+                question: 'Waar articuleert de talus aan de voorzijde mee?',
+                options: ['Calcaneus', 'Naviculare', 'Cuboideum', 'Cuneiforme mediale'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet de diepe groeve onder de talus die samen met de calcaneus het tarsale kanaal vormt?',
+                options: ['Sulcus tali', 'Incisura talaris', 'Fossa tali', 'Meatus tali'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat draagt GEEN spieren?',
+                options: ['Calcaneus', 'Talus', 'Naviculare', 'Cuboideum'],
+                answerIndex: 1
+              },
+              {
+                question: 'Met welk bot vormt de talus GEEN gewricht?',
+                options: ['Fibula', 'Calcaneus', 'Naviculare', 'Cuboideum'],
+                answerIndex: 3
+              },
+              {
+                question: 'Hoe heet het gebied waar tibia en fibula samen op de talus rusten?',
+                options: ['Trochlea tali', 'Sulcus tali', 'Collum tali', 'Caput tali'],
+                answerIndex: 0
+              },
+              {
+                question: 'De talus vormt samen met tibia en fibula het…',
+                options: [
+                  'Tarsometatarsale gewricht',
+                  'Subtalaire gewricht',
+                  'Bovenspronggewricht (art. talocruralis)',
+                  'Midtarsale gewricht'
+                ],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke bewegingen gebeuren in het bovenste spronggewricht?',
+                options: ['Inversie–eversie', 'Pronatie–supinatie', 'Dorsiflexie–plantairflexie', 'Rotatie–antirotatie'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat ligt direct achter de talus?',
+                options: ['Calcaneus', 'Achillespees', 'Tuber calcanei', 'Fibula'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke structuur draagt het caput tali?',
+                options: ['Naviculare', 'Calcaneus', 'Cuboideum', 'Talus zelf'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat vormt samen met sulcus tali de sinus tarsi?',
+                options: ['Sulcus navicularis', 'Sulcus calcanei', 'Sulcus cuneiformis', 'Fossa tali'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de functie van de trochlea tali?',
+                options: ['Articulatie met naviculare', 'Aanhechting pezen', 'Draagvlak voor tibia en fibula', 'Aanhechting ligamenten'],
+                answerIndex: 2
+              },
+              {
+                question: 'Hoe heet het middelste deel van de talus?',
+                options: ['Corpus tali', 'Caput tali', 'Collum tali', 'Basis tali'],
+                answerIndex: 2
+              },
+              {
+                question: 'Waar articuleert de talus inferieur mee?',
+                options: ['Naviculare', 'Tibia', 'Calcaneus', 'Fibula'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat is bijzonder aan de talus?',
+                options: [
+                  'Bevat meerdere spieraanhechtingen',
+                  'Draagt bijna volledig het lichaamsgewicht',
+                  'Heeft GEEN spieraanhechtingen',
+                  'Articuleert niet met de tibia'
+                ],
+                answerIndex: 2
+              }
+            ]
+          },
+          {
+            title: 'Quiz 22 — Calcaneus (20 vragen)',
+            questions: [
+              {
+                question: 'Welk bot vormt de hiel?',
+                options: ['Talus', 'Calcaneus', 'Cuboideum', 'Naviculare'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het grote achterste uitsteeksel waar de achillespees aanhecht?',
+                options: ['Tuber calcanei', 'Sustentaculum tali', 'Trochlea calcanei', 'Facies posterior tali'],
+                answerIndex: 0
+              },
+              {
+                question: 'Welke structuur draagt de talus aan de mediale zijde?',
+                options: ['Trochlea calcanei', 'Sustentaculum tali', 'Processus posterior', 'Fovea tali'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar ligt de sulcus calcanei?',
+                options: ['Op het naviculare', 'Tussen talus en tibia', 'Op de calcaneus, dorsaal', 'Op de calcaneus, superieur'],
+                answerIndex: 3
+              },
+              {
+                question: 'Wat vormt samen met sulcus tali de sinus tarsi?',
+                options: ['Sulcus navicularis', 'Sulcus cuneiformis', 'Sulcus calcanei', 'Fovea calcanei'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welk bot articuleert met de voorzijde van de calcaneus?',
+                options: ['Naviculare', 'Cuboideum', 'Talus', 'Tibia'],
+                answerIndex: 1
+              },
+              {
+                question: 'Hoe heet het zijwaartse botuitsteeksel op de calcaneus?',
+                options: ['Trochlea calcanei', 'Apex calcanei', 'Sustentaculum tali', 'Spina calcanei'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat loopt door de sulcus achter de trochlea calcanei?',
+                options: ['Pezen peroneus longus & brevis', 'Achillespees', 'Plantair ligament', 'Tibialis posterior'],
+                answerIndex: 0
+              },
+              {
+                question: 'Hoe heet de articulatie tussen calcaneus en talus?',
+                options: ['Art. talocruralis', 'Art. subtalaris', 'Art. calcaneonavicularis', 'Art. tarsometatarsalis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke bewegingen gebeuren in het subtalaire gewricht?',
+                options: ['Flexie–extensie', 'Dorsiflexie–plantairflexie', 'Inversie–eversie', 'Supinatie–pronatie'],
+                answerIndex: 2
+              },
+              {
+                question: 'Wat ligt inferieur op de calcaneus?',
+                options: ['Tuber calcanei', 'Sustentaculum tali', 'Processus anticus', 'Fossa calcanei'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat articuleert met de bovenkant van de calcaneus?',
+                options: ['Talus', 'Naviculare', 'Cuboideum', 'Cuneiforme laterale'],
+                answerIndex: 0
+              },
+              {
+                question: 'Welke zijde van de calcaneus is breder?',
+                options: ['Proximaal', 'Distaal', 'Mediaal', 'Lateraal'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat is de grootste functie van het calcaneus?',
+                options: [
+                  'Aanhechting voor adductor hallucis',
+                  'Schokabsorptie & dragen lichaamsgewicht',
+                  'Roteren van enkel',
+                  'Verbinden van tibia met fibula'
+                ],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke structuur ligt mediaal op de calcaneus?',
+                options: ['Sustentaculum tali', 'Trochlea calcanei', 'Cuboid facet', 'Achilles tubercle'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat vormt de achterzijde van de calcaneus?',
+                options: ['Sustentaculum', 'Tuber calcanei', 'Tarsale sinus', 'Trochlea calcanei'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat articuleert met het calcaneus aan de laterale zijde?',
+                options: ['Naviculare', 'Talus', 'Cuboideum', 'Tibia'],
+                answerIndex: 2
+              },
+              {
+                question: 'De calcaneus is…',
+                options: ['Het grootste tarsale bot', 'Het hoogste tarsale bot', 'Het kleinste tarsale bot', 'Het minst dragende bot'],
+                answerIndex: 0
+              },
+              {
+                question: 'Welke pees loopt onder het sustentaculum tali door?',
+                options: ['Achillespees', 'M. tibialis posterior', 'M. peroneus longus', 'M. extensor hallucis longus'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de belangrijkste aanhechting op het tuber calcanei?',
+                options: ['Flexor digitorum', 'Achillespees', 'Quadratus plantae', 'Plantair ligament'],
+                answerIndex: 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'osteologie-check',
+        title: 'Test Mijn Vak: Osteologie',
+        description: 'Een algemene osteologie-check van 20 vragen in één keer.',
+        quizSets: [
+          {
+            title: 'Quiz — Algemene osteologie (20 vragen)',
+            questions: [
+              {
+                question: 'De fovea dentis vinden we op:',
+                options: ['Axis', 'Atlas', 'C3', 'Os occipitale'],
+                answerIndex: 1
+              },
+              {
+                question: 'De dens behoort tot:',
+                options: ['Atlas', 'Axis', 'Sacrum', 'Sternum'],
+                answerIndex: 1
+              },
+              {
+                question: 'De crista iliaca is:',
+                options: [
+                  'De bovenrand van het os ilium',
+                  'De onderrand van het os ischii',
+                  'De voorrand van het os pubis',
+                  'De rand van het acetabulum'
+                ],
+                answerIndex: 0
+              },
+              {
+                question: 'De tuber ischiadicum:',
+                options: ['Is de “zitknobbel”', 'Ligt op het os pubis', 'Ligt op de femurcondyl', 'Is een deel van het sacrum'],
+                answerIndex: 0
+              },
+              {
+                question: 'De facies lunata ligt:',
+                options: [
+                  'Op de femurkop',
+                  'Binnenin het acetabulum van het os coxae',
+                  'Op de tibia',
+                  'Op de patella'
+                ],
+                answerIndex: 1
+              },
+              {
+                question: 'De linea aspera bevindt zich op:',
+                options: ['Humerus', 'Tibia', 'Femur', 'Fibula'],
+                answerIndex: 2
+              },
+              {
+                question: 'De trochanter major is een herkenningspunt van de:',
+                options: ['Humerus', 'Femur', 'Tibia', 'Fibula'],
+                answerIndex: 1
+              },
+              {
+                question: 'De tuberositas tibiae is een aanhechtingsplaats voor:',
+                options: ['Biceps brachii', 'Ligamentum patellae', 'Triceps surae', 'Hamstrings'],
+                answerIndex: 1
+              },
+              {
+                question: 'De malleolus medialis is een deel van de:',
+                options: ['Fibula', 'Tibia', 'Talus', 'Calcaneus'],
+                answerIndex: 1
+              },
+              {
+                question: 'De malleolus lateralis is een deel van de:',
+                options: ['Fibula', 'Tibia', 'Talus', 'Calcaneus'],
+                answerIndex: 0
+              },
+              {
+                question: 'De trochlea humeri articuleert met:',
+                options: ['Caput radii', 'Incisura trochlearis ulnae', 'Capitulum humeri', 'Fossa olecrani'],
+                answerIndex: 1
+              },
+              {
+                question: 'De fossa olecrani ligt:',
+                options: [
+                  'Ventraal op de humerus',
+                  'Dorsaal op de humerus, distaal',
+                  'Op de ulna, proximaal',
+                  'Op de radius, proximaal'
+                ],
+                answerIndex: 1
+              },
+              {
+                question: 'Het caput radii bevindt zich:',
+                options: ['Proximaal op de radius', 'Distaal op de radius', 'Proximaal op de ulna', 'Distaal op de ulna'],
+                answerIndex: 0
+              },
+              {
+                question: 'De tuberositas radii is de insertieplaats van:',
+                options: ['Brachialis', 'Biceps brachii', 'Triceps brachii', 'Pronator teres'],
+                answerIndex: 1
+              },
+              {
+                question: 'De trochlea tali:',
+                options: [
+                  'Articuleert met de calcaneus',
+                  'Articuleert met tibia en fibula',
+                  'Articuleert met het naviculare',
+                  'Articuleert met het cuboideum'
+                ],
+                answerIndex: 1
+              },
+              {
+                question: 'Het tuber calcanei:',
+                options: [
+                  'Ligt op de talus',
+                  'Is de hielknobbel van de calcaneus',
+                  'Ligt op het naviculare',
+                  'Is een deel van de fibula'
+                ],
+                answerIndex: 1
+              },
+              {
+                question: 'Het os scaphoideum ligt:',
+                options: [
+                  'In de proximale carpale rij, duimzijde',
+                  'In de distale carpale rij, pinkzijde',
+                  'In de distale carpale rij, duimzijde',
+                  'Tussen metacarpalen en phalangen'
+                ],
+                answerIndex: 0
+              },
+              {
+                question: 'De incisura jugularis behoort tot het:',
+                options: ['Os occipitale', 'Clavicula', 'Sternum', 'Scapula'],
+                answerIndex: 2
+              },
+              {
+                question: 'De facies articularis superior van de tibia articuleert met:',
+                options: ['Fibula', 'Talus', 'Femur', 'Patella'],
+                answerIndex: 2
+              },
+              {
+                question: 'De massa lateralis atlantis:',
+                options: [
+                  'Draagt de dens',
+                  'Draagt de schedelcondylen',
+                  'Vormt het corpus van de atlas',
+                  'Vormt het foramen transversarium'
+                ],
+                answerIndex: 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'hoofdstukken',
+        title: 'Vaste hoofdstukken',
+        description: 'Kant-en-klare blokken van 20 vragen.',
+        quizSets: vasteHoofdstukken
       }
     ]
-  }
-];
+  };
+
+  return [normalizeSubject(anatomie)];
+}
+
+const defaultSubjects = createDefaultSubjects();
 
 let subjects = loadSubjects();
 let progress = loadProgress();
@@ -384,14 +2958,105 @@ let activeQuizSetTitle = null;
 let activeQuizQuestionIndex = 0;
 let quizMode = 'picker';
 
+const mergeResult = mergeDefaultSubjects(subjects, defaultSubjects);
+if (mergeResult.mutated) {
+  subjects = mergeResult.subjects.map((s) => normalizeSubject(s));
+  persistSubjects();
+}
+
+function normalizeSubject(subject) {
+  const categories = Array.isArray(subject.categories)
+    ? subject.categories.map((cat) => ({
+        ...cat,
+        quizSets: Array.isArray(cat.quizSets) ? cat.quizSets : []
+      }))
+    : [
+        {
+          id: 'hoofdstukken',
+          title: 'Hoofdstukken',
+          description: 'Vaste quizzen',
+          quizSets: Array.isArray(subject.quizSets) ? subject.quizSets : []
+        }
+      ];
+
+  const normalized = { ...subject, categories };
+  normalized.quizSets = categories.flatMap((cat) => cat.quizSets || []);
+  return normalized;
+}
+
+function getQuizSets(subject) {
+  if (!subject) return [];
+  if (Array.isArray(subject.categories)) {
+    return subject.categories.flatMap((cat) => cat.quizSets || []);
+  }
+  return Array.isArray(subject.quizSets) ? subject.quizSets : [];
+}
+
+function mergeDefaultSubjects(currentSubjects, defaults) {
+  const list = Array.isArray(currentSubjects) ? currentSubjects : [];
+  let mutated = false;
+
+  defaults.forEach((defSubject) => {
+    const existing = list.find((s) => s.name === defSubject.name);
+    if (!existing) {
+      list.push(deepClone(defSubject));
+      mutated = true;
+      return;
+    }
+
+    if (!Array.isArray(existing.categories)) {
+      existing.categories = [];
+      mutated = true;
+    }
+
+    defSubject.categories?.forEach((defCat) => {
+      let targetCat =
+        existing.categories.find((c) => c.id === defCat.id) ||
+        existing.categories.find((c) => c.title === defCat.title);
+
+      if (!targetCat) {
+        existing.categories.push(deepClone(defCat));
+        mutated = true;
+        return;
+      }
+
+      if (!Array.isArray(targetCat.quizSets)) {
+        targetCat.quizSets = [];
+        mutated = true;
+      }
+
+      defCat.quizSets?.forEach((defSet) => {
+        const exists = targetCat.quizSets.some((set) => set.title === defSet.title);
+        if (!exists) {
+          targetCat.quizSets.push(deepClone(defSet));
+          mutated = true;
+        }
+      });
+    });
+
+    const defaultFlat = getQuizSets(defSubject);
+    if (!Array.isArray(existing.quizSets)) {
+      existing.quizSets = [];
+      mutated = true;
+    }
+    defaultFlat.forEach((defSet) => {
+      const exists = existing.quizSets.some((set) => set.title === defSet.title);
+      if (!exists) {
+        existing.quizSets.push(deepClone(defSet));
+        mutated = true;
+      }
+    });
+  });
+
+  return { subjects: list, mutated };
+}
+
 function loadSubjects() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.every((s) => Array.isArray(s.quizSets))) {
-        return parsed;
-      }
+      if (Array.isArray(parsed)) return parsed.map((s) => normalizeSubject(s));
     }
     return defaultSubjects;
   } catch (error) {
@@ -543,7 +3208,7 @@ function getActiveSubject() {
 
 function getActiveSet(subject = getActiveSubject()) {
   if (!subject || !activeQuizSetTitle) return null;
-  return subject.quizSets.find((set) => set.title === activeQuizSetTitle) ?? null;
+  return getQuizSets(subject).find((set) => set.title === activeQuizSetTitle) ?? null;
 }
 
 function ensureSetState(subjectName, setTitle) {
@@ -601,7 +3266,8 @@ function updateProgressBanner(subject) {
     return;
   }
 
-  const chips = subject.quizSets
+  const allSets = getQuizSets(subject);
+  const chips = allSets
     .map((set) => {
       const state = getSetProgress(subject.name, set.title, set.questions);
       return `<span class="chip${set.title === activeQuizSetTitle ? ' active' : ''}">${set.title
@@ -613,7 +3279,7 @@ function updateProgressBanner(subject) {
   progressBanner.innerHTML = `
     <div class="progress-banner__top">
       <p class="eyebrow">Vaste hoofdstukken</p>
-      <strong>${subject.quizSets.length} quizzen · elk 20 punten</strong>
+      <strong>${allSets.length} quizzen · elk 20 punten</strong>
     </div>
     <div class="progress-banner__chips">${chips}</div>
     <p class="caption">Kies een hoofdstuk, maak de 20 vragen en bekijk daarna je score.</p>
@@ -635,54 +3301,82 @@ function renderQuizPicker(subject) {
     return;
   }
 
-  subject.quizSets.forEach((set, setIndex) => {
-    const state = getSetProgress(subject.name, set.title, set.questions);
-    const status = state.completed ? 'Voltooid' : state.answered ? 'Bezig' : 'Niet gestart';
+  const categories = subject.categories?.length
+    ? subject.categories
+    : [{ title: 'Quizzen', description: 'Beschikbare sets', quizSets: getQuizSets(subject) }];
 
-    const card = document.createElement('article');
-    card.className = 'quiz-picker__card';
-    card.innerHTML = `
-      <header class="quiz-picker__header">
+  categories.forEach((category, catIndex) => {
+    const section = document.createElement('section');
+    section.className = 'quiz-category';
+    section.innerHTML = `
+      <header class="quiz-category__header">
         <div>
-          <p class="eyebrow">Hoofdstuk ${setIndex + 1}</p>
-          <h3>${set.title}</h3>
+          <p class="eyebrow">${catIndex + 1}. ${category.title}</p>
+          <h3>${category.description || 'Kies een quizset in deze categorie.'}</h3>
         </div>
-        <div class="chip">${state.answered}/${set.questions.length} beantwoord</div>
+        <span class="chip ghost">${category.quizSets?.length || 0} sets</span>
       </header>
-      <p class="caption">${status} · ${set.questions.length} vragen</p>
     `;
 
-    const actions = document.createElement('div');
-    actions.className = 'quiz-picker__actions';
+    const list = document.createElement('div');
+    list.className = 'quiz-category__list';
 
-    const primaryBtn = document.createElement('button');
-    primaryBtn.type = 'button';
-    primaryBtn.className = 'btn';
-    primaryBtn.textContent = state.completed ? 'Bekijk score' : state.answered ? 'Ga verder' : 'Start quiz';
-    primaryBtn.addEventListener('click', () => startQuiz(set.title));
+    if (!category.quizSets || category.quizSets.length === 0) {
+      list.innerHTML = '<p class="caption">Nieuwe quizzen volgen hier zodra ze beschikbaar zijn.</p>';
+    } else {
+      category.quizSets.forEach((set, setIndex) => {
+        const state = getSetProgress(subject.name, set.title, set.questions);
+        const status = state.completed ? 'Voltooid' : state.answered ? 'Bezig' : 'Niet gestart';
 
-    const secondaryBtn = document.createElement('button');
-    secondaryBtn.type = 'button';
-    secondaryBtn.className = 'btn ghost';
-    secondaryBtn.textContent = 'Herstart';
-    secondaryBtn.addEventListener('click', () => {
-      resetSetProgress(subject.name, set.title);
-      if (activeQuizSetTitle === set.title) {
-        activeQuizQuestionIndex = 0;
-      }
-      render();
-    });
+        const card = document.createElement('article');
+        card.className = 'quiz-picker__card';
+        card.innerHTML = `
+          <header class="quiz-picker__header">
+            <div>
+              <p class="eyebrow">Set ${setIndex + 1}</p>
+              <h3>${set.title}</h3>
+            </div>
+            <div class="chip">${state.answered}/${set.questions.length} beantwoord</div>
+          </header>
+          <p class="caption">${status} · ${set.questions.length} vragen</p>
+        `;
 
-    actions.append(primaryBtn, secondaryBtn);
-    card.appendChild(actions);
-    quizPicker.appendChild(card);
+        const actions = document.createElement('div');
+        actions.className = 'quiz-picker__actions';
+
+        const primaryBtn = document.createElement('button');
+        primaryBtn.type = 'button';
+        primaryBtn.className = 'btn';
+        primaryBtn.textContent = state.completed ? 'Bekijk score' : state.answered ? 'Ga verder' : 'Start quiz';
+        primaryBtn.addEventListener('click', () => startQuiz(set.title));
+
+        const secondaryBtn = document.createElement('button');
+        secondaryBtn.type = 'button';
+        secondaryBtn.className = 'btn ghost';
+        secondaryBtn.textContent = 'Herstart';
+        secondaryBtn.addEventListener('click', () => {
+          resetSetProgress(subject.name, set.title);
+          if (activeQuizSetTitle === set.title) {
+            activeQuizQuestionIndex = 0;
+          }
+          render();
+        });
+
+        actions.append(primaryBtn, secondaryBtn);
+        card.appendChild(actions);
+        list.appendChild(card);
+      });
+    }
+
+    section.appendChild(list);
+    quizPicker.appendChild(section);
   });
 }
 
 function startQuiz(setTitle) {
   const subject = getActiveSubject();
   if (!subject) return;
-  const set = subject.quizSets.find((quizSet) => quizSet.title === setTitle);
+  const set = getQuizSets(subject).find((quizSet) => quizSet.title === setTitle);
   if (!set) return;
   activeQuizSetTitle = set.title;
   const state = getSetProgress(subject.name, set.title, set.questions);
@@ -913,15 +3607,11 @@ async function loginWithGoogle() {
 }
 
 function updateUserChip(user) {
-  if (user) {
-    userChip.textContent = user.displayName || user.email || 'Ingelogd';
-    userChip.classList.add('active');
-    statusDot?.classList.add('online');
-  } else {
-    userChip.textContent = 'Niet ingelogd';
-    userChip.classList.remove('active');
-    statusDot?.classList.remove('online');
-  }
+  const loggedIn = !!user;
+  account?.classList.toggle('is-authenticated', loggedIn);
+  loginBtn.textContent = loggedIn ? user?.displayName || user?.email || 'Account' : 'Inloggen / Registreren';
+  loginBtn.classList.toggle('primary', loggedIn);
+  accountToggle?.setAttribute('aria-label', loggedIn ? 'Accountmenu (ingelogd)' : 'Accountmenu');
 }
 
 quizPrev?.addEventListener('click', () => goToQuestion(-1));
