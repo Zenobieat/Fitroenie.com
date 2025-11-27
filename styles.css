@@ -68,6 +68,7 @@ body.modal-open { overflow: hidden; }
   border-radius: 10px;
   background: rgba(43, 182, 115, 0.08);
 }
+.logo__img { width: 28px; height: 28px; vertical-align: middle; margin-right: 8px; border-radius: 6px; }
 
 .nav__pillbar {
   display: flex;
@@ -1095,3 +1096,24 @@ body.modal-open { overflow: hidden; }
   align-items: center;
   gap: 8px;
 }
+.collapse {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+.collapse__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+.collapse__title { margin: 0; font-weight: 800; }
+.collapse__arrow { transition: transform 0.2s ease; }
+.collapse.open .collapse__arrow { transform: rotate(180deg); }
+.collapse__body { padding: 12px 14px; border-top: 1px solid var(--border); }
+.collapse__row { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border: 1px solid var(--border); border-radius: 12px; background: #f9fdf9; }
+.collapse__row + .collapse__row { margin-top: 8px; }
+.collapse__actions { display: flex; gap: 8px; align-items: center; }

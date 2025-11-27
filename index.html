@@ -8,12 +8,13 @@
     rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap"
   />
+  <link rel="icon" href="/logo.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="topbar">
     <div class="nav__left">
-      <div class="logo">Fitroenie</div>
+      <div class="logo"><img src="/logo.svg" alt="Fitroenie" class="logo__img" /> Fitroenie</div>
       <nav class="nav" aria-label="Hoofdmenu">
         <div class="subject-menu" id="subject-menu">
           <button class="nav__link" id="subject-menu-toggle" type="button" aria-expanded="false" aria-haspopup="true">
@@ -264,6 +265,7 @@
       measurementId: "G-FW1TL85F3S"
     };
     window.process = window.process || { env: { NODE_ENV: 'production' } };
+    window.FITROENIE_ANALYTICS_ENABLED = false;
   </script>
   <script type="module" src="script.js?v=2"></script>
 </body>
