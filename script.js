@@ -3080,7 +3080,8 @@ function dedupeQuizSets(list = []) {
   const result = [];
 
   list.forEach((set) => {
-    const key = (set?.title ?? '').trim().toLowerCase();
+    const normalizedTitle = formatSetTitle(set?.title ?? '');
+    const key = normalizedTitle.trim().toLowerCase();
     if (!key || seen.has(key)) return;
     seen.add(key);
     result.push(set);
@@ -3175,13 +3176,15 @@ function getDomainQuizSets(subject, domainId) {
   const sections = getNormalizedSectionsForDomain(domain);
 
   if (!sections.length) {
-    return subject.categories
+    const flat = subject.categories
       ?.filter((cat) => cat.domain === domain.id)
-      .flatMap((cat) => cat.quizSets || []);
+      .flatMap((cat) => cat.quizSets || []) || [];
+    return dedupeQuizSets(flat);
   }
 
   const categoryIds = sections.flatMap((section) => section.categoryIds || []);
-  return getCategoriesByIds(subject, categoryIds).flatMap((cat) => cat.quizSets || []);
+  const flat = getCategoriesByIds(subject, categoryIds).flatMap((cat) => cat.quizSets || []);
+  return dedupeQuizSets(flat);
 }
 
 function getSectionQuizSets(subject, sectionId) {
@@ -3194,7 +3197,8 @@ function getSectionQuizSets(subject, sectionId) {
     ? getCategoriesByIds(subject, section.categoryIds)
     : subject.categories?.filter((cat) => cat.section === sectionId) || [];
 
-  return categories.flatMap((cat) => cat.quizSets || []);
+  const flat = categories.flatMap((cat) => cat.quizSets || []);
+  return dedupeQuizSets(flat);
 }
 
 function getVisibleSets(subject) {
@@ -3220,7 +3224,8 @@ function getVisibleSets(subject) {
         .map((cat) => cat.id) || [];
 
   const categories = getCategoriesByIds(subject, categoryIds);
-  return categories.flatMap((cat) => cat.quizSets || []);
+  const flat = categories.flatMap((cat) => cat.quizSets || []);
+  return dedupeQuizSets(flat);
 }
 
 function mergeDefaultSubjects(currentSubjects, defaults) {
