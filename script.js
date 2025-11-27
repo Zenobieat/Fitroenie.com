@@ -55,6 +55,7 @@ const quizResultsList = document.getElementById('quiz-results-list');
 const quizBack = document.getElementById('quiz-back');
 const quizRetake = document.getElementById('quiz-retake');
 const quizExitCompact = document.getElementById('quiz-exit-compact');
+const activeSubjectHeading = document.getElementById('active-subject');
 
 const fallbackFirebaseConfig = {
   apiKey: 'YOUR_FIREBASE_API_KEY',
@@ -1044,9 +1045,9 @@ function createDefaultSubjects() {
       {
         id: 'torso',
         domain: 'osteologie',
-        section: 'osteo-axial',
+        section: 'osteo-upper',
         title: 'As tot os coxae',
-        description: 'Van atlas en axis tot het bekkengebied.',
+        description: 'Van atlas en axis tot het bekkengebied (valt onder bovenste ledematen).',
         quizSets: [
           {
             title: 'Quiz 1 — Atlas (C1) — 20 vragen',
@@ -2973,8 +2974,7 @@ function createDefaultSubjects() {
         title: 'Osteologie',
         description: 'Botkunde gespreid over drie delen en een proef examen.',
         sections: [
-          { id: 'osteo-upper', title: 'Bovenste ledematen', categoryIds: ['upper'] },
-          { id: 'osteo-axial', title: 'As tot os coxae', categoryIds: ['torso'] },
+          { id: 'osteo-upper', title: 'Bovenste ledematen', categoryIds: ['upper', 'torso'] },
           { id: 'osteo-lower', title: 'Onderste ledematen', categoryIds: ['lower'] },
           { id: 'osteo-proef', title: 'Proef examen', categoryIds: ['osteologie-check'] }
         ]
@@ -2988,7 +2988,21 @@ function createDefaultSubjects() {
     ]
   };
 
-  return [normalizeSubject(anatomie)];
+  const placeholder = (name) =>
+    normalizeSubject({
+      name,
+      summary: 'Nog geen examens beschikbaar. Deze bundel wordt later gevuld.',
+      categories: [],
+      examDomains: []
+    });
+
+  return [
+    normalizeSubject(anatomie),
+    placeholder('Basisonderwijs'),
+    placeholder('Blessure preventie'),
+    placeholder('Ondernemen in de sport'),
+    placeholder('Zelfdeterminatie theorie')
+  ];
 }
 
 const defaultSubjects = createDefaultSubjects();
@@ -3408,21 +3422,21 @@ function updateProgressBanner(subject) {
     return;
   }
 
-  const chips = visibleSets
-    .map((set) => {
+  const totals = visibleSets.reduce(
+    (acc, set) => {
       const state = getSetProgress(subject.name, set.title, set.questions);
-      return `<span class="chip${set.title === activeQuizSetTitle ? ' active' : ''}">${set.title
-        .split('–')[0]
-        .trim()} · ${state.answered}/${set.questions.length} beantwoord</span>`;
-    })
-    .join('');
+      acc.answered += state.answered;
+      acc.total += set.questions.length;
+      return acc;
+    },
+    { answered: 0, total: 0 }
+  );
 
   progressBanner.innerHTML = `
     <div class="progress-banner__top">
       <p class="eyebrow">Examens</p>
-      <strong>${visibleSets.length} quizzen · elk 20 punten</strong>
+      <strong>${visibleSets.length} quizzen · ${totals.answered}/${totals.total} beantwoord</strong>
     </div>
-    <div class="progress-banner__chips">${chips}</div>
     <p class="caption">Kies een set, maak de vragen en bekijk daarna je score.</p>
   `;
 }
@@ -3504,13 +3518,28 @@ function renderQuizPicker(subject) {
   };
 
   if (!domain) {
+    if (!domains.length) {
+      quizPicker.innerHTML = `
+        <section class="quiz-category">
+          <header class="quiz-category__header">
+            <div>
+              <p class="eyebrow">Examens</p>
+              <h3>${subject.name}</h3>
+            </div>
+          </header>
+          <p class="caption">Voor dit vak staan er nog geen examendelen klaar.</p>
+        </section>
+      `;
+      return;
+    }
+
     const section = document.createElement('section');
     section.className = 'quiz-category';
     section.innerHTML = `
       <header class="quiz-category__header">
         <div>
           <p class="eyebrow">Examens</p>
-          <h3>Kies je vak binnen Anatomie</h3>
+          <h3>Kies je vak binnen ${subject.name}</h3>
         </div>
         <span class="chip ghost">${domains.length} opties</span>
       </header>
@@ -3826,6 +3855,7 @@ function retakeActiveQuiz() {
 
 function render() {
   const subject = getActiveSubject();
+  activeSubjectHeading.textContent = subject?.name || 'Kies een vak';
   renderSummary(subject);
   renderQuizPicker(subject);
   renderQuizRunner(subject);

@@ -4,14 +4,13 @@ Een eenvoudige single-page webapp met kant-en-klare Anatomie-quizzen en ruimte v
 
 ## Gebruik
 1. Open `index.html` in je browser.
-2. Gebruik de pillen **Start / Examens / Samenvattingen** of het hoverende **Vakken**-menu (toont enkel *Anatomie*) om zonder scrollen van blad te wisselen.
-3. In **Examens** kies je eerst een vak en daarna een onderdeel:
+2. Gebruik de pillen **Start / Examens / Samenvattingen** of het hoverende **Vakken**-menu (toont nu meerdere vakken) om zonder scrollen van blad te wisselen.
+3. In **Examens** kies je eerst een vak (bijv. *Anatomie*) en daarna een onderdeel:
    - *Arthrologie*: het vaste blok **Arthrologie – 20 examenvragen**.
    - *Osteologie*: tweede stap met onderdelen:
-     - **Bovenste ledematen**: Quiz 9 — Clavicula, Quiz 10 — Scapula, Quiz 11 — Humerus, Quiz 12 — Ulna, Quiz 13 — Radius, Quiz 14 — Ossa carpi (elk 20 vragen)
-     - **As tot os coxae**: Quiz 1 — Atlas (C1), Quiz 2 — Axis (C2), Quiz 3 — Cervicale wervels C3–C7, Quiz 4 — Thoracale wervels (T1–T12), Quiz 5 — Lumbale wervels (L1–L5), Quiz 6 — Os sacrum, Quiz 7 — Os coccygis, Quiz 8 — Sternum
-     - **Onderste ledematen**: Patella — mini-quiz (5 vragen), Quiz 15 — Os coxae, Quiz 16 — Femur, Quiz 18 — Tibia, Quiz 19 — Fibula, Quiz 20 — Tarsalia, Quiz 21 — Talus, Quiz 22 — Calcaneus
-     - **Proef examen**: Osteologie – 20 examenvragen (A–D) en Quiz — Algemene osteologie (20 vragen)
+    - **Bovenste ledematen**: Quiz 1 — Atlas (C1), Quiz 2 — Axis (C2), Quiz 3 — Cervicale wervels C3–C7, Quiz 4 — Thoracale wervels (T1–T12), Quiz 5 — Lumbale wervels (L1–L5), Quiz 6 — Os sacrum, Quiz 7 — Os coccygis, Quiz 8 — Sternum, Quiz 9 — Clavicula, Quiz 10 — Scapula, Quiz 11 — Humerus, Quiz 12 — Ulna, Quiz 13 — Radius, Quiz 14 — Ossa carpi (elk 20 vragen)
+    - **Onderste ledematen**: Patella — mini-quiz (5 vragen), Quiz 15 — Os coxae, Quiz 16 — Femur, Quiz 18 — Tibia, Quiz 19 — Fibula, Quiz 20 — Tarsalia, Quiz 21 — Talus, Quiz 22 — Calcaneus
+    - **Proef examen**: Osteologie – 20 examenvragen (A–D) en Quiz — Algemene osteologie (20 vragen)
    - *Myologie*: plaats­houder, volgt later.
    Kies een kaart om een examen te starten of te hervatten; elk onderdeel telt afzonderlijk en wordt niet samengenomen.
 4. Zodra je start word je naar een apart blad binnen de site gestuurd met alleen de gekozen quiz; beantwoord vraag per vraag met **Vorige/Volgende**. Pas na het invullen van alle vragen verschijnt de knop **Toon score** en krijg je een eigen resultatenblad met je punten en de juiste antwoorden per vraag.
