@@ -3119,6 +3119,8 @@ function createDefaultSubjects() {
     { type: 'open', question: 'Wat betekent dat LO inzet op brede motorische ontwikkeling i.f.v succesbeleving?', answerKeywords: ['brede', 'motorische', 'ontwikkeling', 'succes', 'ervaren', 'domeinen'] }
   ];
 
+  const les1Set = { title: 'Basisonderwijs – Les 1 (20 vragen)', questions: [...les1MC, ...les1Open] };
+
   const les2MC = [
     { question: 'Wat zijn de drie fundamenten van goed bewegingsonderwijs?', options: ['Fun – Uithouding – Snelheid', 'Fun – Basis techniek – Basis tactiek', 'Conditie – Techniek – Sport', 'Tactiek – Kracht – Coördinatie'], answerIndex: 1 },
     { question: 'Welke is een klein-motorische vaardigheid?', options: ['Lopen', 'Bal trappen', 'Veters strikken', 'Springen'], answerIndex: 2 },
@@ -3145,15 +3147,246 @@ function createDefaultSubjects() {
     { type: 'open', question: 'Waarom moet je wachten tot ALLE leerlingen luisteren voor je instructie start?', answerKeywords: ['informatieoverdracht','iedereen','veiligheid','efficiëntie','geen','herhaling','voorkomen','fouten','concentratie','duidelijkheid'] }
   ];
 
-  const les1Set = { title: 'Basisonderwijs – Les 1 (20 vragen)', questions: [...les1MC, ...les1Open] };
   const les2Set = { title: 'Basisonderwijs – Les 2 (20 vragen)', questions: [...les2MC, ...les2Open] };
+
+  const les3MC = [
+    { question: 'Wat is een kenmerk van een homogene groep?', options: ['Grote verschillen tussen leerlingen','Leerlingen met gelijkaardige kenmerken','Willekeurige indeling','Altijd heterogene niveaus'], answerIndex: 1 },
+    { question: 'Wat kan een nadeel zijn van homogene groepen?', options: ['Kinderen durven minder','Meer motivatie','Lagere verwachtingen bij zwakkere groepen (Pygmalion)','Snellere vooruitgang'], answerIndex: 2 },
+    { question: 'Wat is een voordeel van heterogene groepen?', options: ['Iedereen werkt trager','Zwakkere leerlingen leren van sterkere leerlingen','Er is geen differentiatie nodig','Iedereen krijgt dezelfde taak'], answerIndex: 1 },
+    { question: 'Welke indeling hoort bij “ad random”?', options: ['Op basis van leeftijd','Willekeurig nummeren','Op basis van motoriek','Op basis van sociale vaardigheden'], answerIndex: 1 },
+    { question: 'Bij welke situatie deel je in op basis van gestalte?', options: ['Dribbeloefeningen','Een quiz','Acrogym','Trefbal'], answerIndex: 2 },
+    { question: 'Wat is een nadeel van groepen die leerlingen zelf maken?', options: ['Weinig motivatie','Grotere kans op ongelijke sterkte','Te veel voorbereiding','Te veel tijd nodig'], answerIndex: 1 },
+    { question: 'Wat is een voordeel van indelen via een spelletje?', options: ['Kost minder tijd','Zorgt voor spanning en motivatie','Geeft altijd gelijke groepen','Verhoogt controle van de leerkracht'], answerIndex: 1 },
+    { question: 'Wat is het “moeraseffect”?', options: ['Zwakkeren leren sneller','Zwakke leerlingen stromen moeilijk door naar sterkere groepen','Sterke leerlingen vertragen','Groepen worden kleiner'], answerIndex: 1 },
+    { question: 'Wat is een voordeel van "de leerkracht deelt groepen in"?', options: ['Het duurt lang','Leerlingen kiezen zelf','Snelle en duidelijke methode','Altijd willekeurig'], answerIndex: 2 },
+    { question: 'Welke maatstaf gebruik je voor een loopwedstrijd jongens/meisjes?', options: ['Leeftijd','Capaciteit','Sociale vaardigheden','Geslacht'], answerIndex: 3 }
+  ];
+
+  const les3Open = [
+    { type: 'open', question: 'Geef twee voordelen van homogene groepen.', answerKeywords: ['leertempo','afstemmen','eigen','niveau','interesses','motivatie','durven','probleemoplossend'] },
+    { type: 'open', question: 'Noem twee nadelen van homogene groepen.', answerKeywords: ['lagere','verwachtingen','pygmalion','minder','leerkansen','stigmatisering','superioriteits','inferioriteits','self-fulfilling','prophecy','minder','differentiatie','moeraseffect','gelijke','ses'] },
+    { type: 'open', question: 'Geef twee voordelen van heterogene groepen.', answerKeywords: ['zwakkeren','leren','sterkeren','inzicht','uitleg','motivatie','sociaal','leerkansen','strategie','samenwerken','probleemoplossend','doorgroeimogelijkheden','differentiatie'] },
+    { type: 'open', question: 'Geef één nadeel van heterogene groepen.', answerKeywords: ['zwakkeren','leiding','minder','kans','ongelijk','tijd','uitdaging','differentiatie'] },
+    { type: 'open', question: 'Noem vier criteria/maatstaven om groepen in te delen.', answerKeywords: ['willekeurig','random','capaciteit','motorisch','niveau','gestalte','lichaamsbouw','gewicht','geslacht','leeftijd','interesse','sociale','vaardigheden'] },
+    { type: 'open', question: 'Wat zijn twee voordelen van afnummeren?', answerKeywords: ['snelle','methode','eenvoudige','organisatie','onmiddellijk','zicht','groepen'] },
+    { type: 'open', question: 'Wat zijn twee nadelen van afnummeren?', answerKeywords: ['vergeten','nummers','gerommel','achteraan','vrienden','ongelijke','sterkte','niet','motiverend'] },
+    { type: 'open', question: 'Wat is een voordeel van “de leerkracht deelt groepen in”?', answerKeywords: ['snelle','duidelijke','methode','gelijke','sterkte','efficiënt','jonge','kinderen'] },
+    { type: 'open', question: 'Wat is een nadeel van “de leerkracht deelt groepen in”?', answerKeywords: ['minder','zelfstandigheid','motivatie','dalen','minder','inspraak'] },
+    { type: 'open', question: 'Noem twee voordelen van groepen vormen vanuit een bestaande opstelling.', answerKeywords: ['snelle','methode','eenvoudig','voortbouwen','bestaande','groepen','weinig','organisatie','logische','overgang'] }
+  ];
+
+  const les3Set = { title: 'Basisonderwijs – Les 3 (20 vragen)', questions: [...les3MC, ...les3Open] };
+
+  const les4MC = [
+    { question: 'Wat is een opstellingsvorm?', options: ['Hoe leerlingen ingedeeld worden in groepen','De manier waarop deelnemers in de ruimte staan t.o.v. elkaar en materiaal','De manier waarop je feedback geeft','De methode om een spel uit te leggen'], answerIndex: 1 },
+    { question: 'Wat is géén vuistregel voor opstellingsvormen van leerlingen?', options: ['Overzicht moet mogelijk zijn','Kinderen moeten 1 armlengte afstand houden','Opstelling mag veel tijd kosten','Volledige ruimte benutten'], answerIndex: 2 },
+    { question: 'Waar moet de lesgever zich opstellen?', options: ['Tussen de leerlingen','In het midden','Aan de buitenzijde met overzicht','In een hoek van de zaal'], answerIndex: 2 },
+    { question: 'Welke opstellingsvorm zie je bij ‘vrij verspreid’? ', options: ['LLN staan in rijen','LLN staan in een kring','LLN staan los verspreid in de zaal','LLN staan in groepen van vier'], answerIndex: 2 },
+    { question: 'Welke opstellingsvorm gebruik je voor uitleg aan een grote groep?', options: ['Vrij verspreid','Groepen','Kring / halve kring','Rijen'], answerIndex: 2 },
+    { question: 'Wat is een nadeel van oefenen in duo’s (partnerwerk)?', options: ['Geen betrokkenheid','Kans op kietelen, lachen en plagen','Moeilijk voor de leerkracht om overzicht te behouden','De oefeningen duren te lang'], answerIndex: 1 },
+    { question: 'Wat is een voordeel van klassikaal werken?', options: ['Weinig feedbackkansen','Overzicht is moeilijk','Iedereen werkt tegelijk → hoge intensiteit','Differentiatie is makkelijk'], answerIndex: 2 },
+    { question: 'Bij welke organisatievorm stoppen alle leerlingen tegelijk bij uitleg?', options: ['Postenwerk','Klassikaal','Groepswerk','Omloopvorm'], answerIndex: 1 },
+    { question: 'Wanneer gebruik je klassieke organisatievormen?', options: ['Ritmeoefeningen, dans, balvaardigheden','Individuele testen','Lange wachtrijen','Spelen met één bal'], answerIndex: 0 },
+    { question: 'Bij welke organisatievorm zijn er vaste hoeken met verschillende oefeningen?', options: ['Klassikaal','Postenwerk','Kringopstelling','Rijen'], answerIndex: 1 }
+  ];
+
+  const les4Open = [
+    { type: 'open', question: 'Noem de vuistregels voor opstelling van leerlingen.', answerKeywords: ['overzichtelijk','ruimte','benutten','armlengte','afstand','niet','raken','minder','praten','snel','organiseren'] },
+    { type: 'open', question: 'Noem de vuistregels voor de opstelling van de lesgever.', answerKeywords: ['overzicht','buitenzijde','mobiel','niet','plaats','blijven','verplaatsen'] },
+    { type: 'open', question: 'Geef alle opstellingsvormen die voorkomen in LES 4.', answerKeywords: ['vrij','verspreid','groepen','kring','halve','kring','rangen','rijen'] },
+    { type: 'open', question: 'Wat zijn voordelen van klassikaal werken?', answerKeywords: ['hoge','intensiteit','iedereen','tegelijk','overzicht','feedbackkansen','eenvoudige','organisatie','orde'] },
+    { type: 'open', question: 'Wat zijn nadelen van klassikaal werken?', answerKeywords: ['geen','differentiatie','stilleggen','groep','uitleg','zelfstandigheid','moeilijk','verschillen'] },
+    { type: 'open', question: 'Wanneer gebruik je klassikale organisatie?', answerKeywords: ['opwarming','aanleren','dans','rope','skipping','balvaardigheden','iedereen','tegelijk'] },
+    { type: 'open', question: 'Wat zijn kenmerken van partneroefeningen?', answerKeywords: ['per','twee','helpen','ondersteunen','contact','lachen','kietelen','plagen','sociale','interactie'] },
+    { type: 'open', question: 'Wat is het doel van organisatievormen?', answerKeywords: ['structuur','veiligheid','overzicht','efficiënt','les','verloop','oefenstof','vlot'] },
+    { type: 'open', question: 'Wat moet je noteren bij de opstelling in een lesvoorbereiding?', answerKeywords: ['uitgangshouding','lln','aantal','positie','lk','terreinafbakening','materiaal','aantallen','organisatievorm'] },
+    { type: 'open', question: 'Waarom moet een opstelling snel te organiseren zijn?', answerKeywords: ['tijdverlies','vermijden','efficiëntie','meer','beweegtijd','overgang','oefeningen','vlot','aandacht'] }
+  ];
+
+  const les4Set = { title: 'Basisonderwijs – Les 4 (20 vragen)', questions: [...les4MC, ...les4Open] };
+
+  const les5MC = [
+    { question: 'Met welke tool teken je digitaal een zaalopstelling volgens LES 5?', options: ['Word','Paint','3D SportsEditor','Autocad'], answerIndex: 2 },
+    { question: 'Wat heb je zeker nodig om digitaal te tekenen volgens de les?', options: ['Enkel papier','Symbolenlijst van Chamilo','Een speciale tekenpen','Excel'], answerIndex: 1 },
+    { question: 'Wat moet je tekenen bij een zaalopstelling in LES 5?', options: ['Enkel het materiaal','Enkel de leerlingen','De volledige organisatie: materiaal, LLN, LK','Enkel de looplijnen'], answerIndex: 2 },
+    { question: 'Welke kleur gebruik je voor leerlingen in de digitale tekening?', options: ['Blauw','Geel','Rood','Groen'], answerIndex: 2 },
+    { question: 'Welke kleur gebruik je voor de lesgever?', options: ['Rood','Blauw','Zwart','Oranje'], answerIndex: 1 },
+    { question: 'Wat geeft een stippellijn weer?', options: ['Bewegingsbaan van een bal','Bewegingsbaan van een persoon','Opstelling van materiaal','Startpunt van een oefening'], answerIndex: 1 },
+    { question: 'Wat geeft een volle lijn weer?', options: ['Looplijn leerlingen','Traject in touwtje springen','Bewegingsbaan van een object (bal)','Richting van de lesgever'], answerIndex: 2 },
+    { question: 'Wat is een belangrijk aandachtspunt bij het tekenen van een zaalopstelling?', options: ['Teken zoveel mogelijk details','Teken altijd het hele gebouw','Hou rekening met deur/ramen/berging','Gebruik altijd drie kleuren'], answerIndex: 2 },
+    { question: 'Wat teken je bij een synthese-oefening?', options: ['Enkel de kern van de les','De hele omloop met oefenstof én organisatie','Enkel het begin van de les','Alleen de leerlingen'], answerIndex: 1 },
+    { question: 'Waar moet je staan als lesgever volgens de richtlijnen in LES 5?', options: ['Altijd in het midden','Waar je het beste overzicht hebt','Tegen de muur','Naast de uitgang'], answerIndex: 1 }
+  ];
+
+  const les5Open = [
+    { type: 'open', question: 'Wat moet je ALTIJD weergeven in een digitale zaalopstelling?', answerKeywords: ['materiaal','aantal','leerlingen','rood','lesgever','blauw','terreinafbakening','looplijnen','stippellijn','ballijnen','volle','opstellingsvorm','overzicht','hele','zaal'] },
+    { type: 'open', question: 'Wat zijn belangrijke aandachtspunten bij het tekenen van een opstelling in pen & papier?', answerKeywords: ['deuren','ramen','berging','logische','zaalopstelling','duidelijke','symbolen','juiste','schaal','materiaal','plaats'] },
+    { type: 'open', question: 'Wat zijn voordelen van 3D SportsEditor?', answerKeywords: ['2d','3d','weergave','overzichtelijk','symbolen','materiaal','leerlingen','looplijnen','makkelijk','professionele','layout','lesvoorbereiding'] },
+    { type: 'open', question: 'Wat is het doel van stokfiguurtjes tekenen?', answerKeywords: ['voorbereiding','kijkwijzer','zij','aanzicht','houding','positionering','oefening','motorisch','inzicht'] },
+    { type: 'open', question: 'Wat moet je tekenen bij een estafette-oefening (oefening 3)?', answerKeywords: ['lln','rijen','rood','lesgever','blauw','looplijnen','stippellijnen','materiaal','plaats','start','eindpunten','overzicht'] },
+    { type: 'open', question: 'Wat is het doel van looplijnen tekenen?', answerKeywords: ['aangeven','lopen','positie','beweging','overzicht','veiligheid','logische','doorstroom'] },
+    { type: 'open', question: 'Wat moet je doen bij de synthese-oefening?', answerKeywords: ['grondplan','plakken','oefenstof','kolommen','materiaal','aantallen','noteren','aanpassen','organisatie'] },
+    { type: 'open', question: 'Wat is belangrijk bij het kiezen van de lesgeverspositie?', answerKeywords: ['overzicht','alle','lln','dicht','gevaarlijke','oefening','nooit','rug','split','vision','veiligheid'] },
+    { type: 'open', question: 'Waarom gebruik je symbolen uit de symbolenlijst (Chamilo)?', answerKeywords: ['uniformiteit','duidelijkheid','begrijpt','zelfde','symbolen','professionele','kwaliteit','fouten','vermijden'] },
+    { type: 'open', question: 'Wat zijn de stappen bij het tekenen van een zaalopstelling voor een bewegingsomloop?', answerKeywords: ['opstellingsvorm','materiaal','lln','rood','lk','blauw','looplijnen','noteer','aantallen','zaalstructuur','overzicht','veiligheid'] }
+  ];
+
+  const les5Set = { title: 'Basisonderwijs – Les 5 (20 vragen)', questions: [...les5MC, ...les5Open] };
+
+  const les6MC = [
+    { question: 'Hoeveel cm en kg groeit een kind jaarlijks ongeveer in de lagere school?', options: ['2–3 cm & 1 kg','5–7 cm & 2–3 kg','10 cm & 5 kg','1–2 cm & 0,5 kg'], answerIndex: 1 },
+    { question: 'Welke groeit sneller in deze fase?', options: ['Jongens','Meisjes','Gelijk','Niet in de samenvatting'], answerIndex: 1 },
+    { question: 'Wat is een kenmerk van de strekkingsfase?', options: ['Ledematen groeien trager','Hoofd groeit snel','Lichaam wordt langer en smaller','Kinderen worden breder'], answerIndex: 2 },
+    { question: 'Tot welke leeftijd is neurale groei sterk?', options: ['± 5 jaar','± 6 jaar','± 8 jaar','± 12 jaar'], answerIndex: 2 },
+    { question: 'Waarom is 8–12 jaar de “gouden leeftijd” voor motorisch leren?', options: ['Omdat kinderen dan sterker zijn','Omdat kinderen dan nog fantasierijk zijn','Stabiele groei + volgroeide neurale ontwikkeling','Omdat ze minder spelen'], answerIndex: 2 },
+    { question: 'Wanneer begint de fysiologische ontwikkeling meestal?', options: ['Jongens 10 / Meisjes 8','Jongens 13 / Meisjes 11','Jongens 16 / Meisjes 14','Jongens 12 / Meisjes 9'], answerIndex: 1 },
+    { question: 'Bij welke graad start je met echte techniek-aanleren?', options: ['1e graad','2e graad','3e graad','Enkel secundair'], answerIndex: 1 },
+    { question: 'Wat gebeurt er met nieuwe bewegingen in het begin?', options: ['Ze worden automatisch uitgevoerd','Ze worden bewust aangestuurd door de hersenen','Ze worden niet opgeslagen','Kinderen vergeten ze meteen'], answerIndex: 1 },
+    { question: 'Wat hoort NIET bij de drie luiken van psychomotoriek?', options: ['Lichaamsperceptie','Ruimteperceptie','Emotionele perceptie','Lichaamshoudingen & lateraliteit'], answerIndex: 2 },
+    { question: 'Wat is lateraliteit?', options: ['Ritmegevoel','Links-rechtsontwikkeling','Evenwicht','Uithouding'], answerIndex: 1 }
+  ];
+
+  const les6Open = [
+    { type: 'open', question: 'Noem vier kenmerken van de lichamelijke ontwikkeling (fysiek) in de lagere school.', answerKeywords: ['5','7','cm','2','3','kg','meisjes','sneller','ledematen','groei','langer','smaller','hoofd','minder','spierweefsel','tandenwissel'] },
+    { type: 'open', question: 'Geef drie kenmerken van de neurale ontwikkeling.', answerKeywords: ['tot','8','jaar','sterke','neurale','groei','cruciale','periode','basisbewegingen','basis','vast','na','8','moeilijk','inhalen','gericht','leren','bewegen','volgroeide','neurale','ontwikkeling','techniek'] },
+    { type: 'open', question: 'Waarom is 8–12 jaar de “gouden leeftijd” voor motorisch leren?', answerKeywords: ['stabiele','groei','musculo','skeletaal','volgroeide','neurale','ontwikkeling','gericht','systematisch','techniek','fundament','sportspecifieke'] },
+    { type: 'open', question: 'Beschrijf de zeven stappen van motorisch leren.', answerKeywords: ['waarnemen','nadenken','uitvoeren','feedback','bijsturen','herhalen','beheersen','automatiseren'] },
+    { type: 'open', question: 'Noem de vier onderdelen van lichaamsperceptie.', answerKeywords: ['lichaamsbegrenzing','lichaamsdelen','aanvoelen','lichaamsassen','aanvoelen','lengteas','sagittale','breedteas','lichaamshoudingen','lateraliteit'] },
+    { type: 'open', question: 'Wat zijn voorbeelden van activiteiten voor lichaamsbegrenzing?', answerKeywords: ['kruipen','tunnels','stoeien','matten','partneroefeningen','balans','contact','grond','materiaal'] },
+    { type: 'open', question: 'Geef alle voorbeelden van lichaamsassen + bijhorende beweging.', answerKeywords: ['lengteas','springen','rollen','sagittale','voorwaarts','achterwaarts','radslag','frontale','breedteas','koprol','zijwaarts','schommelen'] },
+    { type: 'open', question: 'Noem twee problemen die ontstaan bij onvoldoende lichaamsperceptie.', answerKeywords: ['links','rechts','moeite','slechte','houding','onzeker','bewegen','onvoldoende','coördinatie','fouten','teamsport','houding','minder','controle'] },
+    { type: 'open', question: 'Wat houdt lateraliteit in?', answerKeywords: ['links','rechts','voorkeur','ontwikkelt','5','6','jaar','dissociatie','onafhankelijk','bewegen','verschillen','hand','voet','oog','voorbeelden','schoppen','slaan','dans'] },
+    { type: 'open', question: 'Geef drie didactische tips per graad (1e, 2e, 3e graad).', answerKeywords: ['1e','basisbewegingen','gevarieerde','omstandigheden','herhaling','speels','leren','2e','gericht','techniek','systematisch','plezier','3e','sportspecifiek','juiste','techniek','uithoudingsvermogen','meisjes','11','jaar','precisie','technische','uitvoering'] }
+  ];
+
+  const les6Set = { title: 'Basisonderwijs – Les 6 (20 vragen)', questions: [...les6MC, ...les6Open] };
+
+  const les7MC = [
+    { question: 'Welke drie stappen horen bij het proces van motorisch leren?', options: ['Denken – Rust – Herhalen','Waarnemen – Uitvoeren – Feedback krijgen','Bewegen – Rusten – Denken','Start – Stop – Herstart'], answerIndex: 1 },
+    { question: 'Wat gebeurt er naarmate een beweging beter gekend is?', options: ['Meer controle vanuit hersenen','Hersenen sturen steeds bewuster aan','Hersencontrole neemt af → automatisatie','Kinderen verliezen interesse'], answerIndex: 2 },
+    { question: 'Wat is het eindstadium van motorisch leren?', options: ['Onbewust onbekwaam','Bewust onbekwaam','Bewust vaardig','Onbewust vaardig'], answerIndex: 3 },
+    { question: 'Wanneer ontwikkelt een kind een duidelijke voorkeurszijde (hand/voet)?', options: ['2–3 jaar','4 jaar','5–6 jaar','10 jaar'], answerIndex: 2 },
+    { question: 'Wat is lichaamsperceptie?', options: ['Hoe goed je kan kijken','Aanvoelen van het eigen lichaam','Hoe flexibel je bent','Hoe snel je loopt'], answerIndex: 1 },
+    { question: 'Wat hoort NIET bij lichaamsassen?', options: ['Lengteas','Sagittale as','Horizontale as','Frontale/breedteas'], answerIndex: 2 },
+    { question: 'Wat is dissociatie?', options: ['Bewegingen traag uitvoeren','Onafhankelijk bewegen van lichaamsdelen','Evenwicht houden','Ademhaling controleren'], answerIndex: 1 },
+    { question: 'Wat hoort bij de sagittale as?', options: ['Springen','Radslag','Koprol','Om lengteas rollen'], answerIndex: 1 },
+    { question: 'Wat is een kenmerk van jonge kinderen volgens de samenvatting?', options: ['Kunnen moeilijk automatiseren','Hebben sterke neurale controle','Leren vooral visueel','Geen voorkeurskant'], answerIndex: 1 },
+    { question: 'Wat is een kenmerk van een beweging die geautomatiseerd is?', options: ['Je moet er bewust over nadenken','Hersenen sturen actief aan','Uitvoering is vloeiend en gecontroleerd','Je voert ze net aan het leren uit'], answerIndex: 2 }
+  ];
+
+  const les7Open = [
+    { type: 'open', question: 'Geef de volledige keten van motorisch leren (7 stappen).', answerKeywords: ['waarnemen','nadenken','uitvoeren','feedback','krijgen','bijsturen','herhalen','beheersen','automatiseren'] },
+    { type: 'open', question: 'Wat verandert er in hersencontrole naarmate een beweging beter gekend is?', answerKeywords: ['hersencontrole','neemt','af','minder','bewuste','aansturing','geautomatiseerd','vloeiend','gecontroleerd','minder','denkstappen','nodig'] },
+    { type: 'open', question: 'Wat is lichaamsperceptie?', answerKeywords: ['aanvoelen','eigen','lichaam','weten','opgebouwd','grootte','verhoudingen','lichaamsschema','ontwikkelen','bewegingservaringen','opgeslagen','controle','eigen','bewegingen'] },
+    { type: 'open', question: 'Noem alle onderdelen van lichaamsperceptie.', answerKeywords: ['lichaamsbegrenzing','lichaamsdelen','aanvoelen','lichaamsassen','aanvoelen','lengteas','sagittale','as','frontale','breedteas','lichaamshoudingen','aanvoelen','lateraliteit'] },
+    { type: 'open', question: 'Geef voorbeelden van activiteiten die lichaamsbegrenzing stimuleren.', answerKeywords: ['kruipen','tunnels','stoeien','matten','partneroefeningen','balansoefeningen','balans','contact','materiaal','grond','toestellen','andere','kinderen'] },
+    { type: 'open', question: 'Wat zijn voorbeelden van bewegingen bij de drie lichaamsassen?', answerKeywords: ['lengteas','springen','rollen','sagittale','voorwaarts','achterwaarts','radslag','frontale','breedteas','koprol','zijwaarts','schommelen'] },
+    { type: 'open', question: 'Wat betekent lateraliteit?', answerKeywords: ['links','rechts','voorkeur','voorkeurskant','5','6','jaar','dissociatie','onafhankelijk','bewegen','lichaamsdelen','hand','voet','oog','schoppen','slaan','dansbewegingen'] },
+    { type: 'open', question: 'Wat kan een probleem zijn bij kinderen met onvoldoende houdingsbewustzijn?', answerKeywords: ['armen','gestrekt','gebogen','slechte','houding','onzeker','bewegen','foutieve','positie','teamsport','minder','zelfvertrouwen','beperkte','motorische','controle'] },
+    { type: 'open', question: 'Wat is het verband tussen houding en teamsporten?', answerKeywords: ['goede','houding','basis','verdedigen','positie','spel','zelfvertrouwen','rol','vermijden','acties','bewustzijn','houding','betere','besluitvorming'] },
+    { type: 'open', question: 'Wat is de rol van variatie in beweging voor het lichaamsschema?', answerKeywords: ['verruimt','lichaamsschema','meer','verschillende','bewegingservaringen','betere','motorische','controle','snellere','automatisatie','meer','inzicht','eigen','lichaam','flexibiliteit','bewegingsopdrachten'] }
+  ];
+
+  const les7Set = { title: 'Basisonderwijs – Les 7 (20 vragen)', questions: [...les7MC, ...les7Open] };
+
+  const les8MC = [
+    { question: 'Vanaf welke leeftijd kan een kind conservatie begrijpen (Piaget)?', options: ['4 jaar','5 jaar','7 jaar','10 jaar'], answerIndex: 2 },
+    { question: 'Wat is een kenmerk van gedecentreerd denken?', options: ['Fixeren op één aspect','Meerdere aspecten tegelijk kunnen beoordelen','Fantasie en realiteit door elkaar halen','Impulsief reageren'], answerIndex: 1 },
+    { question: 'Wat betekent omkeerbaarheid (reversibiliteit)?', options: ['De volgorde vergeten','Mentaal een proces kunnen terugspoelen','Alleen het eindresultaat zien','Geen inzicht hebben'], answerIndex: 1 },
+    { question: 'Vanaf welke leeftijd is klas-inclusie mogelijk?', options: ['Vanaf 4 jaar','Vanaf 5 jaar','Vanaf 7 jaar','Vanaf 12 jaar'], answerIndex: 2 },
+    { question: 'Welk proces hoort bij perceptuele reorganisatie?', options: ['Nieuwe figuren herkennen in bestaande structuren','Onderdelen los zien van het geheel','Enkel letterlijk waarnemen','Geen verbanden leggen'], answerIndex: 0 },
+    { question: 'Wat gebeurt er met fantasie vanaf 8 jaar?', options: ['Wordt sterker','Wordt minder, realistischer','Maakt geen onderscheid tussen echt en fantasie','Verdwijnt volledig'], answerIndex: 1 },
+    { question: 'Wat hoort bij taalontwikkelend lesgeven (TOL)?', options: ['Veel verkleinwoorden','Niet herhalen','Functionele begrippen gebruiken','Spreken in kindertaal'], answerIndex: 2 },
+    { question: 'Wat is een voorbeeld van perceptuele exploratie?', options: ['Snel gokken','Systematisch zoeken in info','Enkel het geheel bekijken','Enkel details bekijken'], answerIndex: 1 },
+    { question: 'Vanaf welke graad kan je tactiek gebruiken in LO?', options: ['1e graad','2e graad','Kleuters','Secundair'], answerIndex: 1 },
+    { question: 'Wat groeit sterk in het geheugen tijdens de lagere school?', options: ['Werkgeheugen & geheugenstrategieën','Enkel korte-termijngeheugen','Enkel metageheugen','Enkel visueel geheugen'], answerIndex: 0 }
+  ];
+
+  const les8Open = [
+    { type: 'open', question: 'Noem de drie kenmerken van het concreet operationeel denken (conservatie).', answerKeywords: ['gedecentreerd','denken','niet','fixeren','aspect','transformatie','zien','tussenstappen','begrijpen','omkeerbaarheid','reversibiliteit','mentaal','terugspoelen'] },
+    { type: 'open', question: 'Geef voorbeelden van situaties rond conservatie die kinderen vanaf 7 jaar wél begrijpen.', answerKeywords: ['water','breed','smal','glas','hoeveelheid','gelijk','klei','ballen','vorm','blijft','gelijk','stokjes','verschuiven','lengte','rij','kralen','dichter','uit','elkaar','aantal','gelijk'] },
+    { type: 'open', question: 'Wat is classificatie?', answerKeywords: ['sorteren','kenmerken','ordenen','criterium','5','jaar','klasseninclusie','7','deelverzamelingen','herkennen','overkoepelende','categorie','begrijpen'] },
+    { type: 'open', question: 'Wat is seriatie?', answerKeywords: ['rangschikken','volgorde','grootte','lengte','dikte','gewicht','systematisch','vergelijken','niet','gissen','kleuters','twee','objecten','tegelijk'] },
+    { type: 'open', question: 'Wat hoort bij klassen- en relatielogica?', answerKeywords: ['logische','relaties','leggen','verbanden','categorieën','concreet','materiaal','strategie','verwoorden','argumenteren'] },
+    { type: 'open', question: 'Geef alle vormen van sociaal denken volgens Piaget (rolneming).', answerKeywords: ['subjectieve','rolneming','6','jaar','begrijpt','anderen','denken','gebrek','info','zelfreflectieve','rolneming','8','jaar','inleven','ander','houdt','geen','rekening','oordeel','wederzijdse','rolneming','10','12','jaar','perspectieven','vergelijken','buitenstaander'] },
+    { type: 'open', question: 'Noem de drie processen binnen perceptie.', answerKeywords: ['perceptuele','reorganisatie','perceptuele','schematisering','perceptuele','exploratie'] },
+    { type: 'open', question: 'Geef drie didactische tips om perceptie te ondersteunen.', answerKeywords: ['focus','essentiële','zaken','structuur','bieden','herhaling','overbodige','prikkels','vermijden','duidelijke','visuele','info','materialen','eenvoudig'] },
+    { type: 'open', question: 'Wat zijn kenmerken van fantasie vanaf 8 jaar?', answerKeywords: ['minder','pure','fantasie','strikte','scheiding','fantasie','realiteit','realistische','personages','leeftijdsgenoten','realistische','settings','verleden','toekomst','geloofwaardig','lo','1e','graad','fantasiethema’s','2e','3e','graad','niet','noodzakelijk'] },
+    { type: 'open', question: 'Noem drie kenmerken van taalontwikkeling in de lagere school.', answerKeywords: ['explosieve','groei','woordenschat','betere','zinsbouw','rekening','gesprekspartner','creativiteit','taal','humor','manipuleren','omgevingsstimulatie','cruciaal'] }
+  ];
+
+  const les8Set = { title: 'Basisonderwijs – Les 8 (20 vragen)', questions: [...les8MC, ...les8Open] };
+
+  const les9MC = [
+    { question: 'Vanaf welke leeftijd neemt pure fantasie duidelijk af?', options: ['5 jaar','6 jaar','8 jaar','12 jaar'], answerIndex: 2 },
+    { question: 'Kinderen vanaf 8 jaar verkiezen in fantasie vooral…', options: ['Pure magie','Realistische personages en herkenbare situaties','Dierenverhalen','Onlogische werelden'], answerIndex: 1 },
+    { question: 'Wat hoort bij taalontwikkelend lesgeven (TOL)?', options: ['Veel verkleinwoorden gebruiken','Spreken in kindertaal','Kernwoorden vooraan zetten','Niet herhalen'], answerIndex: 2 },
+    { question: 'Wat hoort NIET bij rijke taal?', options: ['Volzinnen','Geen kindertaal','Veel verkleinwoorden','Natuurlijke taal'], answerIndex: 2 },
+    { question: 'Welke fase van vriendschap hoort bij 7–9 jaar?', options: ['Normatief stadium','Empathisch stadium','Kosten-batenstadium','Stabiliteitsstadium'], answerIndex: 2 },
+    { question: 'In welk stadium van Kohlberg zitten lagere schoolkinderen meestal?', options: ['Preconventioneel','Conventioneel','Postconventioneel','Egoïstisch stadium'], answerIndex: 1 },
+    { question: 'Wat is een kenmerk van wederzijdse rolneming (10–12 jaar)?', options: ['Enkel eigen perspectief zien','Denken dat iedereen hetzelfde denkt','Perspectieven vergelijken als een buitenstaander','Niet kunnen inleven'], answerIndex: 2 },
+    { question: 'Wat leert een kind in de fase van Erikson (schoolperiode)?', options: ['Autonomie vs schaamte','Identiteit vs rolverwarring','Vlijt vs minderwaardigheid','Vertrouwen vs wantrouwen'], answerIndex: 2 },
+    { question: 'Wat is een basisvoorwaarde voor schoolrijpheid?', options: ['Complexe geheugentechnieken','Sterke sportvaardigheden','Goede sensomotorische uitrusting (zien, horen, oog-handcoördinatie)','Kunnen lezen'], answerIndex: 2 },
+    { question: 'Welke rekenvoorwaarde hoort bij schoolrijpheid?', options: ['Lange teksten kunnen lezen','Snel tot 5 kunnen inschatten','Schrijven zonder fouten','Lange vermenigvuldigingen kennen'], answerIndex: 1 }
+  ];
+
+  const les9Open = [
+    { type: 'open', question: 'Noem alle kenmerken van fantasie vanaf 8 jaar.', answerKeywords: ['minder','pure','fantasie','scheiding','werkelijkheid','realistische','personages','leeftijdsgenoten','realistische','settings','avontuurlijk','geloofwaardig','minder','nood','fantasiethema’s','2e','3e','graad','inkleuring','rode','draad','geen','hoofdactiviteit','sportkampen','realistische','thema’s','avonturiers','sporthelden'] },
+    { type: 'open', question: 'Geef alle kenmerken van taalontwikkeling in lagere school.', answerKeywords: ['explosieve','woordenschatgroei','evolutie','zinsbouw','rekening','gesprekspartner','creativiteit','taal','humor','manipulatie','taal','omgeving','stimulering','cruciaal'] },
+    { type: 'open', question: 'Wat zijn alle componenten van Taalontwikkelend Lesgeven (TOL)?', answerKeywords: ['functionele','begrippen','materiaal','toestellen','richtingsbegrippen','boven','onder','links','houdingen','bewegingen','benoemen','kernwoorden','vooraan','herhalen','intonatie','wisselen','verwoorden','wat','doet','rijke','taal','geen','kindertaal','verkleinwoorden','beperken','volzinnen','natuurlijke','taal','samenwerking','stimuleren','analyseren','redeneren','open','vragen','hoe','waarom','vragen','beantwoorden','met','vragen','handelingen','verwoorden'] },
+    { type: 'open', question: 'Noem de drie stadia van vriendschappen van 7–13 jaar.', answerKeywords: ['kosten','baten','zelfde','interesses','speelgoed','normatief','loyaliteit','opkomen','elkaar','empathisch','diepe','vriendschap','gevoelens','delen','geen','misbruik'] },
+    { type: 'open', question: 'Wat is het belang van contact met leeftijdsgenoten?', answerKeywords: ['leren','samenwerken','conflicten','oplossen','feedback','sociale','spiegel','zelfkennis','vaardigheden','structuur','groepsvorming','bevorderen','buiten','comfortzone','functioneren'] },
+    { type: 'open', question: 'Wat zijn kenmerken van het zelfconcept in lagere school?', answerKeywords: ['bewustzijn','sterke','zwakke','punten','realistischer','zelfbeeld','feedback','invloed','peers','ouders','leerkrachten','meisjes','onderschatten','jongens','overschatten','basis','positieve','zelfwaardering'] },
+    { type: 'open', question: 'Noem de kenmerken van de morele ontwikkeling (Kohlberg) in lagere school.', answerKeywords: ['conventionele','moraal','niveau','2','algemeen','belang','stadium','3','braaf','gedrag','goedkeuring','stadium','4','plichtsbesef','niet','eigenbelang','niveau','1'] },
+    { type: 'open', question: 'Geef alle kenmerken van emotionele ontwikkeling.', answerKeywords: ['emoties','herkennen','nauwkeuriger','context','rekening','gemengde','gevoelens','genuanceerd','uiten','emotieregulatie','verbetert','strategieën','negatieve','emoties'] },
+    { type: 'open', question: 'Wat zijn algemene schoolvoorwaarden voor schoolrijpheid?', answerKeywords: ['lichamelijk','goede','gezondheid','sensomotoriek','zicht','gehoor','oog','handcoördinatie','cognitief','minimaal','iq','schooltaal','beheersen','concentratie','sociaal','openstaan','contacten','samenwerken','respecteren','regels','dynamisch','affectief','nieuwsgierigheid','leergierigheid','leerhonger','motivatie'] },
+    { type: 'open', question: 'Noem alle specifieke schoolvoorwaarden (lezen – schrijven – rekenen).', answerKeywords: ['leesvoorwaarden','tekst','boodschap','vormperceptie','richtingsbewustzijn','klanken','letters','koppelen','schrijfvoorwaarden','goede','penhouding','woorden','fonemen','analyseren','rekenen','eenvoudige','bewerkingen','erbij','eraf','verdelen','hoeveelheidsbegrippen','meer','minder','evenveel','snel','inschatten'] }
+  ];
+
+  const les9Set = { title: 'Basisonderwijs – Les 9 (20 vragen)', questions: [...les9MC, ...les9Open] };
+
+  const les10MC = [
+    { question: 'Hoeveel procent van de evaluatie bestaat uit de lesvoorbereiding + microteaching?', options: ['10%','30%','50%','70%'], answerIndex: 1 },
+    { question: 'Hoeveel procent van de evaluatie bestaat uit het schriftelijk examen?', options: ['10%','30%','50%','70%'], answerIndex: 3 },
+    { question: 'Wat gebeurt er als je niet aanwezig bent op de microteaching?', options: ['Je verliest 10%','Je moet een vervangtaak doen','Je bent afwezig voor het OLOD','Je mag later inhalen'], answerIndex: 2 },
+    { question: 'Wat gebeurt er als je de lesvoorbereiding te laat indient?', options: ['Je krijgt -1 punt','Je mag het opnieuw indienen','Je krijgt nul op twintig','Je bent afwezig voor het OLOD'], answerIndex: 3 },
+    { question: 'Hoeveel leerlingen moet je voorzien in de lesvoorbereiding?', options: ['10','15','20','25'], answerIndex: 2 },
+    { question: 'Hoe lang duurt de effectieve lestijd die je moet uitwerken?', options: ['20 minuten','30 minuten','40 minuten','50 minuten'], answerIndex: 2 },
+    { question: 'Waar moet je je lesvoorbereiding indienen?', options: ['Via mail','In Smartschool','Op Chamilo bij ‘Opdrachten’','In de praktijkles afgeven'], answerIndex: 2 },
+    { question: 'Wat moet er verplicht op het voorblad van de lesvoorbereiding staan?', options: ['Enkel onderwerp','Lesgever, onderwerp & doelgroep','Enkel doelgroep','Enkel naam lesgever'], answerIndex: 1 },
+    { question: 'Wat moet er bij het 2e blad van de lesvoorbereiding?', options: ['Organisatie + materiaal + bronnen + rol gekwetsten','Enkel materiaal','Enkel bronnen','Enkel inleiding'], answerIndex: 0 },
+    { question: 'Wat moet je op het 3e blad noteren?', options: ['Enkel de kern','Enkel de inleiding','Inleiding – kern – slot met timings, oefenstof & didactisch handelen','Enkel het slot'], answerIndex: 2 }
+  ];
+
+  const les10Open = [
+    { type: 'open', question: 'Wat moet er verplicht op het voorblad staan?', answerKeywords: ['naam','lesgever','lesonderwerp','doelgroep','1e','2e','3e','leerjaar'] },
+    { type: 'open', question: 'Wat moet je noteren bij het onderdeel ‘Organisatie’ op blad 2?', answerKeywords: ['zaalopstelling','materiaal','opstelling','leerlingen','lesgever','start','kern','digitale','tekening','verplicht','materiaal','bronnen','rol','gekwetsten'] },
+    { type: 'open', question: 'Wat moet je uitwerken in stap 1 van de examenopdracht?', answerKeywords: ['inleiding','kern','slot','oefenstof','didactisch','handelen','passende','organisatievorm','correcte','doelgroep'] },
+    { type: 'open', question: 'Wat moet er bij de oefenstof worden weergegeven?', answerKeywords: ['duidelijke','beschrijving','oefening','concreet','stappen','organisatievorm','materialen','aantallen','uitgangshouding','afspraken'] },
+    { type: 'open', question: 'Wat moet je noteren bij didactisch handelen?', answerKeywords: ['lesgever','zegt','doet','timing','instructies','aandachtspunten','adp','begeleidende','feedback','zij','aanzicht','oefening'] },
+    { type: 'open', question: 'Wat is verplicht bij het digitale tekenwerk?', answerKeywords: ['zaalopstelling','tekenen','correcte','symbolen','lln','rood','lk','blauw','looplijnen','stippellijnen','ballijn','volle','lijn','objectcontrole'] },
+    { type: 'open', question: 'Welke documenten moet je raadplegen bij het maken van de lesvoorbereiding?', answerKeywords: ['syllabus','basisonderwijs','presentaties','lessen','lesmaterialen','chamilo','leerpad','oefenstof','leerlijn'] },
+    { type: 'open', question: 'Wat is de deadline van de examenopdracht?', answerKeywords: ['vrijdag','19','december','2025','23u59','na','deadline','automatisch','geblokkeerd','niet','meer','indienen'] },
+    { type: 'open', question: 'Wat gebeurt er als je de deadline mist?', answerKeywords: ['indienmogelijkheid','geblokkeerd','geen','lesvoorbereiding','afwezig','olod','geen','herkansing','moment','onmiddellijk','niet','geslaagd'] },
+    { type: 'open', question: 'Waarom is een duidelijke lesvoorbereiding belangrijk?', answerKeywords: ['overzicht','lesgever','veiligheid','vlotte','organisatie','goede','opbouw','inleiding','kern','slot','correcte','leerlijnen','kwalitatieve','instructie','microteaching','efficiënt'] }
+  ];
+
+  const les10Set = { title: 'Basisonderwijs – Les 10 (20 vragen)', questions: [...les10MC, ...les10Open] };
 
   const basisonderwijs = normalizeSubject({
     name: 'Basisonderwijs',
-    summary: 'Quizzen en lesbundels voor basisonderwijs, inclusief open vragen.',
+    summary: 'Les 1 – meerkeuze en open vragen met kernwoorden.',
     categories: [
       { id: 'les1', domain: 'basisonderwijs', section: 'les-1', title: 'Les 1', description: 'Les 1 – 20 vragen', quizSets: [les1Set] },
-      { id: 'les2', domain: 'basisonderwijs', section: 'les-2', title: 'Les 2', description: 'Les 2 – 20 vragen', quizSets: [les2Set] }
+      { id: 'les2', domain: 'basisonderwijs', section: 'les-2', title: 'Les 2', description: 'Les 2 – 20 vragen', quizSets: [les2Set] },
+      { id: 'les3', domain: 'basisonderwijs', section: 'les-3', title: 'Les 3', description: 'Les 3 – 20 vragen', quizSets: [les3Set] },
+      { id: 'les4', domain: 'basisonderwijs', section: 'les-4', title: 'Les 4', description: 'Les 4 – 20 vragen', quizSets: [les4Set] },
+      { id: 'les5', domain: 'basisonderwijs', section: 'les-5', title: 'Les 5', description: 'Les 5 – 20 vragen', quizSets: [les5Set] },
+      { id: 'les6', domain: 'basisonderwijs', section: 'les-6', title: 'Les 6', description: 'Les 6 – 20 vragen', quizSets: [les6Set] },
+      { id: 'les7', domain: 'basisonderwijs', section: 'les-7', title: 'Les 7', description: 'Les 7 – 20 vragen', quizSets: [les7Set] },
+      { id: 'les8', domain: 'basisonderwijs', section: 'les-8', title: 'Les 8', description: 'Les 8 – 20 vragen', quizSets: [les8Set] },
+      { id: 'les9', domain: 'basisonderwijs', section: 'les-9', title: 'Les 9', description: 'Les 9 – 20 vragen', quizSets: [les9Set] },
+      { id: 'les10', domain: 'basisonderwijs', section: 'les-10', title: 'Les 10', description: 'Les 10 – 20 vragen', quizSets: [les10Set] }
     ],
     examDomains: [
       {
@@ -3162,7 +3395,15 @@ function createDefaultSubjects() {
         description: 'Lesbundels met meerkeuze en open vragen.',
         sections: [
           { id: 'les-1', title: 'Les 1', categoryIds: ['les1'] },
-          { id: 'les-2', title: 'Les 2', categoryIds: ['les2'] }
+          { id: 'les-2', title: 'Les 2', categoryIds: ['les2'] },
+          { id: 'les-3', title: 'Les 3', categoryIds: ['les3'] },
+          { id: 'les-4', title: 'Les 4', categoryIds: ['les4'] },
+          { id: 'les-5', title: 'Les 5', categoryIds: ['les5'] },
+          { id: 'les-6', title: 'Les 6', categoryIds: ['les6'] },
+          { id: 'les-7', title: 'Les 7', categoryIds: ['les7'] },
+          { id: 'les-8', title: 'Les 8', categoryIds: ['les8'] },
+          { id: 'les-9', title: 'Les 9', categoryIds: ['les9'] },
+          { id: 'les-10', title: 'Les 10', categoryIds: ['les10'] }
         ]
       }
     ]
