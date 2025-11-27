@@ -3966,9 +3966,9 @@ function renderQuizRunner(subject) {
 
   quizPrev.disabled = activeQuizQuestionIndex === 0;
   quizNext.disabled = activeQuizQuestionIndex === set.questions.length - 1;
-  const canShowSubmit = state.answered === set.questions.length && activeQuizQuestionIndex === set.questions.length - 1;
-  quizSubmit.hidden = !canShowSubmit;
-  quizSubmit.disabled = !canShowSubmit;
+  const onLastQuestion = activeQuizQuestionIndex === set.questions.length - 1;
+  quizSubmit.hidden = !onLastQuestion;
+  quizSubmit.disabled = !onLastQuestion;
   if (!prefersReducedMotion) {
     const card = quizRunner.querySelector('.quiz-runner__card');
     if (card) {
@@ -3983,7 +3983,7 @@ function renderQuizRunner(subject) {
   quizRunnerHint.textContent = !state.answered
     ? 'Kies een antwoord om verder te gaan.'
     : state.answered < set.questions.length
-    ? 'Ga verder tot alle vragen zijn ingevuld; de score verschijnt op het einde.'
+    ? 'Je kan ook je score bekijken; onbeantwoorde vragen tonen "Geen antwoord".'
     : 'Beantwoord deze laatste vraag en bekijk daarna je score.';
 }
 
@@ -4121,10 +4121,6 @@ function showResults() {
   const set = getActiveSet(subject);
   if (!set || !subject) return;
   const state = getSetProgress(subject.name, set.title, set.questions);
-  if (state.answered < set.questions.length) {
-    quizRunnerHint.textContent = 'Beantwoord alle vragen voordat je de score bekijkt.';
-    return;
-  }
   quizMode = 'results';
   render();
 }
@@ -4251,7 +4247,8 @@ async function handleAuthSubmit(event) {
     }
     setTimeout(closeAuthModal, 800);
   } catch (error) {
-    showAuthMessage(error.message, 'error');
+    const msg = formatAuthError(error?.code) || error.message;
+    showAuthMessage(msg, 'error');
   }
 }
 
@@ -4267,7 +4264,25 @@ async function loginWithGoogle() {
     showAuthMessage(`Welkom ${user.displayName || user.email}!`, 'success');
     setTimeout(closeAuthModal, 800);
   } catch (error) {
-    showAuthMessage(error.message, 'error');
+    const msg = formatAuthError(error?.code) || error.message;
+    showAuthMessage(msg, 'error');
+  }
+}
+
+function formatAuthError(code) {
+  switch (code) {
+    case 'auth/operation-not-allowed':
+      return 'Inschakelen vereist: ga naar Firebase → Authentication → Sign-in method en activeer E-mail/wachtwoord en Google.';
+    case 'auth/invalid-credential':
+      return 'Ongeldige inloggegevens. Controleer e-mail en wachtwoord of reset je wachtwoord.';
+    case 'auth/user-not-found':
+      return 'Geen account met dit e-mailadres. Registreer of controleer je invoer.';
+    case 'auth/wrong-password':
+      return 'Verkeerd wachtwoord. Probeer opnieuw of herstel je wachtwoord.';
+    case 'auth/popup-closed-by-user':
+      return 'Google-venster werd gesloten. Probeer opnieuw.';
+    default:
+      return null;
   }
 }
 
@@ -4299,7 +4314,13 @@ quizExitCompact?.addEventListener('click', exitQuiz);
 quizBack?.addEventListener('click', exitQuiz);
 quizRetake?.addEventListener('click', retakeActiveQuiz);
 
-loginBtn.addEventListener('click', () => openAuthModal('login'));
+loginBtn.addEventListener('click', () => {
+  if (currentUser) {
+    goToProfile();
+  } else {
+    openAuthModal('login');
+  }
+});
 homeLogin?.addEventListener('click', () => openAuthModal('login'));
 accountLogin?.addEventListener('click', () => openAuthModal('login'));
 accountRegister?.addEventListener('click', () => openAuthModal('register'));
