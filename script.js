@@ -106,11 +106,8 @@ if (firebaseAvailable) {
     .then((ok) => {
       if (ok) {
         const analytics = getAnalytics(app);
-        const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-        const hasDNT = (navigator.doNotTrack === '1' || window.doNotTrack === '1');
-        if (isLocalhost || hasDNT) {
-          setAnalyticsCollectionEnabled(analytics, false);
-        }
+        const enabled = !!window.FITROENIE_ANALYTICS_ENABLED;
+        setAnalyticsCollectionEnabled(analytics, enabled);
       }
     })
     .catch((err) => console.warn('Analytics niet beschikbaar:', err));
@@ -3080,6 +3077,7 @@ let activeQuizSetTitle = null;
 let activeQuizQuestionIndex = 0;
 let quizMode = 'picker';
 let currentUser = null;
+let profileExpanded = {};
 
 function dedupeQuizSets(list = []) {
   const seen = new Set();
@@ -4054,37 +4052,47 @@ function renderProfile() {
   } else {
     let completedTotal = 0;
     results.forEach((group) => {
-      const card = document.createElement('div');
-      card.className = 'profile-result';
-      card.innerHTML = `
-        <header class="profile-result__header">
-          <h4>${group.subject}</h4>
-          <span class="chip ghost">${group.entries.length} gemaakte quizzen</span>
-        </header>
+      const isOpen = !!profileExpanded[group.subject];
+      const collapse = document.createElement('div');
+      collapse.className = `collapse${isOpen ? ' open' : ''}`;
+      collapse.innerHTML = `
+        <div class="collapse__header" data-subject="${group.subject}">
+          <h4 class="collapse__title">${group.subject}</h4>
+          <div class="collapse__actions">
+            <span class="chip ghost">${group.entries.length} gemaakte quizzen</span>
+            <button class="icon-btn collapse__arrow" aria-label="Uitklappen">▾</button>
+          </div>
+        </div>
+        <div class="collapse__body" ${isOpen ? '' : 'hidden'}></div>
       `;
 
-      const list = document.createElement('div');
-      list.className = 'profile-result__list';
-
+      const body = collapse.querySelector('.collapse__body');
       group.entries.forEach((entry) => {
         if (entry.completed) completedTotal += 1;
         const row = document.createElement('div');
-        row.className = 'profile-result__row';
+        row.className = 'collapse__row';
+        const actionBtn = document.createElement('button');
+        actionBtn.className = 'btn ghost';
+        actionBtn.type = 'button';
+        actionBtn.textContent = entry.completed ? 'Bekijk score' : 'Ga verder';
+        actionBtn.addEventListener('click', () => openSubjectResult(group.subject, entry.title));
         row.innerHTML = `
           <div>
-            <p class="eyebrow">${group.subject}</p>
             <strong>${entry.title}</strong>
-          </div>
-          <div class="profile-result__score">
-            <span class="chip">${entry.correct}/${entry.total}</span>
-            <span class="caption">${entry.percent}% juist${entry.completed ? '' : ' (bezig)'}</span>
+            <p class="caption">${entry.correct}/${entry.total} · ${entry.percent}% juist${entry.completed ? '' : ' (bezig)'} </p>
           </div>
         `;
-        list.appendChild(row);
+        row.appendChild(actionBtn);
+        body.appendChild(row);
       });
 
-      card.appendChild(list);
-      profileQuizList.appendChild(card);
+      const header = collapse.querySelector('.collapse__header');
+      header.addEventListener('click', () => {
+        profileExpanded[group.subject] = !profileExpanded[group.subject];
+        renderProfile();
+      });
+
+      profileQuizList.appendChild(collapse);
     });
 
     profileQuizCount.textContent = `${completedTotal || 0} voltooide quizzen`;
@@ -4093,6 +4101,19 @@ function renderProfile() {
   const actionButtons = profileCardActions();
   actionButtons.login.hidden = loggedIn;
   actionButtons.register.hidden = loggedIn;
+}
+
+function openSubjectResult(subjectName, setTitle) {
+  const subject = subjects.find((s) => s.name === subjectName);
+  if (!subject) return;
+  const set = getQuizSets(subject).find((quizSet) => formatSetTitle(quizSet.title) === formatSetTitle(setTitle));
+  if (!set) return;
+  activeSubject = subject.name;
+  activeQuizSetTitle = set.title;
+  const state = getSetProgress(subject.name, set.title, set.questions);
+  quizMode = state.completed ? 'results' : 'runner';
+  setActiveView('quizplay');
+  render();
 }
 
 function showResults() {
