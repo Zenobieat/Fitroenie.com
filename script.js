@@ -146,6 +146,52 @@ function formatSetTitle(raw = '') {
   return title;
 }
 
+function isOpenQuestion(q) {
+  return !!q && (q.type === 'open' || (!q.options && (q.answerText || q.answerKeywords)));
+}
+
+function normalizeWords(str = '') {
+  const clean = String(str)
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .trim();
+  return clean.split(/\s+/).filter((w) => w.length > 1);
+}
+
+function openAnswerCorrect(userText = '', correct) {
+  const uSet = new Set(normalizeWords(userText));
+  const cWords = Array.isArray(correct) ? correct : normalizeWords(String(correct || ''));
+  let matches = 0;
+  const seen = new Set();
+  for (const w of cWords) {
+    if (uSet.has(w) && !seen.has(w)) {
+      seen.add(w);
+      matches += 1;
+      if (matches >= 2) break;
+    }
+  }
+  return matches >= 2;
+}
+
+function pickAnswered(pick) {
+  if (!pick) return false;
+  if (typeof pick.choice === 'number') return true;
+  if (typeof pick.text === 'string' && pick.text.trim().length) return true;
+  return false;
+}
+
+function computePickCorrect(question, pick) {
+  if (!question || !pick) return false;
+  if (typeof pick.choice === 'number' && typeof question.answerIndex === 'number') {
+    return pick.choice === question.answerIndex;
+  }
+  if (isOpenQuestion(question)) {
+    const correctText = question.answerText || (question.answerKeywords ? question.answerKeywords.join(' ') : '');
+    return openAnswerCorrect(pick.text || '', correctText);
+  }
+  return false;
+}
+
 function getNormalizedSectionsForDomain(domain) {
   if (!domain?.sections) return [];
   if (domain.id === 'osteologie') {
@@ -3510,11 +3556,8 @@ function ensureSetState(subjectName, setTitle) {
 
 function computeSetCounts(set, state) {
   const answers = state.answers || {};
-  const answered = Object.keys(answers).length;
-  const correct = set.questions.reduce((acc, question, idx) => {
-    const pick = answers[idx];
-    return acc + (pick && pick.choice === question.answerIndex ? 1 : 0);
-  }, 0);
+  const answered = set.questions.reduce((acc, _, idx) => acc + (pickAnswered(answers[idx]) ? 1 : 0), 0);
+  const correct = set.questions.reduce((acc, question, idx) => acc + (computePickCorrect(question, answers[idx]) ? 1 : 0), 0);
   const total = set.questions.length;
   state.answered = answered;
   state.correct = correct;
@@ -3529,11 +3572,8 @@ function getSetProgress(subjectName, setTitle, questions = []) {
   const subjectProgress = progress[subjectName];
   const base = subjectProgress?.[setTitle] || { answers: {} };
   const state = { answers: base.answers || {} };
-  const answered = Object.keys(state.answers).length;
-  const correct = questions.reduce((acc, question, idx) => {
-    const pick = state.answers[idx];
-    return acc + (pick && pick.choice === question.answerIndex ? 1 : 0);
-  }, 0);
+  const answered = questions.reduce((acc, _, idx) => acc + (pickAnswered(state.answers[idx]) ? 1 : 0), 0);
+  const correct = questions.reduce((acc, question, idx) => acc + (computePickCorrect(question, state.answers[idx]) ? 1 : 0), 0);
   return {
     ...base,
     answers: state.answers,
@@ -3924,7 +3964,21 @@ function handleAnswerSelection(choiceIndex) {
   state.answers[activeQuizQuestionIndex] = {
     choiceIndex,
     choice: choiceIndex,
-    correct: choiceIndex === set.questions[activeQuizQuestionIndex].answerIndex
+    correct: computePickCorrect(set.questions[activeQuizQuestionIndex], { choice: choiceIndex })
+  };
+  computeSetCounts(set, state);
+  persistProgress();
+  render();
+}
+
+function handleOpenAnswerInput(text) {
+  const subject = getActiveSubject();
+  const set = getActiveSet(subject);
+  if (!subject || !set) return;
+  const state = ensureSetState(subject.name, set.title);
+  state.answers[activeQuizQuestionIndex] = {
+    text,
+    correct: computePickCorrect(set.questions[activeQuizQuestionIndex], { text })
   };
   computeSetCounts(set, state);
   persistProgress();
@@ -3948,21 +4002,40 @@ function renderQuizRunner(subject) {
   quizQuestionText.textContent = 'Kies het juiste antwoord hieronder.';
 
   quizOptions.innerHTML = '';
-  question.options.forEach((option, idx) => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'option';
-    const letter = String.fromCharCode(65 + idx);
-    btn.innerHTML = `<span class="option__label">${letter}</span><span class="option__text">${option}</span>`;
-    if (answer?.choice === idx) {
-      btn.classList.add('selected');
-    }
-    btn.addEventListener('click', () => {
-      handleAnswerSelection(idx);
+  if (isOpenQuestion(question)) {
+    const field = document.createElement('div');
+    field.className = 'field';
+    const label = document.createElement('span');
+    label.textContent = 'Typ je antwoord';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Schrijf hier je antwoord';
+    input.value = state.answers?.[activeQuizQuestionIndex]?.text || '';
+    input.addEventListener('input', () => handleOpenAnswerInput(input.value));
+    input.addEventListener('change', () => {
+      handleOpenAnswerInput(input.value);
       quizRunnerHint.textContent = 'Antwoord opgeslagen.';
     });
-    quizOptions.appendChild(btn);
-  });
+    field.appendChild(label);
+    field.appendChild(input);
+    quizOptions.appendChild(field);
+  } else {
+    question.options.forEach((option, idx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'option';
+      const letter = String.fromCharCode(65 + idx);
+      btn.innerHTML = `<span class="option__label">${letter}</span><span class="option__text">${option}</span>`;
+      if (answer?.choice === idx) {
+        btn.classList.add('selected');
+      }
+      btn.addEventListener('click', () => {
+        handleAnswerSelection(idx);
+        quizRunnerHint.textContent = 'Antwoord opgeslagen.';
+      });
+      quizOptions.appendChild(btn);
+    });
+  }
 
   quizPrev.disabled = activeQuizQuestionIndex === 0;
   quizNext.disabled = activeQuizQuestionIndex === set.questions.length - 1;
@@ -4004,11 +4077,17 @@ function renderQuizResults(subject) {
     const container = document.createElement('article');
     container.className = 'quiz-results__item';
 
-    const correctness = userAnswer?.choice === question.answerIndex ? 'correct' : 'incorrect';
-    const userText =
-      userAnswer && typeof userAnswer.choice === 'number'
-        ? question.options[userAnswer.choice]
-        : 'Geen antwoord';
+    const isCorrect = computePickCorrect(question, userAnswer);
+    const correctness = isCorrect ? 'correct' : 'incorrect';
+    const userText = (() => {
+      if (!userAnswer) return 'Geen antwoord';
+      if (typeof userAnswer.choice === 'number') return question.options[userAnswer.choice];
+      if (typeof userAnswer.text === 'string' && userAnswer.text.trim().length) return userAnswer.text;
+      return 'Geen antwoord';
+    })();
+    const correctText = isOpenQuestion(question)
+      ? (question.answerText || (question.answerKeywords ? question.answerKeywords.join(' ') : ''))
+      : question.options[question.answerIndex];
 
     container.innerHTML = `
       <header class="quiz-results__item-header">
@@ -4017,8 +4096,8 @@ function renderQuizResults(subject) {
       </header>
       <h4>${question.question}</h4>
       <p class="caption"><strong>Jouw antwoord:</strong> ${userText}</p>
-      <p class="caption"><strong>Correct:</strong> ${question.options[question.answerIndex]}</p>
-    `;
+      <p class="caption"><strong>Correct:</strong> ${correctText}</p>
+  `;
 
     quizResultsList.appendChild(container);
   });
