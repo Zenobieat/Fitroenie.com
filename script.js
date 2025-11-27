@@ -3093,6 +3093,81 @@ function createDefaultSubjects() {
     ]
   };
 
+  const les1MC = [
+    { question: 'Wat is een voordeel van bewegen voor de fysieke gezondheid?', options: ['Minder energieverbruik', 'Sterkere spieren en botten', 'Minder hongergevoel', 'Meer kans op blessures'], answerIndex: 1 },
+    { question: 'Welk voordeel hoort bij mentale gezondheid?', options: ['Minder sociale contacten', 'Betere concentratie', 'Sneller moe zijn', 'Minder zelfstandigheid'], answerIndex: 1 },
+    { question: 'Kinderen moeten per dag … intensief bewegen.', options: ['20 min', '30 min', '45 min', '60 min'], answerIndex: 3 },
+    { question: 'De motorische ontwikkeling hangt af van:', options: ['Alleen genetica', 'Enkel sportclubs', 'Genetische aanleg én stimulansen uit de omgeving', 'De leeftijd van de leerkracht'], answerIndex: 2 },
+    { question: 'Wat betekent motorische geletterdheid?', options: ['Hoeveel boeken een kind leest', 'Hoe goed een kind motorische vaardigheden beheerst', 'Hoe lang een kind stil kan zitten', 'Hoe goed een kind rekenen kan'], answerIndex: 1 },
+    { question: 'Waarom bewegen kinderen minder in het dagelijkse leven?', options: ['Ze worden minder leergierig', 'Ze hebben te veel sport op school', 'Ze gebruiken te vaak iPads en gsm’s', 'Ze hebben te weinig huiswerk'], answerIndex: 2 },
+    { question: 'Vlaamse kinderen zijn … dan Waalse kinderen.', options: ['minder actief', 'even actief', 'actiever', 'altijd binnen'], answerIndex: 2 },
+    { question: 'De neurale ontwikkeling is sterk tot ongeveer:', options: ['4 jaar', '6 jaar', '8 jaar', '12 jaar'], answerIndex: 2 },
+    { question: 'Waarom is 50 meter kunnen zwemmen belangrijk?', options: ['Het is een sportdiscipline', 'Het is goed voor je conditie', 'Kinderen kunnen zich 12 meter redden in open water', 'Het is leuk tijdens warme dagen'], answerIndex: 2 },
+    { question: 'Wat is een functie van LO in het basisonderwijs?', options: ['Enkel topsporters creëren', 'Kinderen stereotiep laten bewegen', 'Bewegingsgebonden basiscompetenties aanleren', 'Enkel focussen op resultaten'], answerIndex: 2 }
+  ];
+
+  const les1Open = [
+    { type: 'open', question: 'Noem twee voordelen van bewegen op emotioneel vlak.', answerKeywords: ['zelfvertrouwen', 'stress', 'angst', 'zelfstandigheid'] },
+    { type: 'open', question: 'Waarom zijn kinderen tussen 3 en 8 jaar zo leergierig?', answerKeywords: ['motoriek', 'hersenontwikkeling', 'snel', 'kneedbaar'] },
+    { type: 'open', question: 'Wat gebeurt er na de leeftijd van 8 jaar met de neurale ontwikkeling?', answerKeywords: ['vlakt', 'af', 'motorische', 'vaardigheden', 'moeilijker'] },
+    { type: 'open', question: 'Geef een reden waarom brede motorische ontwikkeling belangrijk is.', answerKeywords: ['basis', 'sportspecifieke', 'technieken', 'aanleren'] },
+    { type: 'open', question: 'Waarom moet een lesgever variëren in toonhoogte, mimiek en lichaamstaal?', answerKeywords: ['observatie', 'geboeid', 'leren'] },
+    { type: 'open', question: 'Wat is een mogelijke oorzaak van overbelastingsletsels bij jonge kinderen?', answerKeywords: ['sporten', 'clubverband', 'zware', 'belasting', 'jonge', 'leeftijd'] },
+    { type: 'open', question: 'Waarom is zelfredzaamheid in het water belangrijk?', answerKeywords: ['veilig', 'open', 'water', 'redden'] },
+    { type: 'open', question: 'Noem twee factoren die bepalen hoeveel een kind beweegt.', answerKeywords: ['omgeving', 'stimulans', 'technologiegebruik', 'seizoenen', 'zomer', 'winter'] },
+    { type: 'open', question: 'Wat is het doel van “levenslang bewegen”?', answerKeywords: ['levenslang', 'bewegen', 'belangrijk'] },
+    { type: 'open', question: 'Wat betekent dat LO inzet op brede motorische ontwikkeling i.f.v succesbeleving?', answerKeywords: ['brede', 'motorische', 'ontwikkeling', 'succes', 'ervaren', 'domeinen'] }
+  ];
+
+  const les2MC = [
+    { question: 'Wat zijn de drie fundamenten van goed bewegingsonderwijs?', options: ['Fun – Uithouding – Snelheid', 'Fun – Basis techniek – Basis tactiek', 'Conditie – Techniek – Sport', 'Tactiek – Kracht – Coördinatie'], answerIndex: 1 },
+    { question: 'Welke is een klein-motorische vaardigheid?', options: ['Lopen', 'Bal trappen', 'Veters strikken', 'Springen'], answerIndex: 2 },
+    { question: 'Wat hoort bij ABV (6–9 jaar)?', options: ['Trefspelen', 'Balanceren', 'Doelspelen', 'Terugslagspelen'], answerIndex: 1 },
+    { question: 'Wat is FASE 1 van FRED?', options: ['Overleven', 'Waterwennen', 'Doelmatig voortbewegen', 'Ademtechniek'], answerIndex: 1 },
+    { question: 'Waarom gebruik je inkleding?', options: ['Om kinderen rustig te houden', 'Om opdrachten leuker en uitdagender te maken', 'Om tijd te winnen', 'Om minder materiaal te gebruiken'], answerIndex: 1 },
+    { question: 'Wie moet bewegingsproblemen leren oplossen?', options: ['Enkel sterke leerlingen', 'Enkel leerkrachten', 'Kinderen zelf', 'Niemand'], answerIndex: 2 },
+    { question: 'Wat is een fout bij het noteren van een tikspel?', options: ['Sporttak in hoofdletters', 'Lichaamsdelen met hoofdletter', 'Samengestelde woorden uitschrijven', 'VTB – HB – BAB'], answerIndex: 2 },
+    { question: 'Wat is het doel van instructie?', options: ['Kinderen laten spelen', 'Alleen tonen', 'Informatieoverdracht vóór uitvoering', 'Enkel vertellen'], answerIndex: 2 },
+    { question: 'Wat hoort bij een goede demo?', options: ['Supersnel voordoen', 'Toon wat je zegt & zeg wat je toont', 'Fouten enkel tonen', 'Niet kijken'], answerIndex: 1 },
+    { question: 'Wat is een signaalinstrument?', options: ['Bal', 'Muziek / handtrom / bellenring', 'Pylon', 'Satéstok'], answerIndex: 1 }
+  ];
+
+  const les2Open = [
+    { type: 'open', question: 'Geef twee voorbeelden van ABV-basisbewegingen.', answerKeywords: ['stappen','lopen','sluipen','kruipen','klauteren','klimmen','balanceren','springen','landen','zwaaien','roteren','omgekeerde','houdingen','rollen','werpen','vangen','slaan','trappen','dribbelen','heffen','dragen','trekken','duwen'] },
+    { type: 'open', question: 'Wat is het doel van uitdagende beweegsituaties?', answerKeywords: ['plezier','prikkelen','grenzen','verleggen','motivatie','uitdaging','inkleding','fantasiewereld','leuker','ervaring','actief'] },
+    { type: 'open', question: 'Waarom mag een instructie niet te lang duren?', answerKeywords: ['aandacht','daalt','afgeleid','activiteitsprincipe','bewegen','informatie','verloren','prikkels','kort','duidelijker','veiligheid','snelle','start','focus'] },
+    { type: 'open', question: 'Waarom moeten kinderen soms zelf oplossingen bedenken?', answerKeywords: ['bewegingsproblemen','oplossen','probleemoplossend','zelfstandigheid','creatief','inzicht','hoe','motorische','ontwikkeling','strategieën','variatie'] },
+    { type: 'open', question: 'Wanneer gebruik je kinderen voor een demonstratie?', answerKeywords: ['kunnen','herhaling','gekende','eenvoudige','veilig','betrokkenheid','minder','technische'] },
+    { type: 'open', question: 'Noem één manier om aandacht te behouden tijdens instructie.', answerKeywords: ['stoorder','benaderen','dichter','prikkels','vermijden','zon','tegenwind','signaalinstrument','zichtbaarheid','korte','instructie','herhalen'] },
+    { type: 'open', question: 'Wat is de rol van visuele wenken bij een demo?', answerKeywords: ['observatie','sturen','aandachtspunten','accentueren','begrip','focussen','kern','inzicht','verbeteren','uitvoering'] },
+    { type: 'open', question: 'Waarom mag je bij jonge kinderen (<8 jaar) niet in spiegelbeeld voordoen?', answerKeywords: ['links','rechts','verwarring','beheersen','kopiëren','foute','uitvoering','richting'] },
+    { type: 'open', question: 'Wat betekent: ‘toon en verwoord het kernidee’? ', answerKeywords: ['essentie','spel','uitleggen','doel','tonen','demonstreren','duidelijk','inhoud','weten','begrijpbare','visuele'] },
+    { type: 'open', question: 'Waarom moet je wachten tot ALLE leerlingen luisteren voor je instructie start?', answerKeywords: ['informatieoverdracht','iedereen','veiligheid','efficiëntie','geen','herhaling','voorkomen','fouten','concentratie','duidelijkheid'] }
+  ];
+
+  const les1Set = { title: 'Basisonderwijs – Les 1 (20 vragen)', questions: [...les1MC, ...les1Open] };
+  const les2Set = { title: 'Basisonderwijs – Les 2 (20 vragen)', questions: [...les2MC, ...les2Open] };
+
+  const basisonderwijs = normalizeSubject({
+    name: 'Basisonderwijs',
+    summary: 'Quizzen en lesbundels voor basisonderwijs, inclusief open vragen.',
+    categories: [
+      { id: 'les1', domain: 'basisonderwijs', section: 'les-1', title: 'Les 1', description: 'Les 1 – 20 vragen', quizSets: [les1Set] },
+      { id: 'les2', domain: 'basisonderwijs', section: 'les-2', title: 'Les 2', description: 'Les 2 – 20 vragen', quizSets: [les2Set] }
+    ],
+    examDomains: [
+      {
+        id: 'basisonderwijs',
+        title: 'Basisonderwijs',
+        description: 'Lesbundels met meerkeuze en open vragen.',
+        sections: [
+          { id: 'les-1', title: 'Les 1', categoryIds: ['les1'] },
+          { id: 'les-2', title: 'Les 2', categoryIds: ['les2'] }
+        ]
+      }
+    ]
+  });
+
   const placeholder = (name) =>
     normalizeSubject({
       name,
@@ -3103,7 +3178,7 @@ function createDefaultSubjects() {
 
   return [
     normalizeSubject(anatomie),
-    placeholder('Basisonderwijs'),
+    basisonderwijs,
     placeholder('Blessure preventie'),
     placeholder('Ondernemen in de sport'),
     placeholder('Zelfdeterminatie theorie')
