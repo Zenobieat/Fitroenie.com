@@ -3054,9 +3054,45 @@ let activeQuizQuestionIndex = 0;
 let quizMode = 'picker';
 let currentUser = null;
 
+function dedupeQuizSets(list = []) {
+  const seen = new Set();
+  const result = [];
+
+  list.forEach((set) => {
+    const key = (set?.title ?? '').trim().toLowerCase();
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    result.push(set);
+  });
+
+  return result;
+}
+
+function cleanSubject(subject) {
+  const cleaned = { ...subject };
+
+  if (Array.isArray(cleaned.categories)) {
+    cleaned.categories = cleaned.categories.map((cat) => ({
+      ...cat,
+      quizSets: dedupeQuizSets(cat.quizSets)
+    }));
+  }
+
+  cleaned.quizSets = dedupeQuizSets(getQuizSets(cleaned));
+
+  return cleaned;
+}
+
 const mergeResult = mergeDefaultSubjects(subjects, defaultSubjects);
 if (mergeResult.mutated) {
   subjects = mergeResult.subjects.map((s) => normalizeSubject(s));
+  persistSubjects();
+}
+
+const cleanedSubjects = subjects.map((s) => cleanSubject(normalizeSubject(s)));
+const cleanedChanged = JSON.stringify(cleanedSubjects) !== JSON.stringify(subjects);
+if (cleanedChanged) {
+  subjects = cleanedSubjects;
   persistSubjects();
 }
 
@@ -3064,19 +3100,19 @@ function normalizeSubject(subject) {
   const categories = Array.isArray(subject.categories)
     ? subject.categories.map((cat) => ({
         ...cat,
-        quizSets: Array.isArray(cat.quizSets) ? cat.quizSets : []
+        quizSets: dedupeQuizSets(Array.isArray(cat.quizSets) ? cat.quizSets : [])
       }))
     : [
         {
           id: 'hoofdstukken',
           title: 'Hoofdstukken',
           description: 'Vaste quizzen',
-          quizSets: Array.isArray(subject.quizSets) ? subject.quizSets : []
+          quizSets: dedupeQuizSets(Array.isArray(subject.quizSets) ? subject.quizSets : [])
         }
       ];
 
   const normalized = { ...subject, categories };
-  normalized.quizSets = categories.flatMap((cat) => cat.quizSets || []);
+  normalized.quizSets = dedupeQuizSets(categories.flatMap((cat) => cat.quizSets || []));
 
   if (Array.isArray(normalized.examDomains)) {
     normalized.examDomains = normalized.examDomains.map((domain) => ({
