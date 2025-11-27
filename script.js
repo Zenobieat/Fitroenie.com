@@ -3375,7 +3375,7 @@ function createDefaultSubjects() {
 
   const basisonderwijs = normalizeSubject({
     name: 'Basisonderwijs',
-    summary: 'Les 1 – meerkeuze en open vragen met kernwoorden.',
+    summary: 'Hier komen de samenvattingen van Basisonderwijs zodra ze beschikbaar zijn.',
     categories: [
       { id: 'les1', domain: 'basisonderwijs', section: 'les-1', title: 'Les 1', description: 'Les 1 – 20 vragen', quizSets: [les1Set] },
       { id: 'les2', domain: 'basisonderwijs', section: 'les-2', title: 'Les 2', description: 'Les 2 – 20 vragen', quizSets: [les2Set] },
@@ -3768,8 +3768,10 @@ function setActivePanel(panelId) {
     panel.hidden = !match;
   });
 
-  const tabButtons = sectionTabs?.querySelectorAll('[data-panel-target]') ?? [];
-  tabButtons.forEach((btn) => {
+  const localTabs = sectionTabs?.querySelectorAll('[data-panel-target]') ?? [];
+  const allTabs = Array.from(document.querySelectorAll('[data-panel-target]'));
+  const targets = [...new Set([...localTabs, ...allTabs])];
+  targets.forEach((btn) => {
     const isActive = btn.dataset.panelTarget === panelId;
     btn.classList.toggle('active', isActive);
     btn.setAttribute('aria-current', isActive ? 'page' : 'false');
@@ -4263,13 +4265,19 @@ function exitQuiz() {
   render();
 }
 
+function renderDuringQuiz() {
+  const subject = getActiveSubject();
+  renderQuizRunner(subject);
+  updateProgressBanner(subject);
+}
+
 function goToQuestion(delta) {
   const subject = getActiveSubject();
   const set = getActiveSet(subject);
   if (!set) return;
   const nextIndex = Math.min(Math.max(activeQuizQuestionIndex + delta, 0), set.questions.length - 1);
   activeQuizQuestionIndex = nextIndex;
-  render();
+  renderDuringQuiz();
 }
 
 function handleAnswerSelection(choiceIndex) {
@@ -4284,7 +4292,7 @@ function handleAnswerSelection(choiceIndex) {
   };
   computeSetCounts(set, state);
   persistProgress();
-  render();
+  renderDuringQuiz();
 }
 
 function handleOpenAnswerInput(text) {
@@ -4298,7 +4306,7 @@ function handleOpenAnswerInput(text) {
   };
   computeSetCounts(set, state);
   persistProgress();
-  render();
+  renderDuringQuiz();
 }
 
 function renderQuizRunner(subject) {
