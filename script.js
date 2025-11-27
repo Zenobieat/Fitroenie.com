@@ -123,6 +123,12 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 const STORAGE_KEY = 'fitroenie-anatomie';
 const PROGRESS_KEY = 'fitroenie-progress';
 const allowedOsteologySections = ['osteo-upper', 'osteo-lower', 'osteo-proef'];
+const VERSION_KEY = 'fitroenie-version';
+const CURRENT_VERSION = '2';
+const FORCE_CLEAN = (localStorage.getItem(VERSION_KEY) !== CURRENT_VERSION);
+if (FORCE_CLEAN) {
+  localStorage.setItem(VERSION_KEY, CURRENT_VERSION);
+}
 
 function deepClone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -3113,7 +3119,7 @@ if (mergeResult.mutated) {
 
 const cleanedSubjects = subjects.map((s) => cleanSubject(normalizeSubject(s)));
 const cleanedChanged = JSON.stringify(cleanedSubjects) !== JSON.stringify(subjects);
-if (cleanedChanged) {
+if (cleanedChanged || FORCE_CLEAN) {
   subjects = cleanedSubjects;
   persistSubjects();
 }
