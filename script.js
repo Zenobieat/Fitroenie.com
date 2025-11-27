@@ -1,5 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js';
-import { getAnalytics, isSupported as isAnalyticsSupported } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js';
+import { getAnalytics, isSupported as isAnalyticsSupported, setAnalyticsCollectionEnabled } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js';
 import {
   getAuth,
   GoogleAuthProvider,
@@ -88,16 +88,37 @@ if (
   );
 }
 
-const app = initializeApp(firebaseConfig);
-isAnalyticsSupported()
-  .then((ok) => {
-    if (ok) getAnalytics(app);
-  })
-  .catch((err) => console.warn('Analytics niet beschikbaar:', err));
+function isValidFirebaseConfig(cfg) {
+  if (!cfg || typeof cfg !== 'object') return false;
+  const required = ['apiKey', 'authDomain', 'projectId', 'appId'];
+  return required.every((k) => cfg[k] && typeof cfg[k] === 'string' && !cfg[k].startsWith('YOUR_FIREBASE_'));
+}
 
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
+const firebaseAvailable = isValidFirebaseConfig(firebaseConfig);
+let app = null;
+let auth = null;
+let provider = null;
+if (firebaseAvailable) {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  provider = new GoogleAuthProvider();
+  isAnalyticsSupported()
+    .then((ok) => {
+      if (ok) {
+        const analytics = getAnalytics(app);
+        const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+        const hasDNT = (navigator.doNotTrack === '1' || window.doNotTrack === '1');
+        if (isLocalhost || hasDNT) {
+          setAnalyticsCollectionEnabled(analytics, false);
+        }
+      }
+    })
+    .catch((err) => console.warn('Analytics niet beschikbaar:', err));
+}
 let authMode = 'login';
+let lastFocusedElement = null;
+let lastQuestionDelta = 0;
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const STORAGE_KEY = 'fitroenie-anatomie';
 const PROGRESS_KEY = 'fitroenie-progress';
@@ -3939,6 +3960,17 @@ function renderQuizRunner(subject) {
   const canShowSubmit = state.answered === set.questions.length && activeQuizQuestionIndex === set.questions.length - 1;
   quizSubmit.hidden = !canShowSubmit;
   quizSubmit.disabled = !canShowSubmit;
+  if (!prefersReducedMotion) {
+    const card = quizRunner.querySelector('.quiz-runner__card');
+    if (card) {
+      card.classList.remove('slide-left', 'slide-right');
+      if (lastQuestionDelta > 0) card.classList.add('slide-left');
+      if (lastQuestionDelta < 0) card.classList.add('slide-right');
+      setTimeout(() => {
+        card.classList.remove('slide-left', 'slide-right');
+      }, 320);
+    }
+  }
   quizRunnerHint.textContent = !state.answered
     ? 'Kies een antwoord om verder te gaan.'
     : state.answered < set.questions.length
@@ -4107,6 +4139,36 @@ function openAuthModal(mode = 'login') {
     authOverlay.classList.add('visible');
   });
   authEmail.focus();
+  lastFocusedElement = document.activeElement;
+  document.body.classList.add('modal-open');
+  const focusable = authModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const firstEl = focusable[0];
+  const lastEl = focusable[focusable.length - 1];
+  function handleTrap(e) {
+    if (e.key !== 'Tab') return;
+    if (e.shiftKey) {
+      if (document.activeElement === firstEl) {
+        e.preventDefault();
+        lastEl.focus();
+      }
+    } else {
+      if (document.activeElement === lastEl) {
+        e.preventDefault();
+        firstEl.focus();
+      }
+    }
+  }
+  authModal.addEventListener('keydown', handleTrap);
+  authModal.dataset.trap = 'true';
+  authModal._trapHandler = handleTrap;
+  const disabled = !auth;
+  authEmail.disabled = disabled;
+  authPassword.disabled = disabled;
+  authSubmit.disabled = disabled;
+  googleBtn.disabled = disabled;
+  if (disabled) {
+    showAuthMessage('Accountfunctionaliteit is niet geconfigureerd.', 'error');
+  }
 }
 
 function closeAuthModal() {
@@ -4116,6 +4178,16 @@ function closeAuthModal() {
     authModal.hidden = true;
     authOverlay.hidden = true;
   }, 180);
+  document.body.classList.remove('modal-open');
+  if (authModal.dataset.trap === 'true' && authModal._trapHandler) {
+    authModal.removeEventListener('keydown', authModal._trapHandler);
+    delete authModal._trapHandler;
+    delete authModal.dataset.trap;
+  }
+  if (lastFocusedElement && lastFocusedElement.focus) {
+    lastFocusedElement.focus();
+    lastFocusedElement = null;
+  }
 }
 
 function showAuthMessage(text, type = '') {
@@ -4130,6 +4202,10 @@ async function handleAuthSubmit(event) {
   const password = authPassword.value.trim();
   if (!email || !password) {
     showAuthMessage('Vul e-mail en wachtwoord in.', 'error');
+    return;
+  }
+  if (!auth) {
+    showAuthMessage('Accountfunctionaliteit is niet geconfigureerd.', 'error');
     return;
   }
   showAuthMessage(authMode === 'login' ? 'Inloggen…' : 'Registreren…');
@@ -4148,6 +4224,10 @@ async function handleAuthSubmit(event) {
 }
 
 async function loginWithGoogle() {
+  if (!auth) {
+    showAuthMessage('Accountfunctionaliteit is niet geconfigureerd.', 'error');
+    return;
+  }
   showAuthMessage('Google login openen…');
   try {
     const result = await signInWithPopup(auth, provider);
@@ -4177,8 +4257,10 @@ function goToProfile() {
   renderProfile();
 }
 
-quizPrev?.addEventListener('click', () => goToQuestion(-1));
-quizNext?.addEventListener('click', () => goToQuestion(1));
+function goPrev() { lastQuestionDelta = -1; goToQuestion(-1); }
+function goNext() { lastQuestionDelta = 1; goToQuestion(1); }
+quizPrev?.addEventListener('click', goPrev);
+quizNext?.addEventListener('click', goNext);
 quizSubmit?.addEventListener('click', showResults);
 quizExit?.addEventListener('click', exitQuiz);
 quizExitCompact?.addEventListener('click', exitQuiz);
@@ -4254,11 +4336,13 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
-onAuthStateChanged(auth, (user) => {
-  currentUser = user;
-  updateUserChip(user);
-  renderProfile();
-});
+if (auth) {
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    updateUserChip(user);
+    renderProfile();
+  });
+}
 
 render();
 setActiveView(activeView);

@@ -10,6 +10,8 @@
   --shadow-soft: 0 10px 22px rgba(15, 47, 30, 0.06);
   --danger: #d65050;
   --radius: 14px;
+  --surface: linear-gradient(180deg, #ffffff 0%, #f7fbf8 100%);
+  --border-strong: #cfe1d6;
 }
 
 * {
@@ -27,6 +29,7 @@ body {
   line-height: 1.6;
   letter-spacing: 0.01em;
 }
+body.modal-open { overflow: hidden; }
 
 
 .topbar {
@@ -522,6 +525,7 @@ body {
 }
 .btn:hover { box-shadow: 0 16px 36px rgba(43, 182, 115, 0.26); transform: translateY(-2px); }
 .btn:active { transform: translateY(0); filter: brightness(0.95); }
+.btn:focus-visible { outline: 2px solid #138a4c; outline-offset: 2px; }
 .btn.secondary {
   background: transparent;
   color: var(--text);
@@ -562,6 +566,7 @@ body {
   height: 36px;
   cursor: pointer;
 }
+.icon-btn:focus-visible { outline: 2px solid #138a4c; outline-offset: 2px; }
 
 .grid {
   display: grid;
@@ -717,9 +722,11 @@ body {
   grid-template-columns: auto 1fr;
   align-items: center;
   gap: 12px;
+  will-change: transform;
 }
 .option:hover { border-color: var(--accent); transform: translateY(-1px); }
 .option.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); background: #e7f8ed; }
+.option:focus-visible { outline: 2px solid #29c677; outline-offset: 2px; }
 .option__label {
   width: 36px;
   height: 36px;
@@ -771,7 +778,10 @@ body {
   flex-direction: column;
   gap: 12px;
   animation: floatIn 0.45s ease;
+  will-change: transform, opacity;
 }
+.quiz-runner__card.slide-left { animation: slideLeft 0.28s ease; }
+.quiz-runner__card.slide-right { animation: slideRight 0.28s ease; }
 .quiz-runner__step {
   margin: 0;
   color: var(--muted);
@@ -984,6 +994,19 @@ body {
   20% { opacity: 0.7; transform: translateY(0); }
   60% { opacity: 0.2; transform: translateY(-6px); }
   100% { opacity: 0; transform: translateY(-12px); }
+}
+
+@keyframes slideLeft {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
 }
 
 @media (max-width: 640px) {
