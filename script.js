@@ -58,13 +58,13 @@ const quizExitCompact = document.getElementById('quiz-exit-compact');
 const activeSubjectHeading = document.getElementById('active-subject');
 
 const fallbackFirebaseConfig = {
-  apiKey: 'YOUR_FIREBASE_API_KEY',
-  authDomain: 'YOUR_FIREBASE_AUTH_DOMAIN',
-  projectId: 'YOUR_FIREBASE_PROJECT_ID',
-  storageBucket: 'YOUR_FIREBASE_STORAGE_BUCKET',
-  messagingSenderId: 'YOUR_FIREBASE_MESSAGING_SENDER_ID',
-  appId: 'YOUR_FIREBASE_APP_ID',
-  measurementId: 'YOUR_FIREBASE_MEASUREMENT_ID'
+   apiKey: "AIzaSyCYAs99vDWlr_CD2XJwtQG1Yg_UrUqw1cs",
+    authDomain: "fitroenie.firebaseapp.com",
+    projectId: "fitroenie",
+    storageBucket: "fitroenie.appspot.com",
+    messagingSenderId: "507365551216",
+    appId: "1:507365551216:web:a532c95471fed4976658b5",
+    measurementId: "G-FW1TL85F3S"
 };
 
 const firebaseConfig = window.FITROENIE_FIREBASE_CONFIG || fallbackFirebaseConfig;
