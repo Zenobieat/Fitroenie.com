@@ -101,9 +101,33 @@ let authMode = 'login';
 
 const STORAGE_KEY = 'fitroenie-anatomie';
 const PROGRESS_KEY = 'fitroenie-progress';
+const allowedOsteologySections = ['osteo-upper', 'osteo-lower', 'osteo-proef'];
 
 function deepClone(value) {
   return JSON.parse(JSON.stringify(value));
+}
+
+function formatSetTitle(raw = '') {
+  if (!raw) return '';
+  let title = raw
+    .replace(/^[\s✅🟦🟧•–-]+/u, '')
+    .replace(/^quiz\s*\d*\s*[–—-]?\s*/i, '')
+    .replace(/^quiz\s*[–—-]?\s*/i, '')
+    .replace(/\bmini\s*quiz\b[:\s-]*/i, '')
+    .replace(/\s*[–—-]\s*\d+\s*(?:vragen|vrg|vrn)?[^)]*\)?$/i, '')
+    .replace(/\s*\(\s*\d+\s*(?:vragen|vrg|vrn)[^)]*\)\s*$/i, '')
+    .trim();
+
+  if (!title) return raw.trim();
+  return title;
+}
+
+function getNormalizedSectionsForDomain(domain) {
+  if (!domain?.sections) return [];
+  if (domain.id === 'osteologie') {
+    return domain.sections.filter((sec) => allowedOsteologySections.includes(sec.id));
+  }
+  return domain.sections;
 }
 
 function createDefaultSubjects() {
@@ -3053,6 +3077,14 @@ function normalizeSubject(subject) {
 
   const normalized = { ...subject, categories };
   normalized.quizSets = categories.flatMap((cat) => cat.quizSets || []);
+
+  if (Array.isArray(normalized.examDomains)) {
+    normalized.examDomains = normalized.examDomains.map((domain) => ({
+      ...domain,
+      sections: getNormalizedSectionsForDomain(domain)
+    }));
+  }
+
   return normalized;
 }
 
@@ -3070,7 +3102,7 @@ function getExamDomain(subject, domainId) {
 
 function getDomainSections(subject, domainId) {
   const domain = getExamDomain(subject, domainId);
-  return domain?.sections ?? [];
+  return getNormalizedSectionsForDomain(domain);
 }
 
 function getCategoriesByIds(subject, ids = []) {
@@ -3083,20 +3115,22 @@ function getDomainQuizSets(subject, domainId) {
   const domain = getExamDomain(subject, domainId);
   if (!domain) return [];
 
-  if (!domain.sections?.length) {
+  const sections = getNormalizedSectionsForDomain(domain);
+
+  if (!sections.length) {
     return subject.categories
       ?.filter((cat) => cat.domain === domain.id)
       .flatMap((cat) => cat.quizSets || []);
   }
 
-  const categoryIds = domain.sections.flatMap((section) => section.categoryIds || []);
+  const categoryIds = sections.flatMap((section) => section.categoryIds || []);
   return getCategoriesByIds(subject, categoryIds).flatMap((cat) => cat.quizSets || []);
 }
 
 function getSectionQuizSets(subject, sectionId) {
   if (!subject || !sectionId) return [];
   const section = subject.examDomains
-    ?.flatMap((domain) => domain.sections || [])
+    ?.flatMap((domain) => getNormalizedSectionsForDomain(domain))
     .find((sec) => sec.id === sectionId);
 
   const categories = section?.categoryIds?.length
@@ -3111,9 +3145,16 @@ function getVisibleSets(subject) {
   const domain = getExamDomain(subject, activeExamDomain);
   if (!domain) return [];
 
+  const normalizedSections = getNormalizedSectionsForDomain(domain);
+
+  if (domain.id === 'osteologie' && activeOsteologySection) {
+    const isValid = normalizedSections.some((s) => s.id === activeOsteologySection);
+    if (!isValid) activeOsteologySection = null;
+  }
+
   const sections = domain.id === 'osteologie'
-    ? domain.sections.filter((s) => s.id === activeOsteologySection)
-    : domain.sections;
+    ? normalizedSections.filter((s) => s.id === activeOsteologySection)
+    : normalizedSections;
 
   const categoryIds = sections?.length
     ? sections.flatMap((section) => section.categoryIds || [])
@@ -3156,12 +3197,32 @@ function mergeDefaultSubjects(currentSubjects, defaults) {
         }
 
         defDomain.sections?.forEach((defSection) => {
-          const hasSection = targetDomain.sections.some((sec) => sec.id === defSection.id);
-          if (!hasSection) {
+          let targetSection = targetDomain.sections.find((sec) => sec.id === defSection.id);
+          if (!targetSection) {
             targetDomain.sections.push(deepClone(defSection));
             domainMutated = true;
+            return;
+          }
+
+          if (Array.isArray(defSection.categoryIds)) {
+            const existingIds = Array.isArray(targetSection.categoryIds) ? targetSection.categoryIds : [];
+            const mergedIds = Array.from(new Set([...existingIds, ...defSection.categoryIds]));
+            const changed =
+              mergedIds.length !== existingIds.length || mergedIds.some((id, idx) => id !== existingIds[idx]);
+            if (changed) {
+              targetSection.categoryIds = mergedIds;
+              domainMutated = true;
+            }
           }
         });
+
+        if (targetDomain.id === 'osteologie') {
+          const filtered = getNormalizedSectionsForDomain(targetDomain);
+          if (filtered.length !== (targetDomain.sections?.length || 0)) {
+            targetDomain.sections = filtered;
+            domainMutated = true;
+          }
+        }
 
         if (!targetDomain.description && defDomain.description) {
           targetDomain.description = defDomain.description;
@@ -3476,7 +3537,7 @@ function buildProfileResults() {
       const correct = state.correct || 0;
       const percent = Math.round((correct / total) * 100);
       subjectEntries.push({
-        title: set.title,
+        title: formatSetTitle(set.title),
         correct,
         total,
         percent,
@@ -3507,6 +3568,7 @@ function renderQuizPicker(subject) {
 
   const domains = subject.examDomains || [];
   const domain = activeExamDomain ? getExamDomain(subject, activeExamDomain) : null;
+  const normalizedSections = domain ? getNormalizedSectionsForDomain(domain) : [];
 
   const resetToDomains = () => {
     activeExamDomain = null;
@@ -3523,9 +3585,15 @@ function renderQuizPicker(subject) {
     render();
   };
 
+  if (domain?.id === 'osteologie' && activeOsteologySection) {
+    const isValid = normalizedSections.some((sec) => sec.id === activeOsteologySection);
+    if (!isValid) activeOsteologySection = null;
+  }
+
   const createSetCard = (set, setIndex) => {
     const state = getSetProgress(subject.name, set.title, set.questions);
     const status = state.completed ? 'Voltooid' : state.answered ? 'Bezig' : 'Niet gestart';
+    const setHeading = formatSetTitle(set.title);
 
     const card = document.createElement('article');
     card.className = 'quiz-picker__card';
@@ -3533,7 +3601,7 @@ function renderQuizPicker(subject) {
       <header class="quiz-picker__header">
         <div>
           <p class="eyebrow">Set ${setIndex + 1}</p>
-          <h3>${set.title}</h3>
+          <h3>${setHeading}</h3>
         </div>
         <div class="chip">${state.answered}/${set.questions.length} beantwoord</div>
       </header>
@@ -3655,7 +3723,7 @@ function renderQuizPicker(subject) {
     const list = document.createElement('div');
     list.className = 'quiz-category__list';
 
-    domain.sections?.forEach((sec) => {
+    normalizedSections.forEach((sec) => {
       const totalSets = getSectionQuizSets(subject, sec.id).length;
       const card = document.createElement('article');
       card.className = 'quiz-picker__card';
@@ -3698,9 +3766,9 @@ function renderQuizPicker(subject) {
   }
 
   const sections = domain.id === 'osteologie'
-    ? domain.sections.filter((s) => s.id === activeOsteologySection)
-    : domain.sections?.length
-      ? domain.sections
+    ? normalizedSections.filter((s) => s.id === activeOsteologySection)
+    : normalizedSections.length
+      ? normalizedSections
       : [
           {
             id: domain.id,
@@ -3807,7 +3875,7 @@ function renderQuizRunner(subject) {
   const question = set.questions[activeQuizQuestionIndex];
   const answer = state.answers?.[activeQuizQuestionIndex];
 
-  quizRunnerTitle.textContent = set.title;
+  quizRunnerTitle.textContent = formatSetTitle(set.title);
   quizRunnerSubtitle.textContent = `Vraag ${activeQuizQuestionIndex + 1} van ${set.questions.length}`;
   quizRunnerStep.textContent = `Vraag ${activeQuizQuestionIndex + 1} van ${set.questions.length}`;
   quizQuestionTitle.textContent = question.question;
@@ -3851,7 +3919,7 @@ function renderQuizResults(subject) {
 
   const percent = set.questions.length ? Math.round((state.correct / set.questions.length) * 100) : 0;
   quizResultsTitle.textContent = `${state.correct}/${set.questions.length} punten`;
-  quizResultsSubtitle.textContent = `${percent}% · ${set.title}`;
+  quizResultsSubtitle.textContent = `${percent}% · ${formatSetTitle(set.title)}`;
 
   quizResultsList.innerHTML = '';
   set.questions.forEach((question, idx) => {

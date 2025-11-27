@@ -11,6 +11,7 @@ Een eenvoudige single-page webapp met kant-en-klare Anatomie-quizzen en ruimte v
     - **Bovenste ledematen**: Atlas (C1), Axis (C2), Cervicale wervels (C3–C7), Thoracale wervels (T1–T12), Lumbale wervels (L1–L5), Os sacrum, Os coccygis, Sternum, Clavicula, Scapula, Humerus, Ulna, Radius, Ossa carpi (elk 20 vragen)
     - **Onderste ledematen**: Patella (mini-quiz, 5 vragen), Os coxae, Femur, Tibia, Fibula, Tarsalia, Talus, Calcaneus
     - **Proef examen**: Osteologie – 20 examenvragen (A–D) en Algemene osteologie (20 vragen)
+    - De setkaarten tonen alleen de bot- of onderdeelnaam (zonder “Quiz” of vraag-aantallen) en tussenkaarten zoals “As tot os coxae” zijn samengevoegd onder Bovenste/Onderste ledematen.
    - *Myologie*: plaats­houder, volgt later.
    - *Basisonderwijs*, *Blessure preventie*, *Ondernemen in de sport*, *Zelfdeterminatie theorie*: klikbaar in het Vakken-menu met de melding “hier werken we nog aan” zolang er nog geen examens of samenvattingen bestaan.
    Kies een kaart om een examen te starten of te hervatten; elk onderdeel telt afzonderlijk en wordt niet samengenomen.
