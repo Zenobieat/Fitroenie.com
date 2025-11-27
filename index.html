@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fitroenie Quizportaal</title>
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="nav__left">
+      <div class="logo">Fitroenie</div>
+      <nav class="nav" aria-label="Hoofdmenu">
+        <div class="subject-menu" id="subject-menu">
+          <button class="nav__link" id="subject-menu-toggle" type="button" aria-expanded="false" aria-haspopup="true">
+            <span>Vakken</span>
+          </button>
+          <div class="subject-menu__panel" id="subject-menu-panel" hidden aria-label="Beschikbare vakken"></div>
+        </div>
+        <div class="nav__pillbar" role="list">
+          <button class="pill is-active" data-view-target="home" role="listitem" type="button">Start</button>
+          <button class="pill" data-view-target="anatomie" data-panel-target="quiz-panel" role="listitem" type="button">
+            Examens
+          </button>
+          <button class="pill" data-view-target="anatomie" data-panel-target="summary-panel" role="listitem" type="button">
+            Samenvattingen
+          </button>
+        </div>
+      </nav>
+    </div>
+    <div class="nav__actions">
+      <div class="account" id="account">
+        <button class="btn ghost" id="login-btn" type="button">Inloggen / Registreren</button>
+        <button class="icon-btn" id="account-toggle" aria-label="Accountmenu" aria-expanded="false">▾</button>
+        <div class="account__panel" id="account-panel" hidden>
+          <p class="caption">Log in om voortgang te bewaren en tussen apparaten te delen.</p>
+          <div class="account__actions">
+            <button class="btn full" id="account-login" type="button">Inloggen</button>
+            <button class="btn tertiary full" id="account-register" type="button">Registreren</button>
+            <button class="btn ghost full" id="account-profile" type="button">Profiel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="view view--home active" data-view="home">
+      <header class="hero">
+        <div class="hero__content">
+          <p class="eyebrow">Fitroenie.com</p>
+          <h1>Oefen je vak in heldere examenpaden</h1>
+          <p class="lede">Kies je vak, stap in het juiste onderdeel en vul vraag per vraag in. Daarna zie je de score in een apart blad.</p>
+          <div class="hero__cta">
+            <button class="btn" data-view-target="anatomie" data-panel-target="quiz-panel" type="button">Start examen</button>
+            <button class="btn ghost" data-view-target="anatomie" data-panel-target="summary-panel" type="button">Naar samenvattingen</button>
+          </div>
+        </div>
+        <div class="hero__glow"></div>
+      </header>
+      <section class="home-grid" aria-label="Snelkoppelingen">
+        <article class="home-card" aria-live="polite">
+          <header class="home-card__header">
+            <p class="eyebrow">Anatomie</p>
+            <span class="chip ghost">2 vaste quizzen</span>
+          </header>
+          <h3>Kies je hoofdstuk en start</h3>
+          <p class="caption">Open de quizrunner in een aparte bladzijde binnen de site en bekijk je resultaten daarna apart.</p>
+          <div class="home-card__actions">
+            <button class="btn" data-view-target="anatomie" data-panel-target="quiz-panel" type="button">Naar quizpicker</button>
+            <button class="btn tertiary" data-view-target="anatomie" data-panel-target="summary-panel" type="button">Bekijk samenvattingen</button>
+          </div>
+        </article>
+        <article class="home-card">
+          <header class="home-card__header">
+            <p class="eyebrow">Inloggen</p>
+            <span class="chip ghost">Nieuwe flow</span>
+          </header>
+          <h3>Slimmer accountmenu</h3>
+          <p class="caption">Open het accountpaneel rechtsboven of gebruik de inlogknop om meteen met e-mail of Google aan te melden.</p>
+          <div class="home-card__actions">
+            <button class="btn ghost" id="home-login" type="button">Inloggen / registreren</button>
+          </div>
+        </article>
+      </section>
+    </section>
+
+    <section class="view" data-view="anatomie">
+      <div class="panel">
+          <div class="panel__header">
+          <div>
+          <p class="eyebrow">Vak</p>
+          <h2 id="active-subject">Anatomie</h2>
+          <p class="caption">Kies tussen de examens of samenvattingen. Voortgang blijft lokaal bewaard.</p>
+          </div>
+          <div class="tabbar" id="section-tabs" aria-label="Anatomie secties">
+            <button class="tab active" type="button" data-panel-target="quiz-panel">Examens</button>
+            <button class="tab" type="button" data-panel-target="summary-panel">Samenvattingen</button>
+          </div>
+        </div>
+
+        <div class="content-area">
+          <article class="summary" id="summary-panel" data-panel="summary-panel" hidden>
+            <h3>Samenvattingen</h3>
+            <p class="lede">De samenvattingen volgen; je kunt hier straks de kernpunten van Anatomie nalezen.</p>
+            <div id="summary-display">Nog geen samenvatting beschikbaar.</div>
+          </article>
+
+          <div id="quiz-panel" data-panel="quiz-panel">
+            <div class="progress-banner" id="progress-banner"></div>
+            <section id="quiz-picker" class="quiz-picker" aria-live="polite"></section>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view view--quiz" data-view="quizplay">
+      <div class="panel panel--runner">
+        <div class="panel__header">
+          <div>
+            <p class="eyebrow">Quizmodus</p>
+            <h2 id="quiz-runner-heading">Bezig met een quiz</h2>
+            <p class="caption">Antwoord vraag voor vraag en bekijk je score in dit blad.</p>
+          </div>
+          <div class="tabbar tabbar--inline">
+            <button class="tab" id="quiz-exit" type="button">Terug naar overzicht</button>
+          </div>
+        </div>
+
+        <section id="quiz-runner" class="quiz-runner" hidden aria-live="polite">
+          <header class="quiz-runner__header">
+            <div>
+              <p class="eyebrow" id="quiz-runner-title">Hoofdstuk</p>
+              <p class="caption" id="quiz-runner-subtitle">Vraag 1/20</p>
+            </div>
+            <div class="quiz-runner__actions">
+              <button class="btn ghost" id="quiz-exit-compact" type="button">Terug</button>
+            </div>
+          </header>
+
+          <div class="quiz-runner__card">
+            <p class="quiz-runner__step" id="quiz-runner-step">Vraag 1</p>
+            <h3 id="quiz-question-title"></h3>
+            <p class="lede" id="quiz-question-text"></p>
+            <div id="quiz-options" class="options"></div>
+
+            <div class="quiz-runner__footer">
+              <p class="caption" id="quiz-runner-hint">Kies een antwoord om verder te gaan.</p>
+              <div class="quiz-runner__nav">
+                <button class="btn tertiary" id="quiz-prev" type="button">Vorige</button>
+                <button class="btn" id="quiz-next" type="button">Volgende</button>
+                <button class="btn primary" id="quiz-submit" type="button">Toon score</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="quiz-results" class="quiz-results" hidden aria-live="polite">
+          <header class="quiz-results__header">
+            <div>
+              <p class="eyebrow">Resultaat</p>
+              <h3 id="quiz-results-title">Score</h3>
+              <p class="lede" id="quiz-results-subtitle"></p>
+            </div>
+            <div class="quiz-results__actions">
+              <button class="btn" id="quiz-retake" type="button">Opnieuw maken</button>
+              <button class="btn ghost" id="quiz-back" type="button">Terug naar overzicht</button>
+            </div>
+          </header>
+
+          <div class="quiz-results__list" id="quiz-results-list"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="view view--profile" data-view="profile">
+      <div class="panel panel--profile">
+        <div class="panel__header">
+          <div>
+            <p class="eyebrow">Profiel</p>
+            <h2 id="profile-heading">Jouw gegevens</h2>
+            <p class="caption" id="profile-subtitle">Log in om je voortgang en resultaten te bekijken.</p>
+          </div>
+          <div class="tabbar tabbar--inline">
+            <button class="tab" id="profile-back" type="button">Terug naar start</button>
+          </div>
+        </div>
+
+        <div class="profile-grid" aria-live="polite">
+          <article class="profile-card">
+            <header class="profile-card__header">
+              <p class="eyebrow">Account</p>
+              <h3 id="profile-name">Niet ingelogd</h3>
+            </header>
+            <p class="lede" id="profile-email">Meld je aan om je e-mail te tonen.</p>
+            <p class="caption" id="profile-status">Geen account actief.</p>
+            <div class="profile-card__actions">
+              <button class="btn" id="profile-login" type="button">Inloggen</button>
+              <button class="btn tertiary" id="profile-register" type="button">Registreren</button>
+            </div>
+          </article>
+
+          <article class="profile-card profile-card--wide">
+            <header class="profile-card__header">
+              <div>
+                <p class="eyebrow">Mijn quizzen</p>
+                <h3>Resultaten per vak</h3>
+              </div>
+              <span class="chip" id="profile-quiz-count">0 voltooide quizzen</span>
+            </header>
+            <div id="profile-quiz-list" class="profile-quiz-list">
+              <p class="caption">Nog geen resultaten gevonden.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Plak je nieuwe quizzen of samenvattingen hierboven; alles blijft lokaal opgeslagen.</p>
+  </footer>
+  <div id="auth-overlay" class="auth__overlay" hidden></div>
+  <section id="auth-modal" class="auth" hidden role="dialog" aria-modal="true" aria-labelledby="auth-title">
+    <div class="auth__header">
+      <div>
+        <p class="eyebrow">Account</p>
+        <h2 id="auth-title">Inloggen of registreren</h2>
+        <p class="caption">Gebruik e-mail &amp; wachtwoord of meld je aan met Google.</p>
+      </div>
+      <button class="icon-btn" id="auth-close" aria-label="Sluit inlogvenster">×</button>
+    </div>
+    <form id="auth-form" class="auth__form">
+      <label class="field">
+        <span>E-mail</span>
+        <input id="auth-email" type="email" name="email" placeholder="jij@example.com" required />
+      </label>
+      <label class="field">
+        <span>Wachtwoord</span>
+        <input id="auth-password" type="password" name="password" placeholder="••••••••" required />
+      </label>
+      <div class="auth__actions">
+        <button class="btn" id="auth-submit" type="submit">Inloggen</button>
+        <button class="btn tertiary" id="auth-toggle" type="button">Nog geen account? Registreren</button>
+      </div>
+      <div class="auth__divider"><span>of</span></div>
+      <button class="btn google" id="google-btn" type="button">Log in met Google</button>
+      <div class="message" id="auth-message" role="status"></div>
+    </form>
+  </section>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
