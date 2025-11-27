@@ -41,6 +41,7 @@
           <div class="account__actions">
             <button class="btn full" id="account-login" type="button">Inloggen</button>
             <button class="btn tertiary full" id="account-register" type="button">Registreren</button>
+            <button class="btn ghost full" id="account-profile" type="button">Profiel</button>
           </div>
         </div>
       </div>
@@ -173,6 +174,49 @@
 
           <div class="quiz-results__list" id="quiz-results-list"></div>
         </section>
+      </div>
+    </section>
+
+    <section class="view view--profile" data-view="profile">
+      <div class="panel panel--profile">
+        <div class="panel__header">
+          <div>
+            <p class="eyebrow">Profiel</p>
+            <h2 id="profile-heading">Jouw gegevens</h2>
+            <p class="caption" id="profile-subtitle">Log in om je voortgang en resultaten te bekijken.</p>
+          </div>
+          <div class="tabbar tabbar--inline">
+            <button class="tab" id="profile-back" type="button">Terug naar start</button>
+          </div>
+        </div>
+
+        <div class="profile-grid" aria-live="polite">
+          <article class="profile-card">
+            <header class="profile-card__header">
+              <p class="eyebrow">Account</p>
+              <h3 id="profile-name">Niet ingelogd</h3>
+            </header>
+            <p class="lede" id="profile-email">Meld je aan om je e-mail te tonen.</p>
+            <p class="caption" id="profile-status">Geen account actief.</p>
+            <div class="profile-card__actions">
+              <button class="btn" id="profile-login" type="button">Inloggen</button>
+              <button class="btn tertiary" id="profile-register" type="button">Registreren</button>
+            </div>
+          </article>
+
+          <article class="profile-card profile-card--wide">
+            <header class="profile-card__header">
+              <div>
+                <p class="eyebrow">Mijn quizzen</p>
+                <h3>Resultaten per vak</h3>
+              </div>
+              <span class="chip" id="profile-quiz-count">0 voltooide quizzen</span>
+            </header>
+            <div id="profile-quiz-list" class="profile-quiz-list">
+              <p class="caption">Nog geen resultaten gevonden.</p>
+            </div>
+          </article>
+        </div>
       </div>
     </section>
   </main>

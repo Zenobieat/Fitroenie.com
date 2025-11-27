@@ -56,6 +56,17 @@ const quizBack = document.getElementById('quiz-back');
 const quizRetake = document.getElementById('quiz-retake');
 const quizExitCompact = document.getElementById('quiz-exit-compact');
 const activeSubjectHeading = document.getElementById('active-subject');
+const profileHeading = document.getElementById('profile-heading');
+const profileSubtitle = document.getElementById('profile-subtitle');
+const profileName = document.getElementById('profile-name');
+const profileEmail = document.getElementById('profile-email');
+const profileStatus = document.getElementById('profile-status');
+const profileQuizList = document.getElementById('profile-quiz-list');
+const profileQuizCount = document.getElementById('profile-quiz-count');
+const profileLogin = document.getElementById('profile-login');
+const profileRegister = document.getElementById('profile-register');
+const profileBack = document.getElementById('profile-back');
+const accountProfile = document.getElementById('account-profile');
 
 const fallbackFirebaseConfig = {
   apiKey: 'YOUR_FIREBASE_API_KEY',
@@ -3017,6 +3028,7 @@ let activeOsteologySection = null;
 let activeQuizSetTitle = null;
 let activeQuizQuestionIndex = 0;
 let quizMode = 'picker';
+let currentUser = null;
 
 const mergeResult = mergeDefaultSubjects(subjects, defaultSubjects);
 if (mergeResult.mutated) {
@@ -3355,6 +3367,13 @@ function getActiveSet(subject = getActiveSubject()) {
   return getQuizSets(subject).find((set) => set.title === activeQuizSetTitle) ?? null;
 }
 
+function getUserDisplayName(user) {
+  if (!user) return 'Niet ingelogd';
+  if (user.displayName) return user.displayName;
+  if (user.email) return user.email.split('@')[0];
+  return 'Gebruiker';
+}
+
 function ensureSetState(subjectName, setTitle) {
   const subjectProgress = progress[subjectName] || (progress[subjectName] = {});
   const state = subjectProgress[setTitle] || (subjectProgress[setTitle] = { answers: {} });
@@ -3369,9 +3388,13 @@ function computeSetCounts(set, state) {
     const pick = answers[idx];
     return acc + (pick && pick.choice === question.answerIndex ? 1 : 0);
   }, 0);
+  const total = set.questions.length;
   state.answered = answered;
   state.correct = correct;
-  state.completed = answered === set.questions.length;
+  state.completed = answered === total;
+  state.lastScore = { correct, total };
+  state.updatedAt = Date.now();
+  state.completedAt = state.completed ? state.completedAt || Date.now() : null;
   return state;
 }
 
@@ -3439,6 +3462,32 @@ function updateProgressBanner(subject) {
     </div>
     <p class="caption">Kies een set, maak de vragen en bekijk daarna je score.</p>
   `;
+}
+
+function buildProfileResults() {
+  const list = [];
+  subjects.forEach((subject) => {
+    const sets = getQuizSets(subject);
+    const subjectEntries = [];
+    sets.forEach((set) => {
+      const state = getSetProgress(subject.name, set.title, set.questions);
+      if (!state.answered) return;
+      const total = set.questions.length;
+      const correct = state.correct || 0;
+      const percent = Math.round((correct / total) * 100);
+      subjectEntries.push({
+        title: set.title,
+        correct,
+        total,
+        percent,
+        completed: !!state.completed
+      });
+    });
+    if (subjectEntries.length) {
+      list.push({ subject: subject.name, entries: subjectEntries });
+    }
+  });
+  return list;
 }
 
 function renderSummary(subject) {
@@ -3830,6 +3879,75 @@ function renderQuizResults(subject) {
   });
 }
 
+function profileCardActions() {
+  return {
+    login: profileLogin,
+    register: profileRegister
+  };
+}
+
+function renderProfile() {
+  const user = currentUser;
+  const loggedIn = !!user;
+  profileHeading.textContent = loggedIn ? 'Je profiel' : 'Log in om je profiel te zien';
+  profileSubtitle.textContent = loggedIn
+    ? 'Bekijk je gegevens en voortgang per vak.'
+    : 'Meld je aan om je e-mail, gebruikersnaam en resultaten te bekijken.';
+  profileName.textContent = getUserDisplayName(user);
+  profileEmail.textContent = loggedIn ? user.email || 'Geen e-mail gevonden' : 'Geen e-mail bekend';
+  profileStatus.textContent = loggedIn
+    ? 'Je voortgang wordt lokaal bijgehouden.'
+    : 'Geen account actief. Log in of registreer om verder te gaan.';
+
+  const results = buildProfileResults();
+  profileQuizList.innerHTML = '';
+  if (!results.length) {
+    profileQuizList.innerHTML = '<p class="caption">Nog geen resultaten gevonden.</p>';
+    profileQuizCount.textContent = '0 voltooide quizzen';
+  } else {
+    let completedTotal = 0;
+    results.forEach((group) => {
+      const card = document.createElement('div');
+      card.className = 'profile-result';
+      card.innerHTML = `
+        <header class="profile-result__header">
+          <h4>${group.subject}</h4>
+          <span class="chip ghost">${group.entries.length} gemaakte quizzen</span>
+        </header>
+      `;
+
+      const list = document.createElement('div');
+      list.className = 'profile-result__list';
+
+      group.entries.forEach((entry) => {
+        if (entry.completed) completedTotal += 1;
+        const row = document.createElement('div');
+        row.className = 'profile-result__row';
+        row.innerHTML = `
+          <div>
+            <p class="eyebrow">${group.subject}</p>
+            <strong>${entry.title}</strong>
+          </div>
+          <div class="profile-result__score">
+            <span class="chip">${entry.correct}/${entry.total}</span>
+            <span class="caption">${entry.percent}% juist${entry.completed ? '' : ' (bezig)'}</span>
+          </div>
+        `;
+        list.appendChild(row);
+      });
+
+      card.appendChild(list);
+      profileQuizList.appendChild(card);
+    });
+
+    profileQuizCount.textContent = `${completedTotal || 0} voltooide quizzen`;
+  }
+
+  const actionButtons = profileCardActions();
+  actionButtons.login.hidden = loggedIn;
+  actionButtons.register.hidden = loggedIn;
+}
+
 function showResults() {
   const subject = getActiveSubject();
   const set = getActiveSet(subject);
@@ -3860,6 +3978,7 @@ function render() {
   renderQuizPicker(subject);
   renderQuizRunner(subject);
   renderQuizResults(subject);
+  renderProfile();
   updateProgressBanner(subject);
   renderSubjectMenu();
   persistSubjects();
@@ -3944,6 +4063,16 @@ function updateUserChip(user) {
   accountToggle?.setAttribute('aria-label', loggedIn ? 'Accountmenu (ingelogd)' : 'Accountmenu');
 }
 
+function goToProfile() {
+  if (!currentUser) {
+    openAuthModal('login');
+    return;
+  }
+  closeAccountPanel();
+  setActiveView('profile');
+  renderProfile();
+}
+
 quizPrev?.addEventListener('click', () => goToQuestion(-1));
 quizNext?.addEventListener('click', () => goToQuestion(1));
 quizSubmit?.addEventListener('click', showResults);
@@ -3956,6 +4085,10 @@ loginBtn.addEventListener('click', () => openAuthModal('login'));
 homeLogin?.addEventListener('click', () => openAuthModal('login'));
 accountLogin?.addEventListener('click', () => openAuthModal('login'));
 accountRegister?.addEventListener('click', () => openAuthModal('register'));
+accountProfile?.addEventListener('click', goToProfile);
+profileLogin?.addEventListener('click', () => openAuthModal('login'));
+profileRegister?.addEventListener('click', () => openAuthModal('register'));
+profileBack?.addEventListener('click', () => setActiveView('home'));
 accountToggle?.addEventListener('click', (event) => {
   event.preventDefault();
   event.stopPropagation();
@@ -4018,7 +4151,9 @@ document.addEventListener('keydown', (event) => {
 });
 
 onAuthStateChanged(auth, (user) => {
+  currentUser = user;
   updateUserChip(user);
+  renderProfile();
 });
 
 render();

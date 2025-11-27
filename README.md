@@ -15,6 +15,7 @@ Een eenvoudige single-page webapp met kant-en-klare Anatomie-quizzen en ruimte v
    - *Basisonderwijs*, *Blessure preventie*, *Ondernemen in de sport*, *Zelfdeterminatie theorie*: klikbaar in het Vakken-menu met de melding “hier werken we nog aan” zolang er nog geen examens of samenvattingen bestaan.
    Kies een kaart om een examen te starten of te hervatten; elk onderdeel telt afzonderlijk en wordt niet samengenomen.
 4. Zodra je start word je naar een apart blad binnen de site gestuurd met alleen de gekozen quiz; beantwoord vraag per vraag met **Vorige/Volgende**. Pas na het invullen van alle vragen verschijnt de knop **Toon score** en krijg je een eigen resultatenblad met je punten en de juiste antwoorden per vraag.
+5. Vanuit het accountmenu kun je naar het **Profiel**-tabblad. Daar zie je je gebruikersnaam, e-mailadres en onder *Mijn quizzen* een overzicht van alle gemaakte quizzen per vak met het aantal juiste antwoorden.
 
 Alle gegevens, inclusief je voortgang, worden lokaal in `localStorage` opgeslagen.
 
