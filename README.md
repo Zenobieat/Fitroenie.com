@@ -8,12 +8,14 @@ Een eenvoudige single-page webapp met kant-en-klare Anatomie-quizzen en ruimte v
 3. In **Examens** kies je eerst een vak (bijv. *Anatomie*) en daarna een onderdeel:
    - *Arthrologie*: het vaste blok **Arthrologie – 20 examenvragen**.
    - *Osteologie*: tweede stap met onderdelen:
-    - **Bovenste ledematen**: Quiz 1 — Atlas (C1), Quiz 2 — Axis (C2), Quiz 3 — Cervicale wervels C3–C7, Quiz 4 — Thoracale wervels (T1–T12), Quiz 5 — Lumbale wervels (L1–L5), Quiz 6 — Os sacrum, Quiz 7 — Os coccygis, Quiz 8 — Sternum, Quiz 9 — Clavicula, Quiz 10 — Scapula, Quiz 11 — Humerus, Quiz 12 — Ulna, Quiz 13 — Radius, Quiz 14 — Ossa carpi (elk 20 vragen)
-    - **Onderste ledematen**: Patella — mini-quiz (5 vragen), Quiz 15 — Os coxae, Quiz 16 — Femur, Quiz 18 — Tibia, Quiz 19 — Fibula, Quiz 20 — Tarsalia, Quiz 21 — Talus, Quiz 22 — Calcaneus
-    - **Proef examen**: Osteologie – 20 examenvragen (A–D) en Quiz — Algemene osteologie (20 vragen)
+    - **Bovenste ledematen**: Atlas (C1), Axis (C2), Cervicale wervels (C3–C7), Thoracale wervels (T1–T12), Lumbale wervels (L1–L5), Os sacrum, Os coccygis, Sternum, Clavicula, Scapula, Humerus, Ulna, Radius, Ossa carpi (elk 20 vragen)
+    - **Onderste ledematen**: Patella (mini-quiz, 5 vragen), Os coxae, Femur, Tibia, Fibula, Tarsalia, Talus, Calcaneus
+    - **Proef examen**: Osteologie – 20 examenvragen (A–D) en Algemene osteologie (20 vragen)
    - *Myologie*: plaats­houder, volgt later.
+   - *Basisonderwijs*, *Blessure preventie*, *Ondernemen in de sport*, *Zelfdeterminatie theorie*: klikbaar in het Vakken-menu met de melding “hier werken we nog aan” zolang er nog geen examens of samenvattingen bestaan.
    Kies een kaart om een examen te starten of te hervatten; elk onderdeel telt afzonderlijk en wordt niet samengenomen.
 4. Zodra je start word je naar een apart blad binnen de site gestuurd met alleen de gekozen quiz; beantwoord vraag per vraag met **Vorige/Volgende**. Pas na het invullen van alle vragen verschijnt de knop **Toon score** en krijg je een eigen resultatenblad met je punten en de juiste antwoorden per vraag.
+5. Vanuit het accountmenu kun je naar het **Profiel**-tabblad. Daar zie je je gebruikersnaam, e-mailadres en onder *Mijn quizzen* een overzicht van alle gemaakte quizzen per vak met het aantal juiste antwoorden.
 
 Alle gegevens, inclusief je voortgang, worden lokaal in `localStorage` opgeslagen.
 

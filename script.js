@@ -56,15 +56,26 @@ const quizBack = document.getElementById('quiz-back');
 const quizRetake = document.getElementById('quiz-retake');
 const quizExitCompact = document.getElementById('quiz-exit-compact');
 const activeSubjectHeading = document.getElementById('active-subject');
+const profileHeading = document.getElementById('profile-heading');
+const profileSubtitle = document.getElementById('profile-subtitle');
+const profileName = document.getElementById('profile-name');
+const profileEmail = document.getElementById('profile-email');
+const profileStatus = document.getElementById('profile-status');
+const profileQuizList = document.getElementById('profile-quiz-list');
+const profileQuizCount = document.getElementById('profile-quiz-count');
+const profileLogin = document.getElementById('profile-login');
+const profileRegister = document.getElementById('profile-register');
+const profileBack = document.getElementById('profile-back');
+const accountProfile = document.getElementById('account-profile');
 
 const fallbackFirebaseConfig = {
-   apiKey: "AIzaSyCYAs99vDWlr_CD2XJwtQG1Yg_UrUqw1cs",
-    authDomain: "fitroenie.firebaseapp.com",
-    projectId: "fitroenie",
-    storageBucket: "fitroenie.appspot.com",
-    messagingSenderId: "507365551216",
-    appId: "1:507365551216:web:a532c95471fed4976658b5",
-    measurementId: "G-FW1TL85F3S"
+  apiKey: 'YOUR_FIREBASE_API_KEY',
+  authDomain: 'YOUR_FIREBASE_AUTH_DOMAIN',
+  projectId: 'YOUR_FIREBASE_PROJECT_ID',
+  storageBucket: 'YOUR_FIREBASE_STORAGE_BUCKET',
+  messagingSenderId: 'YOUR_FIREBASE_MESSAGING_SENDER_ID',
+  appId: 'YOUR_FIREBASE_APP_ID',
+  measurementId: 'YOUR_FIREBASE_MEASUREMENT_ID'
 };
 
 const firebaseConfig = window.FITROENIE_FIREBASE_CONFIG || fallbackFirebaseConfig;
@@ -396,7 +407,7 @@ function createDefaultSubjects() {
         description: 'Van schoudergordel tot hand – meer vragen volgen snel.',
         quizSets: [
           {
-            title: 'Quiz 9 — Clavicula (20 vragen)',
+            title: 'Clavicula',
             questions: [
               {
                 question: 'Welke vorm heeft de clavicula?',
@@ -501,7 +512,7 @@ function createDefaultSubjects() {
             ]
           },
           {
-            title: 'Quiz 10 — Scapula (20 vragen)',
+            title: 'Scapula',
             questions: [
               {
                 question: 'Welke structuur loopt uit in het acromion?',
@@ -606,7 +617,7 @@ function createDefaultSubjects() {
             ]
           },
           {
-            title: 'Quiz 11 — Humerus (20 vragen)',
+            title: 'Humerus',
             questions: [
               {
                 question: 'Hoe heet de kop van de humerus?',
@@ -711,7 +722,7 @@ function createDefaultSubjects() {
             ]
           },
           {
-            title: 'Quiz 12 — Ulna (20 vragen)',
+            title: 'Ulna',
             questions: [
               {
                 question: 'Hoe heet het grote proximale uitsteeksel van de ulna dat de punt van de elleboog vormt?',
@@ -821,7 +832,7 @@ function createDefaultSubjects() {
             ]
           },
           {
-            title: 'Quiz 13 — Radius (20 vragen)',
+            title: 'Radius',
             questions: [
               {
                 question: 'Hoe heet het bovenste uiteinde van de radius?',
@@ -926,7 +937,7 @@ function createDefaultSubjects() {
             ]
           },
           {
-            title: 'Quiz 14 — Ossa carpi (20 vragen)',
+            title: 'Ossa carpi',
             questions: [
               {
                 question: 'Hoeveel handwortelbeentjes heeft een mens?',
@@ -1050,7 +1061,7 @@ function createDefaultSubjects() {
         description: 'Van atlas en axis tot het bekkengebied (valt onder bovenste ledematen).',
         quizSets: [
           {
-            title: 'Quiz 1 — Atlas (C1) — 20 vragen',
+            title: 'Atlas (C1)',
             questions: [
               {
                 question: 'Waar zit de fovea dentis?',
@@ -1210,7 +1221,7 @@ function createDefaultSubjects() {
             ]
           },
           {
-            title: 'Quiz 2 — Axis (C2) — 20 vragen',
+            title: 'Axis (C2)',
             questions: [
               {
                 question: 'Wat is het meest kenmerkende deel van de axis?',
@@ -1320,7 +1331,7 @@ function createDefaultSubjects() {
             ]
           },
           {
-            title: 'Quiz 3 — Cervicale wervels C3–C7 — 20 vragen',
+            title: 'Cervicale wervels (C3–C7)',
             questions: [
               {
                 question: 'Wat is het typische kenmerk van cervicale wervels?',
@@ -1445,7 +1456,7 @@ function createDefaultSubjects() {
             ]
           },
           {
-            title: 'Quiz 4 — Thoracale wervels (T1–T12)',
+            title: 'Thoracale wervels (T1–T12)',
             questions: [
               {
                 question: 'Wat is het typische kenmerk van thoracale wervels?',
@@ -1550,7 +1561,7 @@ function createDefaultSubjects() {
             ]
           },
           {
-            title: 'Quiz 5 — Lumbale wervels (L1–L5)',
+            title: 'Lumbale wervels (L1–L5)',
             questions: [
               {
                 question: 'Wat is het meest herkenbare kenmerk van lumbale wervels?',
@@ -1655,7 +1666,7 @@ function createDefaultSubjects() {
             ]
           },
           {
-            title: 'Quiz 6 — Os sacrum (20 vragen)',
+            title: 'Os sacrum',
             questions: [
               {
                 question: 'Waaruit bestaat het os sacrum?',
@@ -1760,7 +1771,7 @@ function createDefaultSubjects() {
             ]
           },
           {
-            title: 'Quiz 7 — Os coccygis (20 vragen)',
+            title: 'Os coccygis',
             questions: [
               {
                 question: 'Waaruit bestaat het os coccygis?',
@@ -1865,7 +1876,7 @@ function createDefaultSubjects() {
             ]
           },
           {
-            title: 'Quiz 8 — Sternum (20 vragen)',
+            title: 'Sternum',
             questions: [
               {
                 question: 'Uit welke delen bestaat het sternum?',
@@ -1979,7 +1990,7 @@ function createDefaultSubjects() {
         description: 'Van os coxae tot de voet – per deel geoefend.',
         quizSets: [
           {
-            title: 'Quiz 15 — Os coxae (20 vragen)',
+            title: 'Os coxae',
             questions: [
               {
                 question: 'Uit welke drie botstukken bestaat het os coxae bij kinderen?',
@@ -2084,7 +2095,7 @@ function createDefaultSubjects() {
             ]
           },
           {
-            title: 'Quiz 16 — Femur (20 vragen)',
+            title: 'Femur',
             questions: [
               {
                 question: 'Hoe heet de kop van het femur?',
@@ -2189,7 +2200,7 @@ function createDefaultSubjects() {
             ]
           },
           {
-            title: 'Patella — Mini quiz (5 vragen)',
+            title: 'Patella',
             questions: [
               {
                 question: 'In welke pees ligt de patella?',
@@ -2224,7 +2235,7 @@ function createDefaultSubjects() {
             ]
           },
           {
-            title: 'Quiz 18 — Tibia (20 vragen)',
+            title: 'Tibia',
             questions: [
               {
                 question: 'Hoe heet de bovenkant van de tibia?',
@@ -2329,7 +2340,7 @@ function createDefaultSubjects() {
             ]
           },
           {
-            title: 'Quiz 19 — Fibula (20 vragen)',
+            title: 'Fibula',
             questions: [
               {
                 question: 'Hoe heet de kop van de fibula?',
@@ -2464,7 +2475,7 @@ function createDefaultSubjects() {
             ]
           },
           {
-            title: 'Quiz 20 — Tarsalia (20 vragen)',
+            title: 'Tarsalia',
             questions: [
               {
                 question: 'Hoeveel tarsale beenderen heeft de mens?',
@@ -2579,7 +2590,7 @@ function createDefaultSubjects() {
             ]
           },
           {
-            title: 'Quiz 21 — Talus (20 vragen)',
+            title: 'Talus',
             questions: [
               {
                 question: 'Welk bot articuleert direct met de tibia?',
@@ -2694,7 +2705,7 @@ function createDefaultSubjects() {
             ]
           },
           {
-            title: 'Quiz 22 — Calcaneus (20 vragen)',
+            title: 'Calcaneus',
             questions: [
               {
                 question: 'Welk bot vormt de hiel?',
@@ -2814,7 +2825,7 @@ function createDefaultSubjects() {
         quizSets: [
           osteologieHoofdstuk,
           {
-            title: 'Quiz — Algemene osteologie (20 vragen)',
+            title: 'Algemene osteologie',
             questions: [
               {
                 question: 'De fovea dentis vinden we op:',
@@ -2991,7 +3002,7 @@ function createDefaultSubjects() {
   const placeholder = (name) =>
     normalizeSubject({
       name,
-      summary: 'Nog geen examens beschikbaar. Deze bundel wordt later gevuld.',
+      summary: 'Hier werken we nog aan. Deze bundel wordt later gevuld.',
       categories: [],
       examDomains: []
     });
@@ -3017,6 +3028,7 @@ let activeOsteologySection = null;
 let activeQuizSetTitle = null;
 let activeQuizQuestionIndex = 0;
 let quizMode = 'picker';
+let currentUser = null;
 
 const mergeResult = mergeDefaultSubjects(subjects, defaultSubjects);
 if (mergeResult.mutated) {
@@ -3355,6 +3367,13 @@ function getActiveSet(subject = getActiveSubject()) {
   return getQuizSets(subject).find((set) => set.title === activeQuizSetTitle) ?? null;
 }
 
+function getUserDisplayName(user) {
+  if (!user) return 'Niet ingelogd';
+  if (user.displayName) return user.displayName;
+  if (user.email) return user.email.split('@')[0];
+  return 'Gebruiker';
+}
+
 function ensureSetState(subjectName, setTitle) {
   const subjectProgress = progress[subjectName] || (progress[subjectName] = {});
   const state = subjectProgress[setTitle] || (subjectProgress[setTitle] = { answers: {} });
@@ -3369,9 +3388,13 @@ function computeSetCounts(set, state) {
     const pick = answers[idx];
     return acc + (pick && pick.choice === question.answerIndex ? 1 : 0);
   }, 0);
+  const total = set.questions.length;
   state.answered = answered;
   state.correct = correct;
-  state.completed = answered === set.questions.length;
+  state.completed = answered === total;
+  state.lastScore = { correct, total };
+  state.updatedAt = Date.now();
+  state.completedAt = state.completed ? state.completedAt || Date.now() : null;
   return state;
 }
 
@@ -3439,6 +3462,32 @@ function updateProgressBanner(subject) {
     </div>
     <p class="caption">Kies een set, maak de vragen en bekijk daarna je score.</p>
   `;
+}
+
+function buildProfileResults() {
+  const list = [];
+  subjects.forEach((subject) => {
+    const sets = getQuizSets(subject);
+    const subjectEntries = [];
+    sets.forEach((set) => {
+      const state = getSetProgress(subject.name, set.title, set.questions);
+      if (!state.answered) return;
+      const total = set.questions.length;
+      const correct = state.correct || 0;
+      const percent = Math.round((correct / total) * 100);
+      subjectEntries.push({
+        title: set.title,
+        correct,
+        total,
+        percent,
+        completed: !!state.completed
+      });
+    });
+    if (subjectEntries.length) {
+      list.push({ subject: subject.name, entries: subjectEntries });
+    }
+  });
+  return list;
 }
 
 function renderSummary(subject) {
@@ -3527,7 +3576,7 @@ function renderQuizPicker(subject) {
               <h3>${subject.name}</h3>
             </div>
           </header>
-          <p class="caption">Voor dit vak staan er nog geen examendelen klaar.</p>
+          <p class="caption">Hier werken we nog aan — voor dit vak staan er nog geen examendelen klaar.</p>
         </section>
       `;
       return;
@@ -3830,6 +3879,75 @@ function renderQuizResults(subject) {
   });
 }
 
+function profileCardActions() {
+  return {
+    login: profileLogin,
+    register: profileRegister
+  };
+}
+
+function renderProfile() {
+  const user = currentUser;
+  const loggedIn = !!user;
+  profileHeading.textContent = loggedIn ? 'Je profiel' : 'Log in om je profiel te zien';
+  profileSubtitle.textContent = loggedIn
+    ? 'Bekijk je gegevens en voortgang per vak.'
+    : 'Meld je aan om je e-mail, gebruikersnaam en resultaten te bekijken.';
+  profileName.textContent = getUserDisplayName(user);
+  profileEmail.textContent = loggedIn ? user.email || 'Geen e-mail gevonden' : 'Geen e-mail bekend';
+  profileStatus.textContent = loggedIn
+    ? 'Je voortgang wordt lokaal bijgehouden.'
+    : 'Geen account actief. Log in of registreer om verder te gaan.';
+
+  const results = buildProfileResults();
+  profileQuizList.innerHTML = '';
+  if (!results.length) {
+    profileQuizList.innerHTML = '<p class="caption">Nog geen resultaten gevonden.</p>';
+    profileQuizCount.textContent = '0 voltooide quizzen';
+  } else {
+    let completedTotal = 0;
+    results.forEach((group) => {
+      const card = document.createElement('div');
+      card.className = 'profile-result';
+      card.innerHTML = `
+        <header class="profile-result__header">
+          <h4>${group.subject}</h4>
+          <span class="chip ghost">${group.entries.length} gemaakte quizzen</span>
+        </header>
+      `;
+
+      const list = document.createElement('div');
+      list.className = 'profile-result__list';
+
+      group.entries.forEach((entry) => {
+        if (entry.completed) completedTotal += 1;
+        const row = document.createElement('div');
+        row.className = 'profile-result__row';
+        row.innerHTML = `
+          <div>
+            <p class="eyebrow">${group.subject}</p>
+            <strong>${entry.title}</strong>
+          </div>
+          <div class="profile-result__score">
+            <span class="chip">${entry.correct}/${entry.total}</span>
+            <span class="caption">${entry.percent}% juist${entry.completed ? '' : ' (bezig)'}</span>
+          </div>
+        `;
+        list.appendChild(row);
+      });
+
+      card.appendChild(list);
+      profileQuizList.appendChild(card);
+    });
+
+    profileQuizCount.textContent = `${completedTotal || 0} voltooide quizzen`;
+  }
+
+  const actionButtons = profileCardActions();
+  actionButtons.login.hidden = loggedIn;
+  actionButtons.register.hidden = loggedIn;
+}
+
 function showResults() {
   const subject = getActiveSubject();
   const set = getActiveSet(subject);
@@ -3860,6 +3978,7 @@ function render() {
   renderQuizPicker(subject);
   renderQuizRunner(subject);
   renderQuizResults(subject);
+  renderProfile();
   updateProgressBanner(subject);
   renderSubjectMenu();
   persistSubjects();
@@ -3944,6 +4063,16 @@ function updateUserChip(user) {
   accountToggle?.setAttribute('aria-label', loggedIn ? 'Accountmenu (ingelogd)' : 'Accountmenu');
 }
 
+function goToProfile() {
+  if (!currentUser) {
+    openAuthModal('login');
+    return;
+  }
+  closeAccountPanel();
+  setActiveView('profile');
+  renderProfile();
+}
+
 quizPrev?.addEventListener('click', () => goToQuestion(-1));
 quizNext?.addEventListener('click', () => goToQuestion(1));
 quizSubmit?.addEventListener('click', showResults);
@@ -3956,6 +4085,10 @@ loginBtn.addEventListener('click', () => openAuthModal('login'));
 homeLogin?.addEventListener('click', () => openAuthModal('login'));
 accountLogin?.addEventListener('click', () => openAuthModal('login'));
 accountRegister?.addEventListener('click', () => openAuthModal('register'));
+accountProfile?.addEventListener('click', goToProfile);
+profileLogin?.addEventListener('click', () => openAuthModal('login'));
+profileRegister?.addEventListener('click', () => openAuthModal('register'));
+profileBack?.addEventListener('click', () => setActiveView('home'));
 accountToggle?.addEventListener('click', (event) => {
   event.preventDefault();
   event.stopPropagation();
@@ -4018,7 +4151,9 @@ document.addEventListener('keydown', (event) => {
 });
 
 onAuthStateChanged(auth, (user) => {
+  currentUser = user;
   updateUserChip(user);
+  renderProfile();
 });
 
 render();
