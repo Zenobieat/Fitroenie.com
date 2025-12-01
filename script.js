@@ -3754,7 +3754,8 @@ function setActiveView(target) {
   });
 
   viewToggles.forEach((toggle) => {
-    const isActive = toggle.dataset.viewTarget === target;
+    const isPanelToggle = !!toggle.dataset.panelTarget;
+    const isActive = !isPanelToggle && toggle.dataset.viewTarget === target;
     toggle.classList.toggle('is-active', isActive);
     toggle.setAttribute('aria-current', isActive ? 'page' : 'false');
   });
