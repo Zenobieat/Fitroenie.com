@@ -3774,7 +3774,8 @@ function setActivePanel(panelId) {
   const targets = [...new Set([...localTabs, ...allTabs])];
   targets.forEach((btn) => {
     const isActive = btn.dataset.panelTarget === panelId;
-    btn.classList.toggle('active', isActive);
+    const isPill = btn.classList.contains('pill');
+    btn.classList.toggle(isPill ? 'is-active' : 'active', isActive);
     btn.setAttribute('aria-current', isActive ? 'page' : 'false');
   });
 }
