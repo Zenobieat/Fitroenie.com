@@ -3440,6 +3440,7 @@ let activeQuizQuestionIndex = 0;
 let quizMode = 'picker';
 let currentUser = null;
 let profileExpanded = {};
+let lastHash = '';
 
 function dedupeQuizSets(list = []) {
   const seen = new Set();
@@ -3760,6 +3761,7 @@ function setActiveView(target) {
     toggle.setAttribute('aria-current', isActive ? 'page' : 'false');
   });
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  updateHash();
 }
 
 function setActivePanel(panelId) {
@@ -3779,6 +3781,7 @@ function setActivePanel(panelId) {
     btn.classList.toggle(isPill ? 'is-active' : 'active', isActive);
     btn.setAttribute('aria-current', isActive ? 'page' : 'false');
   });
+  updateHash();
 }
 
 function handleSubjectNavigation(subjectName, panelTarget = 'quiz-panel') {
@@ -3792,6 +3795,40 @@ function handleSubjectNavigation(subjectName, panelTarget = 'quiz-panel') {
   setActiveView('anatomie');
   setActivePanel(panelTarget);
   closeSubjectMenu();
+}
+
+function updateHash() {
+  const params = new URLSearchParams();
+  if (activeSubject) params.set('subject', activeSubject);
+  if (activePanel) params.set('panel', activePanel);
+  if (activeExamDomain) params.set('domain', activeExamDomain);
+  if (activeOsteologySection) params.set('section', activeOsteologySection);
+  if (activeQuizSetTitle) params.set('set', encodeURIComponent(activeQuizSetTitle));
+  const next = `#/${activeView}${params.toString() ? `?${params.toString()}` : ''}`;
+  if (next !== lastHash) {
+    lastHash = next;
+    location.hash = next;
+  }
+}
+
+function syncFromHash() {
+  const raw = (location.hash || '').slice(1);
+  if (!raw) return;
+  const [path, query] = raw.split('?');
+  const parts = path.split('/').filter(Boolean);
+  const view = parts[0] || 'home';
+  const params = new URLSearchParams(query || '');
+  const subj = params.get('subject');
+  const panel = params.get('panel');
+  const domain = params.get('domain');
+  const section = params.get('section');
+  const setTitle = params.get('set');
+  activeView = view;
+  if (subj) activeSubject = subj;
+  if (panel) activePanel = panel;
+  activeExamDomain = domain || null;
+  activeOsteologySection = section || null;
+  activeQuizSetTitle = setTitle ? decodeURIComponent(setTitle) : null;
 }
 
 function openAccountPanel() {
@@ -4834,6 +4871,14 @@ if (auth) {
   });
 }
 
+syncFromHash();
 render();
 setActiveView(activeView);
 setActivePanel(activePanel);
+window.addEventListener('hashchange', () => {
+  if (location.hash === lastHash) return;
+  syncFromHash();
+  render();
+  setActiveView(activeView);
+  setActivePanel(activePanel);
+});
