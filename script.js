@@ -4411,7 +4411,11 @@ function handleAnswerSelection(choiceIndex) {
   };
   computeSetCounts(set, state);
   persistProgress();
-  renderDuringQuiz();
+  Array.from(quizOptions.querySelectorAll('.option')).forEach((el, idx) => {
+    el.classList.toggle('selected', idx === choiceIndex);
+  });
+  updateProgressBanner(subject);
+  quizRunnerHint.textContent = 'Antwoord opgeslagen.';
 }
 
 function handleOpenAnswerInput(text) {
@@ -4425,7 +4429,7 @@ function handleOpenAnswerInput(text) {
   };
   computeSetCounts(set, state);
   persistProgress();
-  renderDuringQuiz();
+  updateProgressBanner(subject);
 }
 
 function renderQuizRunner(subject) {
