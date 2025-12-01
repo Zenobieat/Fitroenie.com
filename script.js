@@ -4082,6 +4082,7 @@ function renderQuizPicker(subject) {
     const state = getSetProgress(subject.name, set.title, set.questions);
     const status = state.completed ? 'Voltooid' : state.answered ? 'Bezig' : 'Niet gestart';
     const setHeading = formatSetTitle(set.title);
+    const percent = set.questions.length ? Math.round((state.correct / set.questions.length) * 100) : 0;
 
     const card = document.createElement('article');
     card.className = 'quiz-picker__card';
@@ -4091,9 +4092,9 @@ function renderQuizPicker(subject) {
           <p class="eyebrow">Set ${setIndex + 1}</p>
           <h3>${setHeading}</h3>
         </div>
-        <div class="chip">${state.answered}/${set.questions.length} beantwoord</div>
+        <div class="chip">${state.completed ? `${state.correct}/${set.questions.length} punten · ${percent}%` : `${state.answered}/${set.questions.length} beantwoord`}</div>
       </header>
-      <p class="caption">${status} · ${set.questions.length} vragen</p>
+      <p class="caption">${status} · ${set.questions.length} vragen${state.completed ? ` · ${state.correct}/${set.questions.length} punten (${percent}%)` : ''}</p>
     `;
 
     const actions = document.createElement('div');
@@ -4105,19 +4106,22 @@ function renderQuizPicker(subject) {
     primaryBtn.textContent = state.completed ? 'Bekijk score' : state.answered ? 'Ga verder' : 'Start quiz';
     primaryBtn.addEventListener('click', () => startQuiz(set.title));
 
-    const secondaryBtn = document.createElement('button');
-    secondaryBtn.type = 'button';
-    secondaryBtn.className = 'btn ghost';
-    secondaryBtn.textContent = 'Herstart';
-    secondaryBtn.addEventListener('click', () => {
-      resetSetProgress(subject.name, set.title);
-      if (activeQuizSetTitle === set.title) {
-        activeQuizQuestionIndex = 0;
-      }
-      render();
-    });
-
-    actions.append(primaryBtn, secondaryBtn);
+    if (state.completed) {
+      const secondaryBtn = document.createElement('button');
+      secondaryBtn.type = 'button';
+      secondaryBtn.className = 'btn ghost';
+      secondaryBtn.textContent = 'Herstart';
+      secondaryBtn.addEventListener('click', () => {
+        resetSetProgress(subject.name, set.title);
+        if (activeQuizSetTitle === set.title) {
+          activeQuizQuestionIndex = 0;
+        }
+        render();
+      });
+      actions.append(primaryBtn, secondaryBtn);
+    } else {
+      actions.append(primaryBtn);
+    }
     card.appendChild(actions);
     return card;
   };
