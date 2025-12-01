@@ -3430,7 +3430,7 @@ const defaultSubjects = createDefaultSubjects();
 
 let subjects = loadSubjects();
 let progress = loadProgress();
-let activeSubject = subjects[0]?.name ?? 'Anatomie';
+let activeSubject = null;
 let activeView = 'home';
 let activePanel = 'quiz-panel';
 let activeExamDomain = null;
@@ -3774,7 +3774,8 @@ function setActivePanel(panelId) {
   const targets = [...new Set([...localTabs, ...allTabs])];
   targets.forEach((btn) => {
     const isActive = btn.dataset.panelTarget === panelId;
-    btn.classList.toggle('active', isActive);
+    const isPill = btn.classList.contains('pill');
+    btn.classList.toggle(isPill ? 'is-active' : 'active', isActive);
     btn.setAttribute('aria-current', isActive ? 'page' : 'false');
   });
 }
@@ -3978,7 +3979,7 @@ function buildProfileResults() {
 
 function renderSummary(subject) {
   if (!subject) {
-    summaryDisplay.textContent = 'Geen vak geselecteerd.';
+    summaryDisplay.textContent = 'Kies eerst een vak via “Vakken”. In Samenvattingen lees je per vak de kernpunten. Selecteer hierboven een vak en klik daarna op Samenvattingen.';
     return;
   }
   summaryDisplay.textContent = subject.summary || 'Nog geen samenvatting beschikbaar.';
@@ -3987,7 +3988,13 @@ function renderSummary(subject) {
 function renderQuizPicker(subject) {
   quizPicker.innerHTML = '';
   if (!subject) {
-    quizPicker.innerHTML = '<p class="caption">Geen vak beschikbaar.</p>';
+    quizPicker.innerHTML = `
+      <article class="summary">
+        <h3>Examens</h3>
+        <p class="lede">Kies eerst een vak via “Vakken”. Daarna verschijnen hier de examenpaden voor dat vak.</p>
+        <p class="caption">Je voortgang blijft lokaal bewaard.</p>
+      </article>
+    `;
     return;
   }
 
