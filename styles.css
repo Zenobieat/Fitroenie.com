@@ -633,7 +633,12 @@ body.modal-open { overflow: hidden; }
   display: flex;
   flex-direction: column;
   gap: 14px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.18s ease, transform 0.18s ease;
 }
+.quiz-picker--out { opacity: 0; transform: translateY(6px); }
+.quiz-picker--in { opacity: 1; transform: translateY(0); }
 
 .quiz-category {
   background: #f8fbf9;
@@ -677,6 +682,7 @@ body.modal-open { overflow: hidden; }
   animation: floatIn 0.5s ease;
   transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
 }
+.quiz-picker__card.is-opening { box-shadow: 0 16px 36px rgba(41, 198, 119, 0.22); transform: translateY(-2px); }
 .quiz-picker__card:hover { transform: translateY(-4px); box-shadow: 0 18px 44px rgba(15, 47, 30, 0.14); border-color: #c6ead7; }
 .quiz-picker__header {
   display: flex;

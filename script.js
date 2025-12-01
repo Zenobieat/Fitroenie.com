@@ -4003,19 +4003,36 @@ function renderQuizPicker(subject) {
   const domain = activeExamDomain ? getExamDomain(subject, activeExamDomain) : null;
   const normalizedSections = domain ? getNormalizedSectionsForDomain(domain) : [];
 
+  const animatePicker = (next) => {
+    if (!quizPicker) { next(); return; }
+    quizPicker.classList.add('quiz-picker--out');
+    setTimeout(() => {
+      next();
+      quizPicker.classList.remove('quiz-picker--out');
+      quizPicker.classList.add('quiz-picker--in');
+      requestAnimationFrame(() => {
+        quizPicker.classList.remove('quiz-picker--in');
+      });
+    }, 160);
+  };
+
   const resetToDomains = () => {
-    activeExamDomain = null;
-    activeOsteologySection = null;
-    activeQuizSetTitle = null;
-    quizMode = 'picker';
-    render();
+    animatePicker(() => {
+      activeExamDomain = null;
+      activeOsteologySection = null;
+      activeQuizSetTitle = null;
+      quizMode = 'picker';
+      render();
+    });
   };
 
   const resetToOsteologySections = () => {
-    activeOsteologySection = null;
-    activeQuizSetTitle = null;
-    quizMode = 'picker';
-    render();
+    animatePicker(() => {
+      activeOsteologySection = null;
+      activeQuizSetTitle = null;
+      quizMode = 'picker';
+      render();
+    });
   };
 
   if (domain?.id === 'osteologie' && activeOsteologySection) {
@@ -4121,11 +4138,15 @@ function renderQuizPicker(subject) {
       openBtn.className = 'btn';
       openBtn.textContent = 'Open';
       openBtn.addEventListener('click', () => {
-        activeExamDomain = dom.id;
-        activeOsteologySection = null;
-        activeQuizSetTitle = null;
-        quizMode = 'picker';
-        render();
+        card.classList.add('is-opening');
+        setTimeout(() => card.classList.remove('is-opening'), 240);
+        animatePicker(() => {
+          activeExamDomain = dom.id;
+          activeOsteologySection = null;
+          activeQuizSetTitle = null;
+          quizMode = 'picker';
+          render();
+        });
       });
 
       actions.append(openBtn);
@@ -4179,10 +4200,14 @@ function renderQuizPicker(subject) {
       openBtn.className = 'btn';
       openBtn.textContent = 'Open';
       openBtn.addEventListener('click', () => {
-        activeOsteologySection = sec.id;
-        activeQuizSetTitle = null;
-        quizMode = 'picker';
-        render();
+        card.classList.add('is-opening');
+        setTimeout(() => card.classList.remove('is-opening'), 240);
+        animatePicker(() => {
+          activeOsteologySection = sec.id;
+          activeQuizSetTitle = null;
+          quizMode = 'picker';
+          render();
+        });
       });
 
       actions.append(openBtn);
