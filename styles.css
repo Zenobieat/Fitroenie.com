@@ -793,8 +793,8 @@ body.modal-open { overflow: hidden; }
   animation: floatIn 0.45s ease;
   will-change: transform, opacity;
 }
-.quiz-runner__card.slide-left { animation: slideLeft 0.28s ease; }
-.quiz-runner__card.slide-right { animation: slideRight 0.28s ease; }
+.quiz-runner__card.mounted { animation: none; }
+.quiz-runner__card.fade-in { animation: fadeIn 0.22s ease; }
 .quiz-runner__step {
   margin: 0;
   color: var(--muted);

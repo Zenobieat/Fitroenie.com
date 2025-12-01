@@ -4488,12 +4488,13 @@ function renderQuizRunner(subject) {
   if (!prefersReducedMotion) {
     const card = quizRunner.querySelector('.quiz-runner__card');
     if (card) {
-      card.classList.remove('slide-left', 'slide-right');
-      if (lastQuestionDelta > 0) card.classList.add('slide-left');
-      if (lastQuestionDelta < 0) card.classList.add('slide-right');
+      if (!card.classList.contains('mounted')) card.classList.add('mounted');
+      card.classList.remove('fade-in');
+      // apply a single, subtle fade for next/prev
+      card.classList.add('fade-in');
       setTimeout(() => {
-        card.classList.remove('slide-left', 'slide-right');
-      }, 320);
+        card.classList.remove('fade-in');
+      }, 240);
     }
   }
   quizRunnerHint.textContent = !state.answered
