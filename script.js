@@ -15,6 +15,7 @@ const quizResults = document.getElementById('quiz-results');
 const summaryDisplay = document.getElementById('summary-display');
 const sectionTabs = document.getElementById('section-tabs');
 const panels = document.querySelectorAll('[data-panel]');
+const subjectSidebar = document.getElementById('subject-sidebar');
 const progressBanner = document.getElementById('progress-banner');
 const loginBtn = document.getElementById('login-btn');
 const account = document.getElementById('account');
@@ -4313,6 +4314,53 @@ function renderQuizPicker(subject) {
     quizPicker.appendChild(sectionEl);
   });
 }
+function renderSubjectSidebar(subject) {
+  if (!subjectSidebar) return;
+  subjectSidebar.innerHTML = '';
+  if (!subject) {
+    subjectSidebar.innerHTML = '<p class="caption">Kies een vak om te verkennen.</p>';
+    return;
+  }
+  const domains = subject.examDomains || [];
+  const container = document.createElement('div');
+  const title = document.createElement('h4');
+  title.textContent = 'Onderdelen';
+  const list = document.createElement('div');
+  list.className = 'navlist';
+  domains.forEach((dom) => {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'navitem' + (activeExamDomain === dom.id ? ' is-active' : '');
+    item.textContent = dom.title;
+    item.addEventListener('click', () => {
+      activeExamDomain = dom.id;
+      activeOsteologySection = null;
+      activeQuizSetTitle = null;
+      quizMode = 'picker';
+      render();
+    });
+    list.appendChild(item);
+    if (activeExamDomain === dom.id) {
+      const sections = getNormalizedSectionsForDomain(dom);
+      sections.forEach((sec) => {
+        const secBtn = document.createElement('button');
+        secBtn.type = 'button';
+        secBtn.className = 'navitem' + (activeOsteologySection === sec.id ? ' is-active' : '');
+        secBtn.textContent = sec.title;
+        secBtn.style.marginLeft = '6px';
+        secBtn.addEventListener('click', () => {
+          activeOsteologySection = sec.id;
+          activeQuizSetTitle = null;
+          quizMode = 'picker';
+          render();
+        });
+        list.appendChild(secBtn);
+      });
+    }
+  });
+  container.append(title, list);
+  subjectSidebar.appendChild(container);
+}
 
 function startQuiz(setTitle) {
   const subject = getActiveSubject();
@@ -4614,6 +4662,7 @@ function render() {
   activeSubjectHeading.textContent = subject?.name || 'Kies een vak';
   renderSummary(subject);
   renderQuizPicker(subject);
+  renderSubjectSidebar(subject);
   renderQuizRunner(subject);
   renderQuizResults(subject);
   renderProfile();
