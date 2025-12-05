@@ -24,6 +24,9 @@
         </div>
         <div class="nav__pillbar" role="list">
           <button class="pill is-active" data-view-target="home" role="listitem" type="button">Start</button>
+          <button class="pill" data-view-target="anatomie" data-panel-target="quiz-panel" role="listitem" type="button">Examens</button>
+          <button class="pill" data-view-target="anatomie" data-panel-target="summary-panel" role="listitem" type="button">Samenvattingen</button>
+          <button class="pill" data-view-target="profile" role="listitem" type="button">Profiel</button>
         </div>
       </nav>
     </div>
@@ -37,6 +40,7 @@
             <button class="btn full" id="account-login" type="button">Inloggen</button>
             <button class="btn tertiary full" id="account-register" type="button">Registreren</button>
             <button class="btn ghost full" id="account-profile" type="button">Profiel</button>
+            <button class="btn full" id="account-logout" type="button">Uitloggen</button>
           </div>
         </div>
       </div>
@@ -45,42 +49,29 @@
 
   <main class="layout">
     <section class="view view--home active" data-view="home">
-      <header class="hero">
+      <header class="hero hero--lux">
         <div class="hero__content">
           <p class="eyebrow">Fitroenie.com</p>
-          <h1>Oefen je vak in heldere examenpaden</h1>
-          <p class="lede">Kies je vak, stap in het juiste onderdeel en vul vraag per vraag in. Daarna zie je de score in een apart blad.</p>
-          <div class="hero__cta">
-            <button class="btn" data-view-target="anatomie" data-panel-target="quiz-panel" type="button">Start examen</button>
-            <button class="btn ghost" data-view-target="anatomie" data-panel-target="summary-panel" type="button">Naar samenvattingen</button>
+          <h1>Ontdek vakken en start meteen met oefenen</h1>
+          <p class="lede">Zoek een vak of blader door de catalogus. Simpel, professioneel en met een frisse look om vlot te studeren.</p>
+          <div class="hero__search">
+            <div class="searchbar">
+              <input id="subject-search" type="text" placeholder="Zoek een vak of onderdeel…" aria-label="Zoek vak" />
+              <button class="btn" type="button" data-view-target="anatomie" data-panel-target="quiz-panel">Bekijk examens</button>
+            </div>
           </div>
         </div>
         <div class="hero__glow"></div>
       </header>
-      <section class="home-grid" aria-label="Snelkoppelingen">
-        <article class="home-card" aria-live="polite">
-          <header class="home-card__header">
-            <p class="eyebrow">Anatomie</p>
-            <span class="chip ghost">2 vaste quizzen</span>
-          </header>
-          <h3>Kies je hoofdstuk en start</h3>
-          <p class="caption">Open de quizrunner in een aparte bladzijde binnen de site en bekijk je resultaten daarna apart.</p>
-          <div class="home-card__actions">
-            <button class="btn" data-view-target="anatomie" data-panel-target="quiz-panel" type="button">Naar quizpicker</button>
-            <button class="btn tertiary" data-view-target="anatomie" data-panel-target="summary-panel" type="button">Bekijk samenvattingen</button>
+      <section class="catalog" aria-label="Vakkencatalogus">
+        <header class="catalog__header">
+          <div>
+            <p class="eyebrow">Catalogus</p>
+            <h3>Vakken en onderdelen</h3>
           </div>
-        </article>
-        <article class="home-card">
-          <header class="home-card__header">
-            <p class="eyebrow">Inloggen</p>
-            <span class="chip ghost">Nieuwe flow</span>
-          </header>
-          <h3>Slimmer accountmenu</h3>
-          <p class="caption">Open het accountpaneel rechtsboven of gebruik de inlogknop om meteen met e-mail of Google aan te melden.</p>
-          <div class="home-card__actions">
-            <button class="btn ghost" id="home-login" type="button">Inloggen / registreren</button>
-          </div>
-        </article>
+          <span class="chip ghost" id="catalog-count">0 vakken</span>
+        </header>
+        <div id="subject-catalog" class="catalog-grid" aria-live="polite"></div>
       </section>
     </section>
 
@@ -194,11 +185,12 @@
             </header>
             <p class="lede" id="profile-email">Meld je aan om je e-mail te tonen.</p>
             <p class="caption" id="profile-status">Geen account actief.</p>
-            <div class="profile-card__actions">
-              <button class="btn" id="profile-login" type="button">Inloggen</button>
-              <button class="btn tertiary" id="profile-register" type="button">Registreren</button>
-            </div>
-          </article>
+          <div class="profile-card__actions">
+            <button class="btn" id="profile-login" type="button">Inloggen</button>
+            <button class="btn tertiary" id="profile-register" type="button">Registreren</button>
+            <button class="btn ghost" id="profile-logout" type="button">Uitloggen</button>
+          </div>
+        </article>
 
           <article class="profile-card profile-card--wide">
             <header class="profile-card__header">

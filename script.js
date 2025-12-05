@@ -6,7 +6,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPopup,
-  onAuthStateChanged
+  onAuthStateChanged,
+  signOut
 } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js';
 
 const quizPicker = document.getElementById('quiz-picker');
@@ -17,6 +18,8 @@ const sectionTabs = document.getElementById('section-tabs');
 const panels = document.querySelectorAll('[data-panel]');
 const subjectSidebar = document.getElementById('subject-sidebar');
 const progressBanner = document.getElementById('progress-banner');
+const subjectSearch = document.getElementById('subject-search');
+const subjectCatalog = document.getElementById('subject-catalog');
 const loginBtn = document.getElementById('login-btn');
 const account = document.getElementById('account');
 const accountToggle = document.getElementById('account-toggle');
@@ -66,8 +69,10 @@ const profileQuizList = document.getElementById('profile-quiz-list');
 const profileQuizCount = document.getElementById('profile-quiz-count');
 const profileLogin = document.getElementById('profile-login');
 const profileRegister = document.getElementById('profile-register');
+const profileLogout = document.getElementById('profile-logout');
 const profileBack = document.getElementById('profile-back');
 const accountProfile = document.getElementById('account-profile');
+const accountLogout = document.getElementById('account-logout');
 
 const fallbackFirebaseConfig = {
   apiKey: 'YOUR_FIREBASE_API_KEY',
@@ -4928,6 +4933,11 @@ function openAccountPanel() {
   requestAnimationFrame(() => accountPanel.classList.add('visible'));
   account?.classList.add('open');
   accountToggle?.setAttribute('aria-expanded', 'true');
+  const loggedIn = !!currentUser;
+  if (accountLogin) accountLogin.hidden = loggedIn;
+  if (accountRegister) accountRegister.hidden = loggedIn;
+  if (accountProfile) accountProfile.hidden = !loggedIn;
+  if (accountLogout) accountLogout.hidden = !loggedIn;
 }
 
 function closeAccountPanel() {
@@ -5648,7 +5658,8 @@ function renderQuizResults(subject) {
 function profileCardActions() {
   return {
     login: profileLogin,
-    register: profileRegister
+    register: profileRegister,
+    logout: profileLogout
   };
 }
 
@@ -5722,6 +5733,7 @@ function renderProfile() {
   const actionButtons = profileCardActions();
   actionButtons.login.hidden = loggedIn;
   actionButtons.register.hidden = loggedIn;
+  if (actionButtons.logout) actionButtons.logout.hidden = !loggedIn;
 }
 
 function openSubjectResult(subjectName, setTitle) {
@@ -5767,6 +5779,7 @@ function render() {
   renderProfile();
   updateProgressBanner(subject);
   renderSubjectMenu();
+  renderHomeCatalog();
   persistSubjects();
 }
 
@@ -5950,6 +5963,19 @@ accountProfile?.addEventListener('click', goToProfile);
 profileLogin?.addEventListener('click', () => openAuthModal('login'));
 profileRegister?.addEventListener('click', () => openAuthModal('register'));
 profileBack?.addEventListener('click', () => setActiveView('home'));
+async function logout() {
+  if (!auth) return;
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.warn('Uitloggen mislukt:', error);
+  }
+  closeAccountPanel();
+  renderProfile();
+}
+
+accountLogout?.addEventListener('click', logout);
+profileLogout?.addEventListener('click', logout);
 accountToggle?.addEventListener('click', (event) => {
   event.preventDefault();
   event.stopPropagation();
@@ -6010,6 +6036,55 @@ document.addEventListener('keydown', (event) => {
     if (subjectMenu?.classList.contains('open')) closeSubjectMenu();
   }
 });
+
+function renderHomeCatalog() {
+  if (!subjectCatalog) return;
+  const term = (subjectSearch?.value || '').trim().toLowerCase();
+  subjectCatalog.innerHTML = '';
+  const list = subjects.filter((s) => {
+    if (!term) return true;
+    const hay = `${s.name} ${s.summary || ''}`.toLowerCase();
+    return hay.includes(term);
+  });
+  const count = document.getElementById('catalog-count');
+  if (count) count.textContent = `${list.length} vakken`;
+  if (!list.length) {
+    subjectCatalog.innerHTML = '<p class="caption">Geen vakken gevonden. Pas je zoekterm aan.</p>';
+    return;
+  }
+  list.forEach((s) => {
+    const card = document.createElement('article');
+    card.className = 'catalog-card';
+    const totalSets = getQuizSets(s).length;
+    card.innerHTML = `
+      <header class="catalog-card__header">
+        <div>
+          <p class="eyebrow">Vak</p>
+          <h3>${s.name}</h3>
+        </div>
+        <span class="chip">${totalSets} quizzen</span>
+      </header>
+      <p class="caption">${s.summary || ''}</p>
+    `;
+    const actions = document.createElement('div');
+    actions.className = 'catalog-card__actions';
+    const examBtn = document.createElement('button');
+    examBtn.className = 'btn';
+    examBtn.type = 'button';
+    examBtn.textContent = 'Examens';
+    examBtn.addEventListener('click', () => handleSubjectNavigation(s.name, 'quiz-panel'));
+    const sumBtn = document.createElement('button');
+    sumBtn.className = 'btn ghost';
+    sumBtn.type = 'button';
+    sumBtn.textContent = 'Samenvattingen';
+    sumBtn.addEventListener('click', () => handleSubjectNavigation(s.name, 'summary-panel'));
+    actions.append(examBtn, sumBtn);
+    card.appendChild(actions);
+    subjectCatalog.appendChild(card);
+  });
+}
+
+subjectSearch?.addEventListener('input', () => renderHomeCatalog());
 
 if (auth) {
   onAuthStateChanged(auth, (user) => {
