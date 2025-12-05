@@ -3410,6 +3410,1096 @@ function createDefaultSubjects() {
     ]
   });
 
+  const blessureLes1Set = {
+    title: 'Les 1: Algemeen Kader & Omvang van Sportblessures',
+    questions: [
+      {
+        question: 'Wat zijn de drie centrale pijlers van blessurepreventie?',
+        options: [
+          'Prestatie, Revalidatie, Competitie',
+          "Levenslang sporten, Prestatie, Ethiek ('Gezond sporten')",
+          'Techniek, Tactiek, Fysiek',
+          'Topsport, Breedtesport, G-sport'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Letsels zijn de voornaamste reden waarom mensen stoppen met fysieke activiteit.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 0
+      },
+      {
+        question: 'Volgens onderzoek is welk percentage van alle letsels in Vlaanderen toe te schrijven aan sport?',
+        options: ['30%', '47%', '53%', '70%'],
+        answerIndex: 1
+      },
+      {
+        question: 'Welk percentage van de acute letsels bij Vlaamse jongeren (6-18 jaar) is ten gevolge van sport?',
+        options: ['30%', '50%', '70%', '90%'],
+        answerIndex: 2
+      },
+      {
+        question: 'Bij sporten met veel trainingsuren (zoals zwemmen) treden blessures vaker op tijdens wedstrijden dan tijdens trainingen.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 1
+      },
+      {
+        question: 'Hoe ontstaan de meeste sportblessures (ongeveer 90%)?',
+        options: ['Plots (acuut)', 'Geleidelijk (overbelasting)', 'Door ziekte', 'Door slecht materiaal'],
+        answerIndex: 0
+      },
+      {
+        question: 'Welk lichaamsdeel is het vaakst gekwetst bij sporters in het algemeen (alle leeftijden)?',
+        options: ['Knie', 'Enkel', 'Schouder', 'Rug'],
+        answerIndex: 1
+      },
+      {
+        question: 'Wat is het meest voorkomende type letsel bij voetballers?',
+        options: ['Breuken', 'Kneuzingen en verstuikingen', 'Hoofdletsels', 'Rugklachten'],
+        answerIndex: 1
+      },
+      {
+        question: 'Bij welke sport komen blessures aan de bovenste ledematen (schouder, elleboog) frequent voor?',
+        options: ['Voetbal', 'Wielrennen', 'Fitness', 'Lopen'],
+        answerIndex: 2
+      },
+      {
+        question: 'De meeste sportblessures (ongeveer 75%) zijn contactblessures.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 1
+      },
+      {
+        question: 'Welk negatief gevolg kan een blessure hebben voor een schoolgaande sporter?',
+        options: ['Betere punten op school', 'Afwezigheid op school', 'Meer tijd voor huiswerk', 'Verhoogde populariteit'],
+        answerIndex: 1
+      },
+      {
+        question: 'Wat is een specifiek veelvoorkomend letsel bij wielrenners (15% van de klachten)?',
+        options: ['Hielspoor', 'Zadelpijn', 'Enkelverstuiking', 'Tenniselleboog'],
+        answerIndex: 1
+      },
+      {
+        question: 'Welk letseltype komt vaak voor bij lopers (32% van de letsels)?',
+        options: ['Liesblessures', 'Knieblessures', 'Schouderluxaties', 'Polsbreuken'],
+        answerIndex: 1
+      },
+      {
+        question: 'Een blessure kan leiden tot een vermindering van de fysieke fitheid bij schoolkinderen tot wel 17-18%.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 0
+      },
+      {
+        question: 'Welk gevolg kan een blessure hebben voor de trainer?',
+        options: ['Hinder bij het geven van training', 'Minder administratief werk', 'Meer tijd voor tactische analyse', 'Geen enkel gevolg'],
+        answerIndex: 0
+      },
+      {
+        question: 'Welk lichaamsdeel raakt bij basketbal het vaakst geblesseerd (15%)?',
+        options: ['Pols', 'Rug', 'Enkel', 'Schouder'],
+        answerIndex: 2
+      },
+      {
+        question: "Wat is het doel van het project 'Get Fit 2 Sport'?",
+        options: [
+          'Topsporttalenten ontdekken',
+          'Primaire preventie van sportletsels in en door de les L.O.',
+          'Het verkopen van sportmateriaal',
+          'Het promoten van fitnessabonnementen'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Welk percentage van de blessures bij atletiek betreft de bovenbenen en heup?',
+        options: ['10%', '20%', '31%', '50%'],
+        answerIndex: 2
+      },
+      {
+        question: 'Wat wordt bedoeld met "Levenslang sporten" als pijler?',
+        options: [
+          'Je moet elke dag sporten tot je sterft.',
+          'Een duurzame sportbeoefening stimuleren.',
+          'Enkel ouderen moeten aan blessurepreventie doen.',
+          'Je mag nooit stoppen met competitie.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Ongeveer 1/3 van de blessures treedt op tijdens recreationele sportactiviteiten.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 0
+      }
+    ]
+  };
+
+  const blessureLes2Set = {
+    title: 'Les 2: Wat is Blessurepreventie & Preventie in Vlaanderen',
+    questions: [
+      {
+        question: "Wat is de definitie van 'primaire preventie'?",
+        options: [
+          'Het behandelen van een blessure na het optreden ervan.',
+          'Het voorkomen dat een blessure optreedt.',
+          'Het voorkomen van herval na een eerdere blessure.',
+          'Het leren leven met een blijvend letsel.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Welk model wordt gebruikt om het ontstaan van sportblessures schematisch weer te geven?',
+        options: [
+          'Het model van Maslow',
+          'Het model van Meeuwisse (et al.)',
+          'Het Cooper-model',
+          'Het FIFA 11+ model'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Wat is een voorbeeld van een intrinsieke risicofactor?',
+        options: ['Slecht weer', 'Verkeerd schoeisel', 'Leeftijd of geslacht', 'Een slecht speelveld'],
+        answerIndex: 2
+      },
+      {
+        question:
+          "Het 'Belasting-Belastbaarheidmodel' stelt dat blessures ontstaan wanneer de belasting lager is dan de belastbaarheid.",
+        options: ['Juist', 'Fout'],
+        answerIndex: 1
+      },
+      {
+        question: 'Wat is het doel van de \"Functional Movement Screen\" (FMS)?',
+        options: [
+          'De maximale kracht meten.',
+          'De uithouding testen.',
+          'Zwakke schakels in stabiliteit, kracht en lenigheid opsporen.',
+          'De snelheid meten.'
+        ],
+        answerIndex: 2
+      },
+      {
+        question: 'Hoeveel basisbewegingen/testen omvat de FMS?',
+        options: ['5', '7', '10', '12'],
+        answerIndex: 1
+      },
+      {
+        question: 'Bij secundaire preventie gaat het om het behandelen van omkeerbare blessures.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 0
+      },
+      {
+        question: 'Welke organisatie in Vlaanderen is verantwoordelijk voor het antidopingbeleid?',
+        options: ['WADA', 'NADO Vlaanderen', 'Sport Vlaanderen', 'BOIC'],
+        answerIndex: 1
+      },
+      {
+        question: "Wat is een 'generieke' benadering van blessurepreventie?",
+        options: [
+          'Een programma op maat van één individu.',
+          'Algemene blessurepreventie voor alle sporters.',
+          'Een programma enkel voor geblesseerde spelers.',
+          'Een programma gericht op ouderen.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Wat betekent \"Belastbaarheid\"?',
+        options: [
+          'Wat het lichaam niet gewend is.',
+          'Wat het lichaam gewend is (intrinsieke factoren).',
+          'De zwaarte van de training.',
+          'De duur van de training.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question:
+          'Welke sport had in 2020 het hoogste percentage dopingpraktijken bij controles buiten competitie in Vlaanderen?',
+        options: ['Wielrennen (Road)', 'Fitness', 'Voetbal', 'Zwemmen'],
+        answerIndex: 0
+      },
+      {
+        question: 'Slaaptekort heeft geen invloed op het risico op sportblessures.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 1
+      },
+      {
+        question: 'Wat is een taak van de trainer in blessurepreventie?',
+        options: [
+          'De medische diagnose stellen.',
+          'Consequent toepassen van preventie in trainingen.',
+          'De sporter opereren.',
+          'De sporter negeren.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Wat is \"Tertiaire preventie\"?',
+        options: [
+          'Het voorkomen van een eerste blessure.',
+          'Omgaan met onomkeerbare blessures.',
+          'Het trainen van topsporters.',
+          'Het promoten van sport op school.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Welke factor hoort bij de \"omgevingsgebonden (extrinsieke) risicofactoren\"?',
+        options: ['Lenigheid', 'Slecht weer', 'Eerdere blessures', 'Gewicht'],
+        answerIndex: 1
+      },
+      {
+        question: "Op de website 'sportkeuring.be' kun je nagaan of...",
+        options: [
+          '...je te zwaar bent.',
+          '...een sportmedisch onderzoek voor jou nuttig of nodig is.',
+          '...je doping hebt gebruikt.',
+          '...je trainer gediplomeerd is.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Waarvoor staat de afkorting WADA?',
+        options: [
+          'World Anti-Doping Agency',
+          'World Athletic Doping Association',
+          'World Association against Doping in Athletics',
+          'Worldwide Anti-Doping Authority'
+        ],
+        answerIndex: 0
+      },
+      {
+        question: 'Bij de FMS-score staat een score van \"0\" voor:',
+        options: [
+          'Perfecte uitvoering.',
+          'Uitvoering met compensatie.',
+          'Er is pijn tijdens de uitvoering.',
+          'Onvermogen om de beweging uit te voeren.'
+        ],
+        answerIndex: 2
+      },
+      {
+        question: 'NADO Vlaanderen voert controles uit zowel binnen als buiten wedstrijdverband.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 0
+      },
+      {
+        question: 'Wat wordt bedoeld met \"Belasting\"?',
+        options: [
+          'De capaciteit van het lichaam.',
+          'Wat het lichaam niet gewend is (extrinsieke factoren).',
+          'De rustperiode na training.',
+          'De voeding van de sporter.'
+        ],
+        answerIndex: 1
+      }
+    ]
+  };
+
+  const blessureLes3Set = {
+    title: 'Les 3: Opwarming, Cooling-down & Stretching',
+    questions: [
+      {
+        question: 'Wat is het belangrijkste fysiologische doel van een opwarming?',
+        options: [
+          'Spierverlenging',
+          'Lichaamstemperatuur en hartslag geleidelijk laten stijgen.',
+          'Melkzuur verwijderen',
+          'Mentale rust'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Hoe lang moet een goede opwarming idealiter duren?',
+        options: ['2 minuten', '5 minuten', '10 à 20 minuten', '45 minuten'],
+        answerIndex: 2
+      },
+      {
+        question: 'Welk type stretching verdient de voorkeur tijdens de opwarming?',
+        options: ['Statisch stretchen', 'Dynamisch stretchen (mobilisers)', 'Passief stretchen', 'Helemaal niet stretchen'],
+        answerIndex: 1
+      },
+      {
+        question: 'Waarom is statisch stretchen tijdens de cooling-down nuttig?',
+        options: [
+          'Het verhoogt de hartslag.',
+          "Om spieren terug op 'startlengte' te brengen.",
+          'Het is pijnlijk en bouwt karakter.',
+          'Het zorgt voor een adrenalineboost.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Wat is het doel van de cooling-down?',
+        options: [
+          'De prestatie verbeteren.',
+          'Ademhaling, hartslag en temperatuur terug naar beginniveau brengen.',
+          'De spieren maximaal versterken.',
+          'De lichaamstemperatuur verhogen.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: "Een 'Leg Swing' (zwaaien met been) is een voorbeeld van:",
+        options: ['Statische stretching', 'Dynamische stretching', 'Krachttraining', 'Balanstraining'],
+        answerIndex: 1
+      },
+      {
+        question: 'Een opgewarmde spier kan meer rek verdragen vooraleer hij scheurt dan een koude spier.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 0
+      },
+      {
+        question: 'Wat is een \"mobiliser\"?',
+        options: [
+          'Een statische rekoefening.',
+          'Een dynamische oefening waarbij je gradueel grotere bewegingen maakt.',
+          'Een krachtoefening met gewichten.',
+          'Een balanstraining.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Mensen die hypermobiel zijn, moeten extra veel stretchen om blessures te voorkomen.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 1
+      },
+      {
+        question: 'Hoeveel tijd moet je minstens voorzien voor een effectieve cooling-down?',
+        options: ['1 minuut', '5 à 20 minuten', '30 minuten', 'Uitsluitend als je tijd over hebt.'],
+        answerIndex: 1
+      },
+      {
+        question: 'Waarom mag je na een intensieve inspanning niet meteen gaan liggen?',
+        options: [
+          'Omdat je spieren verkrampen.',
+          "Om duizeligheid te voorkomen doordat bloed in de benen blijft ('blood pooling').",
+          'Omdat je dan te snel afkoelt.',
+          'Omdat dit slecht is voor de spijsvertering.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Wat is het effect van regelmatige stretching op lange termijn?',
+        options: [
+          'Verminderde spierkracht.',
+          'Verhoogde flexibiliteit en lager risico op blessures.',
+          'Verhoogd risico op blessures.',
+          'Geen effect.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Welke oefening rekt de Quadriceps (voorkant bovenbeen)?',
+        options: ['Zittende beenrek', 'Butt Kicks (hak naar bil)', 'Toe Raises', 'Torso Twists'],
+        answerIndex: 1
+      },
+      {
+        question: 'Welke richtlijn geldt voor statische stretching na de sportactiviteit?',
+        options: [
+          'Verend uitvoeren.',
+          'Tot ver voorbij de pijngrens gaan.',
+          'De positie 20-30 seconden aanhouden (zonder veren).',
+          'De ademhaling inhouden.'
+        ],
+        answerIndex: 2
+      },
+      {
+        question: 'Een opwarming zorgt voor minder stijfheid na excentrische spieractiviteit.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 0
+      },
+      {
+        question: "Welke spiergroep rek je met 'Calf Raises' en wandelen op de tenen?",
+        options: ['Hamstrings', 'Quadriceps', 'Kuiten (Gastrocnemius & Soleus)', 'Buikspieren'],
+        answerIndex: 2
+      },
+      {
+        question: 'Wat is een belangrijk aandachtspunt bij een goede stretchoefening?',
+        options: [
+          'De rug bol maken.',
+          'De rug hol maken.',
+          'De rug in een neutrale kromming behouden.',
+          'Zo snel mogelijk bewegen.'
+        ],
+        answerIndex: 2
+      },
+      {
+        question: 'Iemand met een zeer goede conditie moet ...',
+        options: [
+          'Korter opwarmen dan iemand met een slechte conditie.',
+          'Langer opwarmen omdat de hartslag laag blijft en spieren minder snel warm worden.',
+          'Niet opwarmen.',
+          'Enkel statisch stretchen.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Wat gebeurt er met het waarnemingsvermogen van gewrichten (proprioceptie) na een opwarming?',
+        options: ['Het vermindert.', 'Het blijft gelijk.', 'Er is een verhoogd bewustzijn van de gewrichtspositie.', 'Het verdwijnt volledig.'],
+        answerIndex: 2
+      },
+      {
+        question: 'Mag een opwarming licht zweten opwekken?',
+        options: ['Nee, absoluut niet.', 'Ja, dit is een teken van goede intensiteit.', 'Enkel bij topsporters.', 'Enkel bij warm weer.'],
+        answerIndex: 1
+      }
+    ]
+  };
+
+  const blessureLes5Set = {
+    title: 'Les 5: Sprong, Kracht & Balans',
+    questions: [
+      {
+        question: "Wat is een 'valgus' stand van de knieën?",
+        options: ['Knieën wijzen naar buiten (O-benen).', 'Knieën wijzen naar binnen (X-benen).', 'Knieën zijn overstrekt.', 'Knieën zijn gebogen.'],
+        answerIndex: 1
+      },
+      {
+        question: 'Welk risico is verbonden aan een valgus-landing (X-benen) na een sprong?',
+        options: ['Achillespeesletsel', 'Voorste kruisbandletsel', 'Liesbreuk', 'Hamstringscheur'],
+        answerIndex: 1
+      },
+      {
+        question: "Wat is de ideale kniehoek bij een zachte landing ('soft landing')?",
+        options: ['30 graden', '60 graden', 'Ongeveer 100 graden (diepe buiging)', '180 graden (gestrekt)'],
+        answerIndex: 2
+      },
+      {
+        question: 'Bij een correcte landing mogen de knieën voorbij de tenen komen.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 1
+      },
+      {
+        question: "Wat wordt bedoeld met 'functionele krachttraining'?",
+        options: ['Het trainen van geïsoleerde spieren op fitnesstoestellen.', 'Het trainen van bewegingsketens die lijken op de sportbeweging (groot-motorisch).', 'Het trainen met zo zwaar mogelijke gewichten.', 'Het trainen van enkel het bovenlichaam.'],
+        answerIndex: 1
+      },
+      {
+        question: 'Welk spieronevenwicht komt vaak voor bij sporters en vormt een risico?',
+        options: ['Voorste keten (quadriceps) is sterker dan achterste keten (hamstrings/bil).', 'Hamstrings zijn sterker dan quadriceps.', 'Linkerarm is sterker dan rechterarm.', 'Buikspieren zijn sterker dan rugspieren.'],
+        answerIndex: 0
+      },
+      {
+        question: 'Welke spiergroep is cruciaal om te voorkomen dat de knie naar binnen knikt (valgus)?',
+        options: ['De quadriceps', 'De bilspieren (Grote en zijdelingse).', 'De kuitspieren', 'De buikspieren'],
+        answerIndex: 1
+      },
+      {
+        question: 'Wat is het nut van balanstraining?',
+        options: ['Het verhoogt de maximale sprintsnelheid.', 'Het vermindert het risico op enkelverstuikingen aanzienlijk.', 'Het vergroot de spiermassa.', 'Het verbetert de conditie.'],
+        answerIndex: 1
+      },
+      {
+        question: "Balanstraining is enkel effectief als je materiaal zoals een 'Balance board' gebruikt.",
+        options: ['Juist', 'Fout'],
+        answerIndex: 1
+      },
+      {
+        question: "Wat is een 'externe focus' bij instructies voor een spronglanding?",
+        options: ['Buig je knieën.', 'Span je quadriceps aan.', 'Ga net niet op een stoel zitten.', 'Houd je rug recht.'],
+        answerIndex: 2
+      },
+      {
+        question: 'Bij een correcte landing staan de voeten op ... breedte.',
+        options: ['Schouder', 'Heup', 'Voet', 'Willekeurige'],
+        answerIndex: 1
+      },
+      {
+        question: 'Waarom zijn de hamstrings belangrijk ter preventie van voorste kruisbandletsels?',
+        options: ['Ze duwen het onderbeen naar voren.', 'Ze trekken het onderbeen naar achteren en assisteren de kruisband.', 'Ze stabiliseren de enkel.', 'Ze hebben geen invloed op de kruisband.'],
+        answerIndex: 1
+      },
+      {
+        question: "Wat is een correcte uitvoering van een 'Lunge' (uitvalspas)?",
+        options: ['De voorste knie wijst naar binnen.', 'De romp buigt ver naar voren.', 'De voorste knie blijft boven de enkel (niet voorbij tenen) en de rug blijft neutraal.', 'De hiel van de voorste voet komt van de grond.'],
+        answerIndex: 2
+      },
+      {
+        question: 'Welke spieren moeten extra getraind worden om enkelinstabiliteit tegen te gaan?',
+        options: ['De kuitspieren (gastrocnemius).', 'De scheenbeenspieren en evertoren (peronei).', 'De quadriceps.', 'De hamstrings.'],
+        answerIndex: 1
+      },
+      {
+        question: 'Pijn achter de knieschijf kan ontstaan door een combinatie van diep doorbuigen en naar binnen knikken van de knie.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 0
+      },
+      {
+        question: 'Hoe bouw je balanstraining best op?',
+        options: ['Meteen met ogen dicht op een wiebelplank.', 'Eerst statisch op stabiele ondergrond, dan dynamisch/met sprongen.', 'Altijd met gewichten in de handen.', 'Enkel tijdens de cooling-down.'],
+        answerIndex: 1
+      },
+      {
+        question: "Wat is het risico van 'stiff landings' (landen met gestrekte knieën)?",
+        options: ['Minder impact op de gewrichten.', 'Verhoogde impact op rug, knieën en enkels.', 'Betere sprongkracht voor de volgende sprong.', 'Geen risico.'],
+        answerIndex: 1
+      },
+      {
+        question: "Wat is een 'Nordic Hamstring' oefening?",
+        options: ['Een rekoefening voor de hamstrings.', 'Een excentrische krachtoefening voor de hamstrings.', 'Een massage techniek.', 'Een opwarmingsoefening.'],
+        answerIndex: 1
+      },
+      {
+        question: 'Bij een correcte squat of landing moeten de schouders zich ... de knieën bevinden.',
+        options: ['Achter', 'Voor', 'Boven', 'Onder'],
+        answerIndex: 2
+      },
+      {
+        question: 'Welke spieren zijn belangrijk voor de stabiliteit van de schouder?',
+        options: ['De borstspieren.', 'De rotatormanchetspieren.', 'De biceps.', 'De buikspieren.'],
+        answerIndex: 1
+      }
+    ]
+  };
+
+  const blessureLes6Set = {
+    title: 'Les 6: Rompstabiliteit, Materiaal & Multifactoriële aanpak',
+    questions: [
+      {
+        question: 'Wat is het synoniem voor rompstabilisatietraining?',
+        options: ['Cardio training', 'Core stability training', 'Plyometrie', 'Intervaltraining'],
+        answerIndex: 1
+      },
+      {
+        question: "Wat is 'Lumbale Bracing'?",
+        options: [
+          'Het dragen van een steungordel.',
+          'Het passief hol trekken van de rug.',
+          'Het actief aanspannen van zowel buik- als rugspieren om de wervelkolom te stabiliseren.',
+          'Het inhouden van de adem.'
+        ],
+        answerIndex: 2
+      },
+      {
+        question: 'De \"sit-up\" is de beste en veiligste oefening om rompstabiliteit te trainen.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 1
+      },
+      {
+        question: 'Welke spier is de dwarse buikspier die werkt als een natuurlijk korset?',
+        options: ['Rectus Abdominis', 'Transversus Abdominis', 'Biceps', 'Hamstrings'],
+        answerIndex: 1
+      },
+      {
+        question: "Wat is de '10% regel' bij blessurepreventie (Luister naar je lichaam)?",
+        options: [
+          'Je mag maximaal 10% vetpercentage hebben.',
+          'Verhoog de trainingsbelasting (duur/intensiteit) wekelijks met niet meer dan 10%.',
+          'Je moet 10% van de trainingstijd rusten.',
+          '10% van de sporters raakt geblesseerd.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Wat is het aanbevolen aantal uren slaap per nacht om het risico op blessures te verlagen bij adolescenten?',
+        options: ['6 uur', '7 uur', 'Minstens 8 uur', '10 uur'],
+        answerIndex: 2
+      },
+      {
+        question: 'Versleten sportschoenen kunnen leiden tot minder stabiliteit en schokdemping.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 0
+      },
+      {
+        question: 'Welke functie heeft sportkledij bij warm weer?',
+        options: ['Warmte vasthouden.', 'Zweet opnemen en verdampen (afkoeling).', 'Waterafstotend zijn.', 'De bloedsomloop afknellen.'],
+        answerIndex: 1
+      },
+      {
+        question: 'Wat is een belangrijke factor bij het voorkomen van hervalletsels?',
+        options: [
+          'Zo snel mogelijk weer wedstrijden spelen.',
+          'De intensiteit gradueel opbouwen en revalidatie respecteren.',
+          'Pijnstillers nemen.',
+          'Tapen en meteen voluit gaan.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: "Wat houdt een 'multifactoriële aanpak' in?",
+        options: [
+          'Focus op één aspect, bv. alleen schoeisel.',
+          'Het combineren van verschillende preventiestrategieën (kracht, balans, core, materiaal, etc.).',
+          'Het trainen van meerdere sporttakken.',
+          'Het inschakelen van meerdere trainers.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Om de rug te beschermen tijdens oefeningen, moet je steeds de ... rugkromming behouden.',
+        options: ['Holle', 'Bolle', 'Neutrale', 'Maximale'],
+        answerIndex: 2
+      },
+      {
+        question:
+          'Hoeveel reeksen en herhalingen/duur worden vaak aangeraden voor basis rompstabilisatieoefeningen (bv. plank) bij 16-18 jarigen?',
+        options: ['1x 10 seconden', '3x 30 seconden', '1x 5 minuten', '10x 1 minuut'],
+        answerIndex: 1
+      },
+      {
+        question: 'Wat is het nut van taping of bracing na een enkelblessure?',
+        options: [
+          'Het verhoogt de sprongkracht.',
+          'Het biedt extra mechanische steun en proprioceptie om herval te voorkomen.',
+          'Het geneest de breuk onmiddellijk.',
+          'Het vervangt de opwarming.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question:
+          'Pijn is een signaal van het lichaam dat genegeerd moet worden om sterker te worden ("No pain, no gain").',
+        options: ['Juist', 'Fout'],
+        answerIndex: 1
+      },
+      {
+        question: 'Welke omgevingsfactor kan het risico op blessures beïnvloeden?',
+        options: ['De kleur van de zaal.', 'De ondergrond (hard, glad, stroef).', 'Het merk van de bal.', 'Het tijdstip van de dag.'],
+        answerIndex: 1
+      },
+      {
+        question: 'Waarom is het belangrijk om schoeisel regelmatig (jaarlijks) te vervangen?',
+        options: [
+          'Omdat de mode verandert.',
+          'Omdat de schokdemping en stabiliteit verminderen door slijtage.',
+          'Omdat ze dan te klein worden.',
+          'Omdat ze dan gaan stinken.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: "Wat is een progressie (moeilijker maken) van de basis 'plank' oefening?",
+        options: [
+          'De knieën op de grond zetten.',
+          'Op een onstabiel vlak steunen (bv. bal) of een ledemaat opheffen.',
+          'De oefening korter aanhouden.',
+          'De adem inhouden.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Bij lumbale bracing span je niet alleen de buikspieren aan, maar ook de ...',
+        options: ['Kuitspieren', 'Rugspieren', 'Nekspieren', 'Armspieren'],
+        answerIndex: 1
+      },
+      {
+        question: 'Een atleet die net hersteld is van een blessure mag meteen weer volledige wedstrijden spelen.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 1
+      },
+      {
+        question: 'Welke website wordt in de cursus aangeraden voor oefeningen en kijkwijzers?',
+        options: ['Youtube.com', 'Getfit2sport.be', 'Sporza.be', 'Wikipedia.org'],
+        answerIndex: 1
+      }
+    ]
+  };
+
+  const blessurePreventie = normalizeSubject({
+    name: 'Blessure preventie',
+    summary: 'Quizzen rond blessurepreventie in onderwijs en sportcontext.',
+    categories: [
+      {
+        id: 'les1',
+        domain: 'blessurepreventie',
+        section: 'les-1',
+        title: 'Les 1',
+        description: 'Les 1 – 20 vragen',
+        quizSets: [blessureLes1Set]
+      },
+      {
+        id: 'les2',
+        domain: 'blessurepreventie',
+        section: 'les-2',
+        title: 'Les 2',
+        description: 'Les 2 – 20 vragen',
+        quizSets: [blessureLes2Set]
+      },
+      {
+        id: 'les3',
+        domain: 'blessurepreventie',
+        section: 'les-3',
+        title: 'Les 3',
+        description: 'Les 3 – 20 vragen',
+        quizSets: [blessureLes3Set]
+      },
+      {
+        id: 'les5',
+        domain: 'blessurepreventie',
+        section: 'les-5',
+        title: 'Les 5',
+        description: 'Les 5 – 20 vragen',
+        quizSets: [blessureLes5Set]
+      },
+      {
+        id: 'les6',
+        domain: 'blessurepreventie',
+        section: 'les-6',
+        title: 'Les 6',
+        description: 'Les 6 – 20 vragen',
+        quizSets: [blessureLes6Set]
+      }
+    ],
+    examDomains: [
+      {
+        id: 'blessurepreventie',
+        title: 'Blessurepreventie',
+        description: 'Lesbundels met meerkeuzevragen.',
+        sections: [
+          { id: 'les-1', title: 'Les 1', categoryIds: ['les1'] },
+          { id: 'les-2', title: 'Les 2', categoryIds: ['les2'] },
+          { id: 'les-3', title: 'Les 3', categoryIds: ['les3'] },
+          { id: 'les-5', title: 'Les 5', categoryIds: ['les5'] }
+        ,  { id: 'les-6', title: 'Les 6', categoryIds: ['les6'] }
+        ]
+      }
+    ]
+  });
+
+  const zdtLes1Set = {
+    title: 'Les 1: Motivatie & Maslow',
+    questions: [
+      {
+        question: 'Wat is de kern van de Zelfdeterminatietheorie (ZDT)?',
+        options: [
+          'Mensen worden enkel gemotiveerd door geld en beloningen.',
+          'Motivatie stijgt wanneer drie basisbehoeften (Autonomie, Betrokkenheid, Competentie) vervuld zijn.',
+          'Motivatie is een vaste persoonlijkheidstrek die niet kan veranderen.',
+          'Straffen is de beste manier om leerlingen te motiveren.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Welke van de volgende is GEEN niveau in de behoeftepiramide van Maslow?',
+        options: ['Fysiologische behoeften', 'Behoefte aan veiligheid', 'Behoefte aan rijkdom', 'Zelfontplooiing'],
+        answerIndex: 2
+      },
+      {
+        question:
+          '(Juist/Fout) Volgens Maslow zijn sociale behoeften belangrijker en moeten ze eerst vervuld worden voordat fysiologische behoeften aan bod komen.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 1
+      },
+      {
+        question: "Wat wordt bedoeld met 'Autonome motivatie'?",
+        options: [
+          'Iets doen omdat je onder druk wordt gezet.',
+          'Iets doen omdat je het zelf wilt of waardevol vindt.',
+          'Iets doen zonder erbij na te denken.',
+          'Iets doen om een straf te vermijden.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Iemand die studeert "omdat het moet van de ouders" vertoont welk type motivatie?',
+        options: ['Intrinsieke motivatie', 'Geïdentificeerde motivatie', 'Externe motivatie', 'Amotivatie'],
+        answerIndex: 2
+      },
+      {
+        question: 'Wat is "Amotivatie"?',
+        options: [
+          'Motivatie door angst.',
+          'Het gebrek aan motivatie of intentie om iets te doen.',
+          'Motivatie om de beste te zijn.',
+          'Een zeer sterke vorm van intrinsieke motivatie.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Vul aan: De drie basisbehoeften van de ZDT zijn Autonomie, Competentie en ...',
+        options: ['Plezier', 'Verbondenheid (of Betrokkenheid)', 'Structuur', 'Beloning'],
+        answerIndex: 1
+      },
+      {
+        question: 'Welk voorbeeld hoort bij "fysiologische behoeften" volgens Maslow?',
+        options: ['Vriendschap', 'Zelfvertrouwen', 'Voeding en slaap', 'Een veilig huis'],
+        answerIndex: 2
+      },
+      {
+        question: 'Wat is het verschil tussen intrinsieke en extrinsieke motivatie?',
+        options: [
+          'Intrinsiek komt van binnenuit (plezier), extrinsiek komt van buitenaf (beloning/straf).',
+          'Intrinsiek is altijd slecht, extrinsiek is altijd goed.',
+          'Intrinsiek duurt kort, extrinsiek duurt lang.',
+          'Er is geen verschil.'
+        ],
+        answerIndex: 0
+      },
+      {
+        question:
+          '(Juist/Fout) Geïdentificeerde motivatie is een vorm van extrinsieke motivatie, maar ligt dicht bij intrinsieke motivatie.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 0
+      },
+      {
+        question: 'Wat houdt de "Causale attributietheorie" in?',
+        options: [
+          'Het verklaren van oorzaken voor slagen en falen (bv. intern vs extern).',
+          'Het meten van intelligentie.',
+          'Het indelen van leerlingen in niveaugroepen.',
+          'Het bestraffen van slecht gedrag.'
+        ],
+        answerIndex: 0
+      },
+      {
+        question:
+          'Iemand die zegt: "Ik ben gebuisd omdat de leerkracht mij niet mag", maakt gebruik van welke attributie?',
+        options: ['Intern', 'Extern', 'Stabiel', 'Controleerbaar'],
+        answerIndex: 1
+      },
+      {
+        question: 'Wat is de "fundamentele attributiefout"?',
+        options: [
+          'De neiging om gedrag te veel toe te schrijven aan persoonlijkheid en te weinig aan de situatie.',
+          'De neiging om altijd jezelf de schuld te geven.',
+          'Een rekenfout in de puntenverdeling.',
+          'Het vergeten van een afspraak.'
+        ],
+        answerIndex: 0
+      },
+      {
+        question: 'Welk niveau staat bovenaan in de piramide van Maslow?',
+        options: ['Sociale behoeften', 'Eigenwaarde', 'Zelfontplooiing (Zelfrealisatie)', 'Veiligheid'],
+        answerIndex: 2
+      },
+      {
+        question: '(Juist/Fout) Controlerende beloningen verhogen de intrinsieke motivatie.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 1
+      },
+      {
+        question: 'Wat betekent "autonomie ondersteunen" in de les?',
+        options: [
+          'Leerlingen alles zelf laten doen zonder instructie.',
+          'Keuzes bieden, inspraak geven en differentiëren.',
+          'Strenge regels opleggen.',
+          'Enkel de beste leerlingen helpen.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: 'Hoe kan een leerkracht inspelen op de behoefte aan "competentie"?',
+        options: [
+          'Door leerlingen taken te geven die veel te moeilijk zijn.',
+          'Door nooit feedback te geven.',
+          'Door uitdagende maar haalbare taken en positieve feedback te geven.',
+          'Door leerlingen met elkaar te vergelijken.'
+        ],
+        answerIndex: 2
+      },
+      {
+        question: 'Welke uitspraak past bij "geïdentificeerde motivatie"?',
+        options: [
+          'Ik doe het omdat ik het leuk vind.',
+          'Ik doe het omdat ik anders straf krijg.',
+          'Ik doe het omdat ik het belangrijk vind voor mijn toekomst.',
+          'Ik doe het niet.'
+        ],
+        answerIndex: 2
+      },
+      {
+        question:
+          '(Juist/Fout) Het ervaren van verbondenheid (bv. goede sfeer, relatie met leerkracht) is cruciaal voor motivatie.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 0
+      },
+      {
+        question: 'Wat is een kenmerk van "intrinsiek studeren"?',
+        options: [
+          'Leren om goede punten te halen.',
+          'Leren om een diploma te krijgen.',
+          'Leren omdat de leerstof zelf interessant is ("Leren om te leren").',
+          'Leren om complimentjes van ouders te krijgen.'
+        ],
+        answerIndex: 2
+      }
+    ]
+  };
+
+  const zdtLes2Set = {
+    title: 'Les 2: Lesgeefstijlen & Faalangst',
+    questions: [
+      {
+        question:
+          'Welke lesgeefstijl wordt gekenmerkt door het bieden van duidelijke structuur en heldere verwachtingen?',
+        options: ['Participatief', 'Verduidelijkend', 'Afwachtend', 'Dominerend'],
+        answerIndex: 1
+      },
+      {
+        question: "Wat is een kenmerk van een 'afwachtende' lesgeefstijl?",
+        options: [
+          'Duidelijke regels.',
+          'Veel structuur.',
+          'Weinig structuur, waardoor leerlingen onzeker kunnen worden.',
+          'Veel inspraak voor leerlingen.'
+        ],
+        answerIndex: 2
+      },
+      {
+        question:
+          "(Juist/Fout) Een 'dominerende' lesgeefstijl werkt motiverend omdat leerlingen precies weten wat ze moeten doen.",
+        options: ['Juist', 'Fout'],
+        answerIndex: 1
+      },
+      {
+        question: "Welke lesgeefstijl ondersteunt de behoefte aan 'Autonomie'?",
+        options: ['Participatief', 'Begeleidend', 'Verduidelijkend', 'Eisend'],
+        answerIndex: 0
+      },
+      {
+        question: "Wat houdt een 'afstemmende' lesgeefstijl in?",
+        options: [
+          'De leerkracht bepaalt alles.',
+          'De leerkracht sluit aan bij de interesses en leefwereld van de leerlingen.',
+          'De leerkracht geeft veel strafwerk.',
+          'De leerkracht geeft geen les.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question:
+          "(Juist/Fout) Een 'eisende' aanpak zorgt vaak voor passiviteit of rebellie bij leerlingen.",
+        options: ['Juist', 'Fout'],
+        answerIndex: 0
+      },
+      {
+        question: 'Wat is faalangst?',
+        options: [
+          'Angst om te slagen.',
+          'Angst die optreedt in prestatiesituaties waarbij men bang is om te mislukken.',
+          'Angst voor spinnen.',
+          'Angst voor de leerkracht.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question:
+          'Welke vorm van faalangst heeft te maken met sociale interactie (bv. angst om uitgelachen te worden)?',
+        options: ['Cognitieve faalangst', 'Motorische faalangst', 'Sociale faalangst', 'Fysiologische faalangst'],
+        answerIndex: 2
+      },
+      {
+        question: "Wat is een kenmerk van 'actieve' faalangst?",
+        options: [
+          'Uitstelgedrag en niets doen.',
+          'Perfectionisme, overvoorbereiding en hard werken (maar blokkeren op het moment zelf).',
+          'Ziek melden voor een toets.',
+          'De les storen.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question:
+          '(Juist/Fout) Passieve faalangst wordt vaak verward met luiheid of desinteresse.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 0
+      },
+      {
+        question: 'Welke tip kan helpen bij leerlingen met faalangst?',
+        options: [
+          'Zeggen dat ze niet moeten zeuren.',
+          'Hen onverwacht voor het bord roepen.',
+          'Een evenwicht zoeken tussen positieve en negatieve feedback, en focussen op het proces/inzet.',
+          'Hen straffen bij fouten.'
+        ],
+        answerIndex: 2
+      },
+      {
+        question: 'Wat is motorische faalangst?',
+        options: [
+          'Angst om te bewegen of een fysieke taak uit te voeren (bv. bij L.O.).',
+          'Angst om te rekenen.',
+          'Angst om te spreken in het openbaar.',
+          'Angst om auto te rijden.'
+        ],
+        answerIndex: 0
+      },
+      {
+        question:
+          'Welke stelling over de begeleidende lesgeefstijl is correct?',
+        options: [
+          'Fouten worden afgestraft.',
+          'Fouten worden gezien als leerkansen en de leerkracht biedt hulp op maat.',
+          'De leerkracht laat de leerlingen aan hun lot over.',
+          'De leerkracht lost alles op voor de leerling.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question:
+          'Vul aan: Faalangst kan zich uiten in drie domeinen: cognitief, sociaal en ...',
+        options: ['Emotioneel', 'Motorisch', 'Financieel', 'Spiritueel'],
+        answerIndex: 1
+      },
+      {
+        question:
+          '(Juist/Fout) De lesgeefstijl van een docent is statisch en verandert nooit.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 1
+      },
+      {
+        question: 'Wat is een fysiek kenmerk van faalangst bij kinderen?',
+        options: ['Veel lachen.', 'Zweethanden, buikpijn, hoofdpijn.', 'Ontspannen houding.', 'Diepe slaap.'],
+        answerIndex: 1
+      },
+      {
+        question:
+          "Welke zone in het 'lesgevers-profiel' (de cirkel) staat voor een motiverende aanpak?",
+        options: [
+          'De linkerhelft (Chaos & Controle)',
+          'De rechterhelft (Autonomie-ondersteuning & Structuur)',
+          'De onderste helft',
+          'De bovenste helft'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: "Wat is 'ontwijkingsgedrag' in de context van faalangst?",
+        options: [
+          'De confrontatie aangaan.',
+          'Uitvluchten zoeken, ziekmelden of weigeren om deel te nemen aan de taak.',
+          'Hulp vragen aan de leerkracht.',
+          'Extra hard studeren.'
+        ],
+        answerIndex: 1
+      },
+      {
+        question: '"Ik ben niet zo slim" is een voorbeeld van welke attributie?',
+        options: [
+          'Intern en stabiel (en oncontroleerbaar).',
+          'Extern en instabiel.',
+          'Intern en controleerbaar.',
+          'Extern en stabiel.'
+        ],
+        answerIndex: 0
+      },
+      {
+        question: '(Juist/Fout) Mislukken mag niet in een veilig leerklimaat.',
+        options: ['Juist', 'Fout'],
+        answerIndex: 1
+      }
+    ]
+  };
+
+  const zelfdeterminatie = normalizeSubject({
+    name: 'Zelfdeterminatie theorie',
+    summary: 'Quizzen rond motivatie, ZDT en Maslow.',
+    categories: [
+      { id: 'les1', domain: 'zelfdeterminatie', section: 'les-1', title: 'Les 1', description: 'Les 1 – 20 vragen', quizSets: [zdtLes1Set] },
+      { id: 'les2', domain: 'zelfdeterminatie', section: 'les-2', title: 'Les 2', description: 'Les 2 – 20 vragen', quizSets: [zdtLes2Set] }
+    ],
+    examDomains: [
+      {
+        id: 'zelfdeterminatie',
+        title: 'Zelfdeterminatie theorie',
+        description: 'Motivatie, basisbehoeften en attributie.',
+        sections: [
+          { id: 'les-1', title: 'Les 1', categoryIds: ['les1'] },
+          { id: 'les-2', title: 'Les 2', categoryIds: ['les2'] }
+        ]
+      }
+    ]
+  });
+
   const placeholder = (name) =>
     normalizeSubject({
       name,
@@ -3421,9 +4511,9 @@ function createDefaultSubjects() {
   return [
     normalizeSubject(anatomie),
     basisonderwijs,
-    placeholder('Blessure preventie'),
+    blessurePreventie,
     placeholder('Ondernemen in de sport'),
-    placeholder('Zelfdeterminatie theorie')
+    zelfdeterminatie
   ];
 }
 
