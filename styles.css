@@ -24,10 +24,10 @@
 body {
   margin: 0;
   background:
-    radial-gradient(1000px 500px at 10% -10%, rgba(75, 107, 251, 0.12), transparent 60%),
-    radial-gradient(1000px 500px at 90% 0%, rgba(195, 108, 251, 0.12), transparent 60%),
-    radial-gradient(800px 400px at 50% 100%, rgba(141, 216, 182, 0.2), transparent 60%),
-    linear-gradient(180deg, #f8fbff 0%, #f4f7f9 100%);
+    radial-gradient(1200px 800px at 8% 0%, rgba(75, 107, 251, 0.22), transparent 60%),
+    radial-gradient(1200px 800px at 92% 0%, rgba(195, 108, 251, 0.22), transparent 60%),
+    radial-gradient(1000px 600px at 50% 70%, rgba(43, 182, 115, 0.18), transparent 62%),
+    linear-gradient(180deg, #fbfcff 0%, #eef5f3 60%, #fbfdfc 100%);
   color: var(--text);
   min-height: 100vh;
   line-height: 1.6;
@@ -334,19 +334,14 @@ body.modal-open { overflow: hidden; }
 }
 
 .hero {
-  background: linear-gradient(135deg, #f9fbfa 0%, #eef5ef 60%, #fbfdfc 100%);
+  background: transparent;
   border-bottom: 1px solid var(--border);
   padding: 60px 20px;
   animation: fadeIn 0.8s ease;
   position: relative;
   overflow: hidden;
 }
-.hero--lux {
-  background:
-    radial-gradient(600px 340px at 0% 0%, rgba(75, 107, 251, 0.18), transparent 60%),
-    radial-gradient(800px 420px at 90% 0%, rgba(195, 108, 251, 0.18), transparent 60%),
-    linear-gradient(135deg, #fbfcff 0%, #eef5f3 60%, #fbfdfc 100%);
-}
+.hero--lux { background: transparent; }
 .hero__content {
   max-width: 960px;
   margin: 0 auto;
@@ -360,18 +355,7 @@ body.modal-open { overflow: hidden; }
   margin-top: 20px;
 }
 
-.hero__glow {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 20% 60%, rgba(75, 107, 251, 0.18), transparent 30%),
-    radial-gradient(circle at 80% 20%, rgba(195, 108, 251, 0.18), transparent 32%),
-    radial-gradient(circle at 50% 50%, rgba(43, 182, 115, 0.16), transparent 40%);
-  filter: blur(26px);
-  opacity: 0.8;
-  animation: pulseGlow 8s ease-in-out infinite;
-}
+.hero__glow { display: none; }
 
 .hero__search { margin-top: 24px; }
 .searchbar { display: grid; grid-template-columns: 1fr auto; gap: 10px; background: rgba(255,255,255,0.8); border: 1px solid var(--border); border-radius: 14px; padding: 10px; box-shadow: var(--shadow-soft); max-width: 720px; }
