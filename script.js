@@ -5666,6 +5666,7 @@ function profileCardActions() {
 function renderProfile() {
   const user = currentUser;
   const loggedIn = !!user;
+  const resultsCard = document.querySelector('.profile-card--wide');
   profileHeading.textContent = loggedIn ? 'Je profiel' : 'Log in om je profiel te zien';
   profileSubtitle.textContent = loggedIn
     ? 'Bekijk je gegevens en voortgang per vak.'
@@ -5678,10 +5679,16 @@ function renderProfile() {
 
   const results = buildProfileResults();
   profileQuizList.innerHTML = '';
-  if (!results.length) {
+  if (!loggedIn) {
+    profileQuizList.innerHTML = '';
+    if (resultsCard) resultsCard.hidden = true;
+    profileQuizCount.textContent = '';
+  } else if (!results.length) {
+    if (resultsCard) resultsCard.hidden = false;
     profileQuizList.innerHTML = '<p class="caption">Nog geen resultaten gevonden.</p>';
     profileQuizCount.textContent = '0 voltooide quizzen';
   } else {
+    if (resultsCard) resultsCard.hidden = false;
     let completedTotal = 0;
     results.forEach((group) => {
       const isOpen = !!profileExpanded[group.subject];
