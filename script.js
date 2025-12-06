@@ -4517,6 +4517,7 @@ function createDefaultSubjects() {
     normalizeSubject(anatomie),
     basisonderwijs,
     blessurePreventie,
+    placeholder('Individuele Fitness'),
     placeholder('Ondernemen in de sport'),
     zelfdeterminatie
   ];
@@ -5028,6 +5029,10 @@ function computeSetCounts(set, state) {
 }
 
 function getSetProgress(subjectName, setTitle, questions = []) {
+  if (!currentUser) {
+    const zero = { answers: {} };
+    return { ...zero, answered: 0, correct: 0, completed: false };
+  }
   const subjectProgress = progress[subjectName];
   const base = subjectProgress?.[setTitle] || { answers: {} };
   const state = { answers: base.answers || {} };
