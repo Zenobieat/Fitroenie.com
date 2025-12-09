@@ -5576,7 +5576,18 @@ function renderQuizRunner(subject) {
   quizRunnerSubtitle.textContent = `Vraag ${activeQuizQuestionIndex + 1} van ${set.questions.length}`;
   quizRunnerStep.textContent = `Vraag ${activeQuizQuestionIndex + 1} van ${set.questions.length}`;
   quizQuestionTitle.textContent = question.question;
-  quizQuestionText.textContent = 'Kies het juiste antwoord hieronder.';
+  quizQuestionText.textContent = question.description || 'Kies het juiste antwoord hieronder.';
+
+  const cardEl = quizRunner.querySelector('.quiz-runner__card');
+  const prevImg = cardEl?.querySelector('.quiz-question__image');
+  if (prevImg) prevImg.remove();
+  if (question.image) {
+    const img = document.createElement('img');
+    img.className = 'quiz-question__image';
+    img.src = question.image;
+    img.alt = question.imageAlt || 'Quiz afbeelding';
+    cardEl?.insertBefore(img, quizOptions);
+  }
 
   quizOptions.innerHTML = '';
   if (isOpenQuestion(question)) {
