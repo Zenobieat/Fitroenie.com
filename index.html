@@ -32,6 +32,7 @@
     </div>
     <div class="nav__actions">
       <div class="account" id="account">
+        <img id="account-avatar" class="avatar" alt="Profiel" hidden />
         <button class="btn ghost" id="login-btn" type="button">Inloggen / Registreren</button>
         <button class="icon-btn" id="account-toggle" aria-label="Accountmenu" aria-expanded="false">▾</button>
         <div class="account__panel" id="account-panel" hidden>
@@ -182,14 +183,36 @@
             <header class="profile-card__header">
               <p class="eyebrow">Account</p>
               <h3 id="profile-name">Niet ingelogd</h3>
+              <img id="profile-avatar" class="avatar avatar--large" alt="Profielfoto" hidden />
             </header>
             <p class="lede" id="profile-email">Meld je aan om je e-mail te tonen.</p>
             <p class="caption" id="profile-status">Geen account actief.</p>
-          <div class="profile-card__actions">
-            <button class="btn" id="profile-login" type="button">Inloggen</button>
-            <button class="btn tertiary" id="profile-register" type="button">Registreren</button>
-            <button class="btn ghost" id="profile-logout" type="button">Uitloggen</button>
-          </div>
+            <div class="profile-fields">
+              <div class="profile-username-wrap" id="profile-username-field" hidden>
+                <label class="field">
+                  <span>Gebruikersnaam</span>
+                  <input id="profile-username" type="text" placeholder="Jouw naam" />
+                </label>
+                <button class="btn" id="profile-save" type="button">Opslaan</button>
+              </div>
+              <div class="avatar-block">
+                <div class="avatar-block__header">
+                  <h4 class="caption">Profielfoto</h4>
+                  <div class="avatar-block__actions">
+                    <img id="profile-avatar-inline" class="avatar avatar--small" alt="Profielfoto" hidden />
+                    <button class="btn ghost" id="avatar-choose" type="button">Profielfoto kiezen</button>
+                  </div>
+                </div>
+                <div class="avatar-picker" id="avatar-picker" hidden>
+                  <div id="profile-avatar-grid" class="avatar-grid"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-card__actions">
+              <button class="btn" id="profile-login" type="button">Inloggen</button>
+              <button class="btn tertiary" id="profile-register" type="button">Registreren</button>
+            </div>
         </article>
 
           <article class="profile-card profile-card--wide">
@@ -204,6 +227,9 @@
               <p class="caption">Nog geen resultaten gevonden.</p>
             </div>
           </article>
+        </div>
+        <div class="profile-logout">
+          <button class="btn danger full" id="profile-logout" type="button">Uitloggen</button>
         </div>
       </div>
     </section>

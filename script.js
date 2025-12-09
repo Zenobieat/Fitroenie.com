@@ -73,6 +73,15 @@ const profileLogout = document.getElementById('profile-logout');
 const profileBack = document.getElementById('profile-back');
 const accountProfile = document.getElementById('account-profile');
 const accountLogout = document.getElementById('account-logout');
+const accountAvatar = document.getElementById('account-avatar');
+const profileAvatarEl = document.getElementById('profile-avatar');
+const profileAvatarInline = document.getElementById('profile-avatar-inline');
+const profileUsername = document.getElementById('profile-username');
+const profileAvatarGrid = document.getElementById('profile-avatar-grid');
+const profileSave = document.getElementById('profile-save');
+const profileUsernameField = document.getElementById('profile-username-field');
+const avatarPicker = document.getElementById('avatar-picker');
+const avatarChoose = document.getElementById('avatar-choose');
 
 const fallbackFirebaseConfig = {
   apiKey: 'YOUR_FIREBASE_API_KEY',
@@ -124,13 +133,19 @@ let lastQuestionDelta = 0;
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const STORAGE_KEY = 'fitroenie-anatomie';
-const PROGRESS_KEY = 'fitroenie-progress';
+const PROGRESS_NS = 'fitroenie-progress';
 const allowedOsteologySections = ['osteo-upper', 'osteo-lower', 'osteo-proef'];
 const VERSION_KEY = 'fitroenie-version';
-const CURRENT_VERSION = '2';
+const CURRENT_VERSION = '3';
+const USER_PREFS_KEY = 'fitroenie-userprefs';
+const AVAILABLE_AVATARS = ['Bob.png','Dog Boss.png','Happy.png','Jessy.png','Pingoe.png','Poes.png','Sniffy.png','Wolfje.png'];
+let userPrefs = loadUserPrefs();
 const FORCE_CLEAN = (localStorage.getItem(VERSION_KEY) !== CURRENT_VERSION);
 if (FORCE_CLEAN) {
   localStorage.setItem(VERSION_KEY, CURRENT_VERSION);
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (_) {}
 }
 
 function deepClone(value) {
@@ -504,16 +519,159 @@ function createDefaultSubjects() {
         domain: 'myologie',
         section: 'myo-les-1',
         title: 'Les 1',
-        description: 'Basis myologie – introductie en spierkennis.',
+        description: 'Examen Anatomie: Les 1 Myologie, Hoofdstuk 1, 2 & 3',
         quizSets: [
           {
             title: 'Myologie – Les 1 (20 vragen)',
             questions: [
-              { question: 'Welke spiervezeltype heeft hoge uithouding?', options: ['Type I', 'Type IIa', 'Type IIx', 'Type III'], answerIndex: 0 },
-              { question: 'Welke structuur verbindt spier met bot?', options: ['Ligament', 'Pees', 'Fascia', 'Aponeurose'], answerIndex: 1 },
-              { question: 'Hoe heet de bindweefsellaag rond een hele spier?', options: ['Endomysium', 'Perimysium', 'Epimysium', 'Sarcolemma'], answerIndex: 2 },
-              { question: 'Wat is de contractiele eenheid van de spier?', options: ['Sarcolemma', 'Myofibril', 'Sarcomeer', 'T-tubulus'], answerIndex: 2 },
-              { question: 'Welke ionen starten de contractie in de spiercel?', options: ['Natrium', 'Calcium', 'Kalium', 'Magnesium'], answerIndex: 1 }
+              {
+                question: 'Welke spier zie je op deze afbeelding (de oppervlakkige laag)?',
+                description: 'Afbeelding: Trapezius 1.png',
+                image: 'Les 1 Myologie/Trapezius 1.png',
+                imageAlt: 'Trapezius – oppervlakkige laag',
+                options: ['Musculus Latissimus Dorsi','Musculus Trapezius','Musculus Rhomboideus Major','Musculus Erector Spinae'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de oorsprong van de spier die je hier op het skelet ziet?',
+                description: 'Afbeelding: Trapezius 2.png',
+                image: 'Les 1 Myologie/Trapezius 2.png',
+                imageAlt: 'Trapezius op skelet – oorsprong',
+                options: ['Processus transversus C1-C4','Os occipitale en Processus spinosus T1-T12','Thoracale wervels T1-T4','Crista Iliaca en Sacrum'],
+                answerIndex: 1
+              },
+              {
+                question: 'De Musculus Trapezius bestaat uit drie delen. Wat is de specifieke functie van de Pars Ascendens (de verticale, stijgende vezels)?',
+                description: 'Tekstvraag zonder afbeelding',
+                options: ['Elevatie van de scapula','Retractie van de scapula','Rotatie van de scapula','Adductie van de scapula'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke dieper gelegen spier wordt hier getoond?',
+                description: 'Afbeelding: Levator Scapulae.png',
+                image: 'Les 1 Myologie/Levator Scapulae.png',
+                imageAlt: 'Levator scapulae',
+                options: ['Musculus Levator Scapulae','Musculus Scalenus','Musculus Sternocleidomastoideus','Musculus Splenius Capitis'],
+                answerIndex: 0
+              },
+              {
+                question: 'Wat is de insertie van deze spier op het schouderblad?',
+                description: 'Afbeelding: Levator Scapulae.png',
+                image: 'Les 1 Myologie/Levator Scapulae.png',
+                imageAlt: 'Levator scapulae – insertie op scapula',
+                options: ['Spina Scapulae','Acromion','Angulus Superior en Margo Medialis','Processus Coracoideus'],
+                answerIndex: 2
+              },
+              {
+                question: 'Je ziet hier de M. Rhomboideus Major en Minor. Wat is de functie van deze spieren?',
+                description: 'Afbeelding: Rhomboideus Major en Minor.png',
+                image: 'Les 1 Myologie/Rhomboideus Major en Minor.png',
+                imageAlt: 'Rhomboideus major en minor',
+                options: ['Protractie en depressie','Adductie en elevatie van de scapula','Endorotatie van de arm','Lateroflexie van de wervelkolom'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke spier zie je hier, gelegen onder de grote borstspier?',
+                description: 'Afbeelding: Pectoralis Minor.png',
+                image: 'Les 1 Myologie/Pectoralis Minor.png',
+                imageAlt: 'Pectoralis minor onder pectoralis major',
+                options: ['Musculus Subclavius','Musculus Pectoralis Minor','Musculus Pectoralis Major','Musculus Serratus Anterior'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de oorsprong van deze spier?',
+                description: 'Afbeelding: Pectoralis Minor.png',
+                image: 'Les 1 Myologie/Pectoralis Minor.png',
+                imageAlt: 'Pectoralis minor – oorsprong',
+                options: ['Rib 1-9','Rib 2-5 (Bovenste deel ribbenkast)','Sternum','Clavicula'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke spier zie je hier aan de zijkant van de borstkas?',
+                description: 'Afbeelding: Seratus Anterior.png',
+                image: 'Les 1 Myologie/Seratus Anterior.png',
+                imageAlt: 'Serratus anterior – laterale borstkas',
+                options: ['Musculus Obliquus Externus','Musculus Serratus Anterior','Musculus Latissimus Dorsi','Musculus Intercostales'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de functie van deze spier?',
+                description: 'Afbeelding: Seratus Anterior.png',
+                image: 'Les 1 Myologie/Seratus Anterior.png',
+                imageAlt: 'Serratus anterior – functie',
+                options: ['Retractie van de scapula','Elevatie van de scapula','Stabilisatie en protractie van de scapula','Adductie van de arm'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke spier wordt beschouwd als een lokale stabilisator en fungeert als een diepe dwarse buikspier (korset)?',
+                description: 'Tekstvraag zonder afbeelding',
+                options: ['Musculus Rectus Abdominis','Musculus Obliquus Externus','Musculus Transversus Abdominis','Musculus Quadratus Lumborum'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke spier zie je hier, waarvan de vezels lopen als "handen in de zakken" (Lateraal naar Inferior)?',
+                description: 'Afbeelding: Obliquus Externus Abdominis.png',
+                image: 'Les 1 Myologie/ Obliquus Externus Abdominis.png',
+                imageAlt: 'Obliquus externus abdominis',
+                options: ['Musculus Obliquus Internus Abdominis','Musculus Obliquus Externus Abdominis','Musculus Transversus Abdominis','Musculus Rectus Abdominis'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de oorsprong van de Musculus Obliquus Internus Abdominis (dus niet degene op de foto, maar de laag eronder)?',
+                description: 'Tekstvraag zonder afbeelding',
+                options: ['Rib 5-12','Crista Iliaca en Fascia Thoracolumbalis','Symphysis Pubis','Rib 1-9'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke spier is de globale mobilisator van de romp (de "sixpack")?',
+                description: 'Afbeelding: Rectus Abdominis.png',
+                image: 'Les 1 Myologie/Rectus Abdominis.png',
+                imageAlt: 'Rectus abdominis',
+                options: ['Musculus Psoas Major','Musculus Rectus Abdominis','Musculus Pyramidalis','Musculus Quadratus Lumborum'],
+                answerIndex: 1
+              },
+              {
+                question: 'Waar bevindt zich de insertie van deze spier?',
+                description: 'Afbeelding: Rectus Abdominis.png',
+                image: 'Les 1 Myologie/Rectus Abdominis.png',
+                imageAlt: 'Rectus abdominis – insertie',
+                options: ['Processus Xiphoideus','Rib 5-7','Symphysis Pubis','Crista Iliaca'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke diepe rugspier zie je hier, die de Crista Iliaca met de 12e rib verbindt?',
+                description: 'Afbeelding: Quadratus Lumboris.png',
+                image: 'Les 1 Myologie/Quadratus Lumboris.png',
+                imageAlt: 'Quadratus lumborum',
+                options: ['Musculus Erector Spinae','Musculus Latissimus Dorsi','Musculus Quadratus Lumborum','Musculus Multifidus'],
+                answerIndex: 2
+              },
+              {
+                question: 'Welke grote spiergroep zorgt voor extensie van de wervelkolom en lateroflexie?',
+                description: 'Afbeelding: Erector Spinae.png',
+                image: 'Les 1 Myologie/ Erector Spinae.png',
+                imageAlt: 'Erector spinae',
+                options: ['Musculus Rectus Abdominis','Musculus Erector Spinae','Musculus Trapezius','Musculus Rhomboideus'],
+                answerIndex: 1
+              },
+              {
+                question: 'Wat is de functie van de Musculus Intercostales Externi (buitenste tussenribspieren)?',
+                description: 'Tekstvraag zonder afbeelding',
+                options: ['Dalen van de ribben bij uitademen','Optrekken van onderliggende ribben bij inademen','Rotatie van de romp','Stabilisatie van het sternum'],
+                answerIndex: 1
+              },
+              {
+                question: 'Welke bewering over de Musculus Intercostales Interni is juist?',
+                description: 'Tekstvraag zonder afbeelding',
+                options: ['Ze zorgen voor inademing.','De vezels lopen van Postero-craniaal naar ventro-caudaal.','De insertie is de Sulcus costae.','De functie is het dalen van de onderliggende rib (actieve uitademing).'],
+                answerIndex: 3
+              },
+              {
+                question: 'Waar bevindt zich de insertie van het Diafragma?',
+                description: 'Tekstvraag zonder afbeelding',
+                options: ['Rondom onderrand borstkas','Centrum Tendineum','Linea Alba','Processus Xiphoideus'],
+                answerIndex: 1
+              }
             ]
           }
         ]
@@ -3112,7 +3270,7 @@ function createDefaultSubjects() {
       {
         id: 'myologie',
         title: 'Myologie',
-        description: 'Spieren volgen binnenkort.',
+        description: 'Les 1 – Spieren uit hoofdstuk 1, 2 & 3',
         sections: [
           { id: 'myo-les-1', title: 'Les 1', categoryIds: ['myo-les1'] }
         ]
@@ -4547,7 +4705,7 @@ function createDefaultSubjects() {
 const defaultSubjects = createDefaultSubjects();
 
 let subjects = loadSubjects();
-let progress = loadProgress();
+let progress = {};
 let activeSubject = null;
 let activeView = 'home';
 let activePanel = 'quiz-panel';
@@ -4850,9 +5008,17 @@ function persistSubjects() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(subjects));
 }
 
+function getProgressKeyForUser(user) {
+  if (!user || !user.uid) return null;
+  return `${PROGRESS_NS}:${user.uid}`;
+}
+
 function loadProgress() {
+  if (!currentUser) return {};
   try {
-    const raw = localStorage.getItem(PROGRESS_KEY);
+    const key = getProgressKeyForUser(currentUser);
+    if (!key) return {};
+    const raw = localStorage.getItem(key);
     return raw ? JSON.parse(raw) : {};
   } catch (error) {
     console.warn('Kon voortgang niet laden.', error);
@@ -4861,7 +5027,10 @@ function loadProgress() {
 }
 
 function persistProgress() {
-  localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+  if (!currentUser) return;
+  const key = getProgressKeyForUser(currentUser);
+  if (!key) return;
+  localStorage.setItem(key, JSON.stringify(progress));
 }
 
 function setActiveView(target) {
@@ -4880,6 +5049,21 @@ function setActiveView(target) {
   });
   window.scrollTo({ top: 0, behavior: 'smooth' });
   updateHash();
+
+  const inQuizMode = target === 'quizplay';
+  document.body.classList.toggle('app--quizmode', inQuizMode);
+  if (inQuizMode) {
+    document.body.classList.add('app--quizmode-anim');
+    document.body.classList.remove('app--returning');
+    setTimeout(() => {
+      if (document.body.classList.contains('app--quizmode')) {
+        document.body.classList.add('app--quizmode-hidden');
+        document.body.classList.remove('app--quizmode-anim');
+      }
+    }, 600);
+  } else {
+    document.body.classList.remove('app--quizmode-anim', 'app--quizmode-hidden');
+  }
 }
 
 function setActivePanel(panelId) {
@@ -5023,6 +5207,7 @@ function getActiveSet(subject = getActiveSubject()) {
 
 function getUserDisplayName(user) {
   if (!user) return 'Niet ingelogd';
+  if (userPrefs && userPrefs.displayName && typeof userPrefs.displayName === 'string' && userPrefs.displayName.trim()) return userPrefs.displayName.trim();
   if (user.displayName) return user.displayName;
   if (user.email) return user.email.split('@')[0];
   return 'Gebruiker';
@@ -5123,7 +5308,7 @@ function buildProfileResults() {
     const subjectEntries = [];
     sets.forEach((set) => {
       const state = getSetProgress(subject.name, set.title, set.questions);
-      if (!state.answered) return;
+      if (!state.completed) return;
       const total = set.questions.length;
       const correct = state.correct || 0;
       const percent = Math.round((correct / total) * 100);
@@ -5132,7 +5317,7 @@ function buildProfileResults() {
         correct,
         total,
         percent,
-        completed: !!state.completed
+        completed: true
       });
     });
     if (subjectEntries.length) {
@@ -5576,17 +5761,36 @@ function renderQuizRunner(subject) {
   quizRunnerSubtitle.textContent = `Vraag ${activeQuizQuestionIndex + 1} van ${set.questions.length}`;
   quizRunnerStep.textContent = `Vraag ${activeQuizQuestionIndex + 1} van ${set.questions.length}`;
   quizQuestionTitle.textContent = question.question;
-  quizQuestionText.textContent = question.description || 'Kies het juiste antwoord hieronder.';
+  if (question.image) {
+    quizQuestionText.textContent = '';
+    quizQuestionText.hidden = true;
+  } else {
+    quizQuestionText.hidden = false;
+    quizQuestionText.textContent = question.description || 'Kies het juiste antwoord hieronder.';
+  }
 
   const cardEl = quizRunner.querySelector('.quiz-runner__card');
-  const prevImg = cardEl?.querySelector('.quiz-question__image');
-  if (prevImg) prevImg.remove();
+  const prevMedia = cardEl?.querySelector('.quiz-question__media');
+  if (prevMedia) prevMedia.remove();
   if (question.image) {
+    const media = document.createElement('figure');
+    media.className = 'quiz-question__media';
+    const frame = document.createElement('div');
+    frame.className = 'quiz-question__frame';
     const img = document.createElement('img');
     img.className = 'quiz-question__image';
     img.src = question.image;
     img.alt = question.imageAlt || 'Quiz afbeelding';
-    cardEl?.insertBefore(img, quizOptions);
+    img.addEventListener('error', () => {
+      img.style.display = 'none';
+      const ph = document.createElement('div');
+      ph.className = 'quiz-question__placeholder';
+      ph.textContent = 'Afbeelding kon niet geladen worden.';
+      frame.appendChild(ph);
+    });
+    frame.appendChild(img);
+    media.appendChild(frame);
+    cardEl?.insertBefore(media, quizOptions);
   }
 
   quizOptions.innerHTML = '';
@@ -5704,6 +5908,8 @@ function renderProfile() {
   const user = currentUser;
   const loggedIn = !!user;
   const resultsCard = document.querySelector('.profile-card--wide');
+  const profileView = document.querySelector('.view--profile');
+  profileView?.classList.toggle('is-authed', loggedIn);
   profileHeading.textContent = loggedIn ? 'Je profiel' : 'Log in om je profiel te zien';
   profileSubtitle.textContent = loggedIn
     ? 'Bekijk je gegevens en voortgang per vak.'
@@ -5714,6 +5920,33 @@ function renderProfile() {
     ? 'Je voortgang wordt lokaal bijgehouden.'
     : 'Geen account actief. Log in of registreer om verder te gaan.';
 
+  if (profileUsernameField) profileUsernameField.hidden = !loggedIn;
+  if (avatarChoose) avatarChoose.hidden = !loggedIn;
+  if (avatarPicker) avatarPicker.hidden = !loggedIn || !avatarPicker.classList.contains('open');
+
+  if (profileUsername) {
+    const defaultName = getUserDisplayName(user);
+    profileUsername.value = userPrefs && userPrefs.displayName ? userPrefs.displayName : (loggedIn ? defaultName : '');
+    profileUsername.disabled = !loggedIn;
+  }
+  if (profileAvatarGrid) {
+    profileAvatarGrid.innerHTML = '';
+    AVAILABLE_AVATARS.forEach((file) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `avatar-option${userPrefs && userPrefs.avatar === file ? ' selected' : ''}`;
+      btn.innerHTML = `<img src="Profiel/${file}" alt="${file.replace(/\.png$/,'')}" />`;
+      btn.addEventListener('click', () => {
+        userPrefs.avatar = file;
+        persistUserPrefs();
+        renderProfile();
+        updateUserChip(currentUser);
+      });
+      btn.disabled = !loggedIn;
+      profileAvatarGrid.appendChild(btn);
+    });
+  }
+
   const results = buildProfileResults();
   profileQuizList.innerHTML = '';
   if (!loggedIn) {
@@ -5721,9 +5954,9 @@ function renderProfile() {
     if (resultsCard) resultsCard.hidden = true;
     profileQuizCount.textContent = '';
   } else if (!results.length) {
-    if (resultsCard) resultsCard.hidden = false;
-    profileQuizList.innerHTML = '<p class="caption">Nog geen resultaten gevonden.</p>';
-    profileQuizCount.textContent = '0 voltooide quizzen';
+    if (resultsCard) resultsCard.hidden = true;
+    profileQuizList.innerHTML = '';
+    profileQuizCount.textContent = '';
   } else {
     if (resultsCard) resultsCard.hidden = false;
     let completedTotal = 0;
@@ -5778,6 +6011,7 @@ function renderProfile() {
   actionButtons.login.hidden = loggedIn;
   actionButtons.register.hidden = loggedIn;
   if (actionButtons.logout) actionButtons.logout.hidden = !loggedIn;
+  if (profileSave) profileSave.hidden = !loggedIn;
 }
 
 function openSubjectResult(subjectName, setTitle) {
@@ -5968,8 +6202,25 @@ function formatAuthError(code) {
 function updateUserChip(user) {
   const loggedIn = !!user;
   account?.classList.toggle('is-authenticated', loggedIn);
-  loginBtn.textContent = loggedIn ? user?.displayName || user?.email || 'Account' : 'Inloggen / Registreren';
+  const name = getUserDisplayName(user);
+  if (loggedIn && userPrefs && userPrefs.avatar) {
+    loginBtn.classList.add('has-avatar');
+    loginBtn.innerHTML = `<img class="avatar avatar--inline" src="Profiel/${userPrefs.avatar}" alt="Avatar" /> <span>${name}</span>`;
+  } else {
+    loginBtn.classList.remove('has-avatar');
+    loginBtn.textContent = loggedIn ? name : 'Inloggen / Registreren';
+  }
   loginBtn.classList.toggle('primary', loggedIn);
+  const avatarFile = userPrefs && userPrefs.avatar ? userPrefs.avatar : '';
+  if (loggedIn && avatarFile) {
+    if (accountAvatar) accountAvatar.hidden = true;
+    if (profileAvatarEl) { profileAvatarEl.hidden = false; profileAvatarEl.src = `Profiel/${avatarFile}`; }
+    if (profileAvatarInline) { profileAvatarInline.hidden = false; profileAvatarInline.src = `Profiel/${avatarFile}`; }
+  } else {
+    if (accountAvatar) accountAvatar.hidden = true;
+    if (profileAvatarEl) profileAvatarEl.hidden = true;
+    if (profileAvatarInline) profileAvatarInline.hidden = true;
+  }
   accountToggle?.setAttribute('aria-label', loggedIn ? 'Accountmenu (ingelogd)' : 'Accountmenu');
 }
 
@@ -6007,6 +6258,23 @@ accountProfile?.addEventListener('click', goToProfile);
 profileLogin?.addEventListener('click', () => openAuthModal('login'));
 profileRegister?.addEventListener('click', () => openAuthModal('register'));
 profileBack?.addEventListener('click', () => setActiveView('home'));
+profileSave?.addEventListener('click', () => {
+  const name = (profileUsername?.value || '').trim();
+  if (name) userPrefs.displayName = name;
+  persistUserPrefs();
+  updateUserChip(currentUser);
+  renderProfile();
+});
+avatarChoose?.addEventListener('click', () => {
+  if (!currentUser) return;
+  avatarPicker.classList.toggle('open');
+  renderProfile();
+});
+profileName?.addEventListener('click', () => {
+  if (!currentUser || !profileUsername) return;
+  if (profileUsernameField?.hidden) profileUsernameField.hidden = false;
+  profileUsername.focus();
+});
 async function logout() {
   if (!auth) return;
   try {
@@ -6133,6 +6401,12 @@ subjectSearch?.addEventListener('input', () => renderHomeCatalog());
 if (auth) {
   onAuthStateChanged(auth, (user) => {
     currentUser = user;
+    progress = loadProgress();
+    if (currentUser && (!userPrefs || Object.keys(userPrefs).length === 0)) {
+      userPrefs = loadUserPrefs();
+      if (!userPrefs.displayName) userPrefs.displayName = getUserDisplayName(currentUser);
+      persistUserPrefs();
+    }
     updateUserChip(user);
     renderProfile();
   });
@@ -6149,3 +6423,28 @@ window.addEventListener('hashchange', () => {
   setActiveView(activeView);
   setActivePanel(activePanel);
 });
+// Logo klik: terug naar Start en nav langzaam terug
+const logoEl = document.querySelector('.logo');
+logoEl?.addEventListener('click', () => {
+  setActiveView('home');
+  document.body.classList.remove('app--quizmode');
+  document.body.classList.remove('app--quizmode-anim', 'app--quizmode-hidden');
+  document.body.classList.add('app--returning');
+  setTimeout(() => {
+    document.body.classList.remove('app--returning');
+  }, 3000);
+});
+  if (quizExit) quizExit.textContent = 'Terug naar hoofdmenu';
+function loadUserPrefs() {
+  try {
+    const raw = localStorage.getItem(USER_PREFS_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return typeof parsed === 'object' && parsed ? parsed : {};
+  } catch (_) {
+    return {};
+  }
+}
+
+function persistUserPrefs() {
+  localStorage.setItem(USER_PREFS_KEY, JSON.stringify(userPrefs || {}));
+}
