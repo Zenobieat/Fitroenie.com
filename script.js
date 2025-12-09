@@ -5255,7 +5255,18 @@ function getSetProgress(subjectName, setTitle, questions = []) {
 
 function resetSetProgress(subjectName, setTitle) {
   if (!progress[subjectName]) return;
-  delete progress[subjectName][setTitle];
+  const prev = progress[subjectName][setTitle];
+  if (prev) {
+    progress[subjectName][setTitle] = { answers: {}, lastAttempt: {
+      answers: deepClone(prev.answers || {}),
+      answered: prev.answered || 0,
+      correct: prev.correct || 0,
+      total: prev.lastScore?.total || 0,
+      updatedAt: Date.now()
+    }};
+  } else {
+    progress[subjectName][setTitle] = { answers: {} };
+  }
   persistProgress();
 }
 
@@ -5308,17 +5319,19 @@ function buildProfileResults() {
     const subjectEntries = [];
     sets.forEach((set) => {
       const state = getSetProgress(subject.name, set.title, set.questions);
-      if (!state.completed) return;
       const total = set.questions.length;
       const correct = state.correct || 0;
-      const percent = Math.round((correct / total) * 100);
-      subjectEntries.push({
-        title: formatSetTitle(set.title),
-        correct,
-        total,
-        percent,
-        completed: true
-      });
+      const percent = total ? Math.round((correct / total) * 100) : 0;
+      if (state.completed || state.answered > 0) {
+        subjectEntries.push({
+          title: formatSetTitle(set.title),
+          correct,
+          total,
+          percent,
+          completed: !!state.completed,
+          hasArchive: !!progress[subject.name]?.[set.title]?.lastAttempt
+        });
+      }
     });
     if (subjectEntries.length) {
       list.push({ subject: subject.name, entries: subjectEntries });
@@ -5417,21 +5430,35 @@ function renderQuizPicker(subject) {
     primaryBtn.textContent = state.completed ? 'Bekijk score' : state.answered ? 'Ga verder' : 'Start quiz';
     primaryBtn.addEventListener('click', () => startQuiz(set.title));
 
+    const resumePrevBtn = document.createElement('button');
+    resumePrevBtn.type = 'button';
+    resumePrevBtn.className = 'btn ghost';
+    resumePrevBtn.textContent = 'Hervatten';
+    resumePrevBtn.addEventListener('click', () => {
+      restoreLastAttempt(subject.name, set.title);
+      startQuiz(set.title);
+    });
+
+    const restartBtn = document.createElement('button');
+    restartBtn.type = 'button';
+    restartBtn.className = 'btn ghost';
+    restartBtn.textContent = 'Herstart';
+    restartBtn.addEventListener('click', () => {
+      resetSetProgress(subject.name, set.title);
+      if (activeQuizSetTitle === set.title) activeQuizQuestionIndex = 0;
+      render();
+    });
+
+    const hasArchive = !!progress[subject.name]?.[set.title]?.lastAttempt;
     if (state.completed) {
-      const secondaryBtn = document.createElement('button');
-      secondaryBtn.type = 'button';
-      secondaryBtn.className = 'btn ghost';
-      secondaryBtn.textContent = 'Herstart';
-      secondaryBtn.addEventListener('click', () => {
-        resetSetProgress(subject.name, set.title);
-        if (activeQuizSetTitle === set.title) {
-          activeQuizQuestionIndex = 0;
-        }
-        render();
-      });
-      actions.append(primaryBtn, secondaryBtn);
+      actions.append(primaryBtn, restartBtn);
+      if (hasArchive) actions.append(resumePrevBtn);
+    } else if (state.answered) {
+      actions.append(primaryBtn, restartBtn);
+      if (hasArchive) actions.append(resumePrevBtn);
     } else {
       actions.append(primaryBtn);
+      if (hasArchive) actions.append(resumePrevBtn);
     }
     card.appendChild(actions);
     return card;
@@ -6035,6 +6062,19 @@ function renderProfile() {
         actionBtn.type = 'button';
         actionBtn.textContent = entry.completed ? 'Bekijk score' : 'Ga verder';
         actionBtn.addEventListener('click', () => openSubjectResult(group.subject, entry.title));
+        const resumeBtn = document.createElement('button');
+        resumeBtn.className = 'btn ghost';
+        resumeBtn.type = 'button';
+        resumeBtn.textContent = 'Hervatten';
+        resumeBtn.addEventListener('click', () => {
+          const subject = subjects.find((s) => s.name === group.subject);
+          if (!subject) return;
+          const set = getQuizSets(subject).find((quizSet) => formatSetTitle(quizSet.title) === formatSetTitle(entry.title));
+          if (!set) return;
+          restoreLastAttempt(group.subject, set.title);
+          activeSubject = group.subject;
+          startQuiz(set.title);
+        });
         row.innerHTML = `
           <div>
             <strong>${entry.title}</strong>
@@ -6042,6 +6082,7 @@ function renderProfile() {
           </div>
         `;
         row.appendChild(actionBtn);
+        if (entry.hasArchive) row.appendChild(resumeBtn);
         body.appendChild(row);
       });
 
@@ -6094,6 +6135,17 @@ function retakeActiveQuiz() {
   activeQuizQuestionIndex = 0;
   quizMode = 'runner';
   render();
+}
+
+function restoreLastAttempt(subjectName, setTitle) {
+  const state = ensureSetState(subjectName, setTitle);
+  const snapshot = progress[subjectName]?.[setTitle]?.lastAttempt;
+  if (!snapshot) return;
+  state.answers = deepClone(snapshot.answers || {});
+  const subject = subjects.find((s) => s.name === subjectName);
+  const set = subject ? getQuizSets(subject).find((quizSet) => quizSet.title === setTitle) : null;
+  if (set) computeSetCounts(set, state);
+  persistProgress();
 }
 
 function render() {

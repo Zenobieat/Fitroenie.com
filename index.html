@@ -189,11 +189,13 @@
             <p class="caption" id="profile-status">Geen account actief.</p>
             <div class="profile-fields">
               <div class="profile-username-wrap" id="profile-username-field" hidden>
+                <div class="profile-username-header">
+                  <span class="field__label" id="profile-username-label">Gebruikersnaam</span>
+                  <button class="btn" id="profile-save" type="button">Opslaan</button>
+                </div>
                 <label class="field">
-                  <span>Gebruikersnaam</span>
-                  <input id="profile-username" type="text" placeholder="Jouw naam" />
+                  <input id="profile-username" type="text" placeholder="Jouw naam" aria-labelledby="profile-username-label" />
                 </label>
-                <button class="btn" id="profile-save" type="button">Opslaan</button>
               </div>
               <div class="avatar-block">
                 <div class="avatar-block__header">

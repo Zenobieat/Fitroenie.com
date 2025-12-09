@@ -1115,8 +1115,11 @@ body.modal-open { overflow: hidden; }
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 16px;
-  align-items: end;
+  align-items: start;
 }
+
+.profile-username-header { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; }
+.profile-username-wrap .field { grid-column: 1 / -1; }
 
 .avatar-block { display: flex; flex-direction: column; gap: 10px; background: #f6fbf7; border: 1px solid #e4f2e8; border-radius: 14px; padding: 12px; box-shadow: inset 0 0 0 1px rgba(41,198,119,0.06); }
 .avatar-block__header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
