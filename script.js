@@ -509,11 +509,26 @@ function createDefaultSubjects() {
           {
             title: 'Myologie – Les 1 (20 vragen)',
             questions: [
-              { question: 'Welke spiervezeltype heeft hoge uithouding?', options: ['Type I', 'Type IIa', 'Type IIx', 'Type III'], answerIndex: 0 },
-              { question: 'Welke structuur verbindt spier met bot?', options: ['Ligament', 'Pees', 'Fascia', 'Aponeurose'], answerIndex: 1 },
-              { question: 'Hoe heet de bindweefsellaag rond een hele spier?', options: ['Endomysium', 'Perimysium', 'Epimysium', 'Sarcolemma'], answerIndex: 2 },
-              { question: 'Wat is de contractiele eenheid van de spier?', options: ['Sarcolemma', 'Myofibril', 'Sarcomeer', 'T-tubulus'], answerIndex: 2 },
-              { question: 'Welke ionen starten de contractie in de spiercel?', options: ['Natrium', 'Calcium', 'Kalium', 'Magnesium'], answerIndex: 1 }
+              { question: 'Welke spier zie je op deze afbeelding?', description: 'Afbeelding: pagina 1, afbeelding A (grote ruitvormige spier bovenrug).', options: ['Musculus Latissimus Dorsi','Musculus Trapezius','Musculus Rhomboideus Major','Musculus Erector Spinae'], answerIndex: 1 },
+              { question: 'Wat is de oorsprong van de spier uit de vorige vraag?', options: ['Processus transversus C1–C4','Thoracale wervels T1–T4','Os occipitale en Processus spinosus T1–T12','Crista Iliaca'], answerIndex: 2 },
+              { question: 'Wat is de functie van de Pars descendens van de trapezius?', options: ['Retractie van de scapula','Adductie en elevatie van de scapula','Rotatie van de scapula','Protractie van de scapula'], answerIndex: 1 },
+              { question: 'Welke dieper gelegen spier onder de trapezius zie je hier?', description: 'Afbeelding: pagina 1, onderaan (spier in de nek naar de schouderpunt).', options: ['Musculus Levator Scapulae','Musculus Sternocleidomastoideus','Musculus Splenius Capitis','Musculus Scalenus'], answerIndex: 0 },
+              { question: 'Waar bevindt zich de insertie van de levator scapulae?', options: ['Spina Scapulae','Acromion','Angulus superior en Margo medialis van de scapula','Processus Coracoideus'], answerIndex: 2 },
+              { question: 'Welke spiergroep wordt hier aangeduid?', description: 'Afbeelding: pagina 2, linksboven (twee spieren tussen wervelkolom en schouderblad).', options: ['Musculus Serratus Posterior','Musculus Rhomboideus Major en Minor','Musculus Infraspinatus','Musculus Supraspinatus'], answerIndex: 1 },
+              { question: 'Wat is de functie van de rhomboidei?', options: ['Protractie en depressie','Adductie en elevatie van de scapula','Exorotatie van de humerus','Lateroflexie van de wervelkolom'], answerIndex: 1 },
+              { question: 'Welke spier zie je onder de pectoralis major?', description: 'Afbeelding: pagina 2, linksonder (vooraanzicht borstkas).', options: ['Musculus Pectoralis Major','Musculus Subclavius','Musculus Pectoralis Minor','Musculus Serratus Anterior'], answerIndex: 2 },
+              { question: 'Waar bevindt zich de oorsprong van de pectoralis minor?', options: ['Sternum','Clavicula','Rib 2–5','Rib 1–9'], answerIndex: 2 },
+              { question: 'Welke spier zorgt voor stabilisatie van de scapula?', description: 'Afbeelding: pagina 2, rechtsonder/midden (zijaanzicht ribbenkast).', options: ['Musculus Obliquus Externus','Musculus Serratus Anterior','Musculus Latissimus Dorsi','Musculus Intercostales Externi'], answerIndex: 1 },
+              { question: 'Wat is de insertie van de serratus anterior?', options: ['Margo medialis van de scapula','Margo lateralis van de scapula','Crista Iliaca','Linea Alba'], answerIndex: 0 },
+              { question: 'Welke spier fungeert als een korset en is de diepste buikspier?', description: 'Afbeelding: pagina 3, rechts (diepe laag).', options: ['Musculus Rectus Abdominis','Musculus Obliquus Internus','Musculus Transversus Abdominis','Musculus Quadratus Lumborum'], answerIndex: 2 },
+              { question: 'Wat is een belangrijke functie van de transversus abdominis?', options: ['Flexie van de romp','Lateroflexie','Lokale stabilisatie en buikademhaling','Extensie van de rug'], answerIndex: 2 },
+              { question: 'Welke buikspier loopt in “handen in de zakken”-richting?', description: 'Afbeelding: pagina 4, bovenaan.', options: ['Musculus Obliquus Internus Abdominis','Musculus Obliquus Externus Abdominis','Musculus Transversus Abdominis','Musculus Rectus Abdominis'], answerIndex: 1 },
+              { question: 'Wat is de oorsprong van de obliquus externus?', options: ['Rib 5–12','Crista Iliaca','Fascia Thoracolumbalis','Symphysis Pubis'], answerIndex: 0 },
+              { question: 'Welke spier is de globale mobilisator van de romp (sixpack)?', description: 'Afbeelding: pagina 5, linksboven (vooraanzicht).', options: ['Musculus Psoas Major','Musculus Rectus Abdominis','Musculus Obliquus Externus','Musculus Erector Spinae'], answerIndex: 1 },
+              { question: 'Waar bevindt zich de insertie van de rectus abdominis?', options: ['Rib 5–7','Processus xiphoideus','Symphysis Pubis','Crista Iliaca'], answerIndex: 2 },
+              { question: 'Welke spier verbindt crista iliaca met de 12e rib en lumbale wervels?', description: 'Afbeelding: pagina 6, rechtsboven (binnenzijde rug).', options: ['Musculus Erector Spinae','Musculus Latissimus Dorsi','Musculus Quadratus Lumborum','Musculus Multifidus'], answerIndex: 2 },
+              { question: 'Wat is de functie van de quadratus lumborum?', options: ['Rotatie van de romp','Flexie van de romp','Lateroflexie','Protractie van de scapula'], answerIndex: 2 },
+              { question: 'Welke grote dorsale spiergroep zorgt voor extensie van de wervelkolom?', description: 'Afbeelding: pagina 8, linksboven (lange rugspier).', options: ['Musculus Rectus Abdominis','Musculus Erector Spinae','Musculus Trapezius','Musculus Rhomboideus'], answerIndex: 1 }
             ]
           }
         ]
@@ -5576,7 +5591,18 @@ function renderQuizRunner(subject) {
   quizRunnerSubtitle.textContent = `Vraag ${activeQuizQuestionIndex + 1} van ${set.questions.length}`;
   quizRunnerStep.textContent = `Vraag ${activeQuizQuestionIndex + 1} van ${set.questions.length}`;
   quizQuestionTitle.textContent = question.question;
-  quizQuestionText.textContent = 'Kies het juiste antwoord hieronder.';
+  quizQuestionText.textContent = question.description || 'Kies het juiste antwoord hieronder.';
+
+  const cardEl = quizRunner.querySelector('.quiz-runner__card');
+  const prevImg = cardEl?.querySelector('.quiz-question__image');
+  if (prevImg) prevImg.remove();
+  if (question.image) {
+    const img = document.createElement('img');
+    img.className = 'quiz-question__image';
+    img.src = question.image;
+    img.alt = question.imageAlt || 'Quiz afbeelding';
+    cardEl?.insertBefore(img, quizOptions);
+  }
 
   quizOptions.innerHTML = '';
   if (isOpenQuestion(question)) {
