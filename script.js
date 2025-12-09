@@ -500,6 +500,25 @@ function createDefaultSubjects() {
         quizSets: [arthrologieHoofdstuk]
       },
       {
+        id: 'myo-les1',
+        domain: 'myologie',
+        section: 'myo-les-1',
+        title: 'Les 1',
+        description: 'Basis myologie – introductie en spierkennis.',
+        quizSets: [
+          {
+            title: 'Myologie – Les 1 (20 vragen)',
+            questions: [
+              { question: 'Welke spiervezeltype heeft hoge uithouding?', options: ['Type I', 'Type IIa', 'Type IIx', 'Type III'], answerIndex: 0 },
+              { question: 'Welke structuur verbindt spier met bot?', options: ['Ligament', 'Pees', 'Fascia', 'Aponeurose'], answerIndex: 1 },
+              { question: 'Hoe heet de bindweefsellaag rond een hele spier?', options: ['Endomysium', 'Perimysium', 'Epimysium', 'Sarcolemma'], answerIndex: 2 },
+              { question: 'Wat is de contractiele eenheid van de spier?', options: ['Sarcolemma', 'Myofibril', 'Sarcomeer', 'T-tubulus'], answerIndex: 2 },
+              { question: 'Welke ionen starten de contractie in de spiercel?', options: ['Natrium', 'Calcium', 'Kalium', 'Magnesium'], answerIndex: 1 }
+            ]
+          }
+        ]
+      },
+      {
         id: 'upper',
         domain: 'osteologie',
         section: 'osteo-upper',
@@ -3094,7 +3113,9 @@ function createDefaultSubjects() {
         id: 'myologie',
         title: 'Myologie',
         description: 'Spieren volgen binnenkort.',
-        sections: []
+        sections: [
+          { id: 'myo-les-1', title: 'Les 1', categoryIds: ['myo-les1'] }
+        ]
       }
     ]
   };
