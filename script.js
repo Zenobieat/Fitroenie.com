@@ -611,7 +611,7 @@ function createDefaultSubjects() {
               {
                 question: 'Welke spier zie je hier, waarvan de vezels lopen als "handen in de zakken" (Lateraal naar Inferior)?',
                 description: 'Afbeelding: Obliquus Externus Abdominis.png',
-                image: 'Les 1 Myologie/ Obliquus Externus Abdominis.png',
+                image: 'Les 1 Myologie/Obliquus Externus Abdominis.png',
                 imageAlt: 'Obliquus externus abdominis',
                 options: ['Musculus Obliquus Internus Abdominis','Musculus Obliquus Externus Abdominis','Musculus Transversus Abdominis','Musculus Rectus Abdominis'],
                 answerIndex: 1
@@ -649,7 +649,7 @@ function createDefaultSubjects() {
               {
                 question: 'Welke grote spiergroep zorgt voor extensie van de wervelkolom en lateroflexie?',
                 description: 'Afbeelding: Erector Spinae.png',
-                image: 'Les 1 Myologie/ Erector Spinae.png',
+                image: 'Les 1 Myologie/Erector Spinae.png',
                 imageAlt: 'Erector spinae',
                 options: ['Musculus Rectus Abdominis','Musculus Erector Spinae','Musculus Trapezius','Musculus Rhomboideus'],
                 answerIndex: 1
@@ -5781,7 +5781,19 @@ function renderQuizRunner(subject) {
     img.className = 'quiz-question__image';
     img.src = question.image;
     img.alt = question.imageAlt || 'Quiz afbeelding';
+    img.addEventListener('click', () => {
+      showImageLightbox(question.image, img.alt);
+    });
     img.addEventListener('error', () => {
+      const attempted = img.dataset.fallbackAttempted === '1';
+      if (!attempted) {
+        img.dataset.fallbackAttempted = '1';
+        const fixed = sanitizeImagePath(img.src);
+        if (fixed !== img.src) {
+          img.src = fixed;
+          return;
+        }
+      }
       img.style.display = 'none';
       const ph = document.createElement('div');
       ph.className = 'quiz-question__placeholder';
@@ -5851,6 +5863,44 @@ function renderQuizRunner(subject) {
     : state.answered < set.questions.length
     ? 'Je kan ook je score bekijken; onbeantwoorde vragen tonen "Geen antwoord".'
     : 'Beantwoord deze laatste vraag en bekijk daarna je score.';
+}
+
+function showImageLightbox(src, alt) {
+  const overlay = document.createElement('div');
+  overlay.className = 'image-lightbox';
+  const img = document.createElement('img');
+  img.className = 'image-lightbox__img';
+  img.src = src;
+  img.alt = alt || '';
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'image-lightbox__close';
+  close.textContent = 'Sluiten';
+  const dismiss = () => {
+    overlay.remove();
+    document.removeEventListener('keydown', onEsc);
+  };
+  const onEsc = (e) => { if (e.key === 'Escape') dismiss(); };
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) dismiss(); });
+  close.addEventListener('click', dismiss);
+  document.addEventListener('keydown', onEsc);
+  overlay.appendChild(img);
+  overlay.appendChild(close);
+  document.body.appendChild(overlay);
+}
+
+function sanitizeImagePath(src) {
+  try {
+    const u = new URL(src, location.href);
+    let p = u.pathname;
+    p = p.replace(/\/+/, '/');
+    p = p.replace(/\/\s+/g, '/');
+    p = p.replace(/\s{2,}/g, ' ');
+    u.pathname = p;
+    return u.toString();
+  } catch (_) {
+    return src.replace(/\/\s+/g, '/').replace(/\s{2,}/g, ' ');
+  }
 }
 
 function renderQuizResults(subject) {

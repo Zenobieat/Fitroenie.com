@@ -1082,8 +1082,8 @@ body.modal-open { overflow: hidden; }
 
 .profile-grid {
   display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 }
 .avatar-picker { display: flex; flex-direction: column; gap: 10px; }
 .avatar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); gap: 10px; }
@@ -1095,18 +1095,18 @@ body.modal-open { overflow: hidden; }
 .profile-card {
   background: var(--surface);
   border-radius: 18px;
-  padding: 20px;
+  padding: 24px;
   box-shadow: 0 15px 40px rgba(17, 90, 45, 0.14);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
   border: 1px solid var(--border-strong);
 }
 
 .profile-fields {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
   align-items: start;
   margin-top: 8px;
 }
@@ -1114,7 +1114,7 @@ body.modal-open { overflow: hidden; }
 .profile-username-wrap {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 12px;
+  gap: 16px;
   align-items: end;
 }
 
@@ -1217,12 +1217,18 @@ body.modal-open { overflow: hidden; }
 .collapse__row { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border: 1px solid var(--border); border-radius: 12px; background: #f9fdf9; }
 .collapse__row + .collapse__row { margin-top: 8px; }
 .collapse__actions { display: flex; gap: 8px; align-items: center; }
-.app--quizmode #login-btn { display: none; }
+.app--quizmode #login-btn { display: inline-flex; }
 .app--quizmode #account-toggle { display: inline-flex; }
-.app--quizmode #account-avatar { display: inline-block; }
+.app--quizmode #account-avatar { display: none; }
 .app--quizmode .account__panel { display: none !important; }
 .avatar-picker { display: none; }
 .view--profile.is-authed .avatar-picker.open { display: block; }
 .view--profile:not(.is-authed) #profile-username-field { display: none !important; }
 .view--profile:not(.is-authed) #avatar-picker { display: none !important; }
 .view--profile:not(.is-authed) #avatar-choose { display: none !important; }
+
+/* Afbeelding vergroten in quiz */
+.quiz-question__image { cursor: zoom-in; }
+.image-lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: grid; place-items: center; z-index: 1000; }
+.image-lightbox__img { max-width: min(90vw, 1000px); max-height: 90vh; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.35); }
+.image-lightbox__close { position: absolute; top: 16px; right: 16px; background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; box-shadow: var(--shadow-soft); cursor: pointer; }
