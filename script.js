@@ -6422,15 +6422,20 @@ sectionTabs?.addEventListener('click', (event) => {
   setActivePanel(target.dataset.panelTarget);
 });
 
-viewToggles.forEach((toggle) => {
-  toggle.addEventListener('click', (event) => {
-    event.preventDefault();
-    const viewTarget = toggle.dataset.viewTarget;
-    const panelTarget = toggle.dataset.panelTarget;
-    if (viewTarget) setActiveView(viewTarget);
-    if (panelTarget) setActivePanel(panelTarget);
+  viewToggles.forEach((toggle) => {
+    toggle.addEventListener('click', (event) => {
+      event.preventDefault();
+      const viewTarget = toggle.dataset.viewTarget;
+      const panelTarget = toggle.dataset.panelTarget;
+      const subjectName = toggle.dataset.subjectName;
+      if (subjectName) {
+        handleSubjectNavigation(subjectName, panelTarget || 'quiz-panel');
+        return;
+      }
+      if (viewTarget) setActiveView(viewTarget);
+      if (panelTarget) setActivePanel(panelTarget);
+    });
   });
-});
 
 subjectMenu?.addEventListener('mouseenter', openSubjectMenu);
 subjectMenu?.addEventListener('mouseleave', closeSubjectMenu);
@@ -6470,7 +6475,11 @@ function renderHomeCatalog() {
   subjectCatalog.innerHTML = '';
   const list = subjects.filter((s) => {
     if (!term) return true;
-    const hay = `${s.name} ${s.summary || ''}`.toLowerCase();
+    const catTitles = (s.categories || []).map((c) => c.title).join(' ');
+    const domainTitles = (s.examDomains || []).map((d) => d.title).join(' ');
+    const sectionTitles = (s.examDomains || []).flatMap((d) => (d.sections || []).map((sec) => sec.title)).join(' ');
+    const quizTitles = getQuizSets(s).map((q) => q.title).join(' ');
+    const hay = `${s.name} ${s.summary || ''} ${catTitles} ${domainTitles} ${sectionTitles} ${quizTitles}`.toLowerCase();
     return hay.includes(term);
   });
   const count = document.getElementById('catalog-count');
@@ -6496,7 +6505,7 @@ function renderHomeCatalog() {
     const actions = document.createElement('div');
     actions.className = 'catalog-card__actions';
     const examBtn = document.createElement('button');
-    examBtn.className = 'btn';
+    examBtn.className = 'btn ghost';
     examBtn.type = 'button';
     examBtn.textContent = 'Examens';
     examBtn.addEventListener('click', () => handleSubjectNavigation(s.name, 'quiz-panel'));
@@ -6506,7 +6515,7 @@ function renderHomeCatalog() {
     sumBtn.textContent = 'Samenvattingen';
     sumBtn.addEventListener('click', () => handleSubjectNavigation(s.name, 'summary-panel'));
     const flashBtn = document.createElement('button');
-    flashBtn.className = 'btn';
+    flashBtn.className = 'btn ghost';
     flashBtn.type = 'button';
     flashBtn.textContent = 'Flashcards';
     flashBtn.addEventListener('click', () => handleSubjectNavigation(s.name, 'flashcards-panel'));
@@ -6517,6 +6526,29 @@ function renderHomeCatalog() {
 }
 
 subjectSearch?.addEventListener('input', () => renderHomeCatalog());
+subjectSearch?.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter') return;
+  const term = (subjectSearch?.value || '').trim().toLowerCase();
+  if (!term) return;
+  let targetSubject = null;
+  let targetDomain = null;
+  for (const s of subjects) {
+    const catTitles = (s.categories || []).map((c) => c.title.toLowerCase());
+    const doms = (s.examDomains || []);
+    const domMatch = doms.find((d) => d.title.toLowerCase().includes(term) || (d.id || '').toLowerCase().includes(term));
+    const secMatch = doms.flatMap((d) => (d.sections || []).map((sec) => ({ d, sec }))).find((x) => x.sec.title.toLowerCase().includes(term) || (x.sec.id || '').toLowerCase().includes(term));
+    const inSubject = s.name.toLowerCase().includes(term) || (s.summary || '').toLowerCase().includes(term) || catTitles.some((t) => t.includes(term)) || !!domMatch || !!secMatch || getQuizSets(s).some((q) => q.title.toLowerCase().includes(term));
+    if (inSubject) {
+      targetSubject = s.name;
+      targetDomain = secMatch ? secMatch.d.id : (domMatch ? domMatch.id : null);
+      break;
+    }
+  }
+  if (targetSubject) {
+    activeExamDomain = targetDomain || null;
+    handleSubjectNavigation(targetSubject, 'quiz-panel');
+  }
+});
 
 if (auth) {
   onAuthStateChanged(auth, (user) => {
