@@ -7955,7 +7955,7 @@ function renderFlashcardsList(cards) {
   }
   const grid = document.createElement('div');
   grid.style.display = 'grid';
-  grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(220px, 1fr))';
+  grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(300px, 1fr))';
   grid.style.gap = '12px';
   cards.forEach((c) => {
     const card = document.createElement('div');
