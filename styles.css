@@ -737,7 +737,7 @@ body.modal-open { overflow: hidden; }
 }
 .quiz-picker__card {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   background: linear-gradient(180deg, #ffffff, #f8fbff);
   border: 1px solid var(--border);
   border-radius: 18px;
@@ -760,6 +760,9 @@ body.modal-open { overflow: hidden; }
   .quiz-picker__sublist { grid-template-columns: repeat(3, 1fr); }
 }
 .quiz-picker__subheader { margin: 6px 0 8px; color: var(--muted); }
+.quiz-picker__subpanel { grid-column: 1 / -1; margin-top: 12px; }
+.quiz-picker__subpanel .quiz-picker__sublist { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.quiz-picker__subpanel .quiz-picker__card { overflow: visible; }
 .quiz-picker__card.is-praktijk { background: linear-gradient(180deg, #fff9f1, #fff3e6); border-color: #ffd7a8; box-shadow: 0 12px 28px rgba(255,153,60,0.16); }
 .quiz-picker__card.is-praktijk::before { background: radial-gradient(40% 40% at 50% 50%, rgba(255,184,76,0.28), rgba(255,184,76,0.10)); }
 .quiz-picker__card.is-praktijk .chip { background: rgba(255,184,76,0.16); box-shadow: inset 0 0 0 1px rgba(255,184,76,0.40); }

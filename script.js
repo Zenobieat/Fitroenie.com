@@ -7892,47 +7892,49 @@ function renderFlashcardsPanel(subject) {
     openBtn.textContent = 'Open';
     openBtn.addEventListener('click', () => {
       if (cat.subcategories?.length) {
-        let subList = card.querySelector('.quiz-picker__sublist');
-        if (!subList) {
-          subList = document.createElement('div');
-          subList.className = 'quiz-picker__sublist';
-          const subHeader = document.createElement('p');
-          subHeader.className = 'quiz-picker__subheader caption';
-          subHeader.textContent = 'Subcategorieën';
-          card.appendChild(subHeader);
-          cat.subcategories.forEach((sub) => {
-            const subCard = document.createElement('article');
-            subCard.className = 'quiz-picker__card';
-            const count = (sub.cards || []).length;
-            subCard.innerHTML = `
-              <header class="quiz-picker__header">
-                <div>
-                  <p class="eyebrow">Subcategorie</p>
-                  <h3>${sub.title}</h3>
-                </div>
-                <div class="chip">${count} kaarten</div>
-              </header>
-              <p class="caption">Open om deze kaarten te bekijken.</p>
-            `;
-            const subActions = document.createElement('div');
-            subActions.className = 'quiz-picker__actions';
-            const subOpen = document.createElement('button');
-            subOpen.type = 'button';
-            subOpen.className = 'btn';
-            subOpen.textContent = 'Open';
-            subOpen.addEventListener('click', () => {
-              activeFlashcardsCategory = { id: sub.id, title: sub.title, cards: sub.cards || [] };
-              setActivePanel('flashcards-play-panel');
-              render();
-            });
-            subActions.appendChild(subOpen);
-            subCard.appendChild(subActions);
-            subList.appendChild(subCard);
+        const listEl = card.parentElement; // grid container
+        const existing = document.getElementById(`subpanel-${cat.id}`);
+        if (existing) { existing.hidden = !existing.hidden; existing.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+        const subPanel = document.createElement('div');
+        subPanel.id = `subpanel-${cat.id}`;
+        subPanel.className = 'quiz-picker__subpanel';
+        const subHeader = document.createElement('p');
+        subHeader.className = 'quiz-picker__subheader caption';
+        subHeader.textContent = 'Subcategorieën';
+        const subList = document.createElement('div');
+        subList.className = 'quiz-picker__sublist';
+        cat.subcategories.forEach((sub) => {
+          const subCard = document.createElement('article');
+          subCard.className = 'quiz-picker__card';
+          const count = (sub.cards || []).length;
+          subCard.innerHTML = `
+            <header class="quiz-picker__header">
+              <div>
+                <p class="eyebrow">Subcategorie</p>
+                <h3>${sub.title}</h3>
+              </div>
+              <div class="chip">${count} kaarten</div>
+            </header>
+            <p class="caption">Open om deze kaarten te bekijken.</p>
+          `;
+          const subActions = document.createElement('div');
+          subActions.className = 'quiz-picker__actions';
+          const subOpen = document.createElement('button');
+          subOpen.type = 'button';
+          subOpen.className = 'btn';
+          subOpen.textContent = 'Open';
+          subOpen.addEventListener('click', () => {
+            activeFlashcardsCategory = { id: sub.id, title: sub.title, cards: sub.cards || [] };
+            setActivePanel('flashcards-play-panel');
+            render();
           });
-          card.appendChild(subList);
-        } else {
-          subList.hidden = !subList.hidden;
-        }
+          subActions.appendChild(subOpen);
+          subCard.appendChild(subActions);
+          subList.appendChild(subCard);
+        });
+        subPanel.append(subHeader, subList);
+        listEl.insertBefore(subPanel, card.nextSibling);
+        subPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else {
         activeFlashcardsCategory = cat;
         setActivePanel('flashcards-play-panel');
