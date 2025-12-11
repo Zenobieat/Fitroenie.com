@@ -726,23 +726,43 @@ body.modal-open { overflow: hidden; }
 
 .quiz-category__list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
 }
+@media (min-width: 720px) {
+  .quiz-category__list { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1100px) {
+  .quiz-category__list { grid-template-columns: repeat(3, 1fr); }
+}
 .quiz-picker__card {
-  background: #ffffff;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: 18px;
   padding: 16px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 12px 28px rgba(15,47,30,0.12);
   display: flex;
   flex-direction: column;
   gap: 10px;
   animation: floatIn 0.5s ease;
   transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
 }
+.quiz-picker__card::before { content: ''; position: absolute; right: -40px; top: -40px; width: 140px; height: 140px; border-radius: 50%; filter: blur(10px); opacity: 0.22; background: radial-gradient(40% 40% at 50% 50%, rgba(75,107,251,0.30), rgba(43,182,115,0.10)); }
 .quiz-picker__card.is-opening { box-shadow: 0 16px 36px rgba(41, 198, 119, 0.22); transform: translateY(-2px); }
 .quiz-picker__card:hover { transform: translateY(-4px); box-shadow: 0 18px 44px rgba(15, 47, 30, 0.14); border-color: #c6ead7; }
+.quiz-picker__sublist { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 12px; padding: 10px; border: 1px solid var(--border); border-radius: 16px; background: linear-gradient(180deg, #ffffff, #f4faf7); }
+@media (min-width: 720px) {
+  .quiz-picker__sublist { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1100px) {
+  .quiz-picker__sublist { grid-template-columns: repeat(3, 1fr); }
+}
+.quiz-picker__subheader { margin: 6px 0 8px; color: var(--muted); }
+.quiz-picker__card.is-praktijk { background: linear-gradient(180deg, #fff9f1, #fff3e6); border-color: #ffd7a8; box-shadow: 0 12px 28px rgba(255,153,60,0.16); }
+.quiz-picker__card.is-praktijk::before { background: radial-gradient(40% 40% at 50% 50%, rgba(255,184,76,0.28), rgba(255,184,76,0.10)); }
+.quiz-picker__card.is-praktijk .chip { background: rgba(255,184,76,0.16); box-shadow: inset 0 0 0 1px rgba(255,184,76,0.40); }
 .quiz-picker__header {
   display: flex;
   align-items: flex-start;
@@ -1274,11 +1294,12 @@ body.modal-open { overflow: hidden; }
 /* Flashcards */
 .flashcards { background: #f9fdf9; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
 .flashcards__display { display: grid; gap: 12px; }
-.flashcard { position: relative; background: #ffffff; border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); min-height: 180px; padding: 14px; cursor: pointer; perspective: 800px; }
+.flashcard { position: relative; overflow: hidden; background: linear-gradient(180deg, #ffffff, #f8fbff); border: 1px solid var(--border); border-radius: 18px; box-shadow: 0 12px 28px rgba(15,47,30,0.12); min-height: 180px; padding: 14px; cursor: pointer; perspective: 800px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.flashcard:hover { transform: translateY(-2px); box-shadow: 0 18px 42px rgba(15,47,30,0.16); }
 .flashcard--big { min-height: 0; }
 .flashcard__inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.36s ease; }
 .flashcard.is-flipped .flashcard__inner { transform: rotateY(180deg); }
 .flashcard__face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: flex; align-items: flex-start; justify-content: flex-start; padding: 24px; color: #0b1f14; }
-.flashcard__front { background: #ffffff; transform: rotateY(0deg); display: grid; place-items: center; text-align: center; }
-.flashcard__back { background: #f6fbf7; transform: rotateY(180deg); overflow: auto; text-align: left; display: block; padding: 44px 32px 36px; }
+.flashcard__front { background: linear-gradient(180deg, #ffffff, #f8fbff); transform: rotateY(0deg); display: grid; place-items: center; text-align: center; }
+.flashcard__back { background: linear-gradient(180deg, #f6fbf7, #eef8f1); transform: rotateY(180deg); overflow: auto; text-align: left; display: block; padding: 44px 32px 36px; }
 .flashcard__content { width: 100%; margin: 0; padding: 24px; text-align: left; }

@@ -7462,16 +7462,16 @@ function getFlashcardCategories(subject) {
     return res;
   }
 
-  const praktijkBodyweightStretchData = [
-    { titel: 'Standing hamstrings stretch', spieren: 'Hamstrings.', positie: '- Staand, voet voor op verhoog of grond.<br>- Knie licht gebogen.', uitvoering: '- Kantel bekken naar voren.<br>- Buig bovenlichaam licht naar voren over het been.<br>- 30s aanhouden, rustig ademen.', fouten: '- Bolle rug.<br>- Knie overstrekken.<br>- Voetpunt naar binnen draaien.' },
-    { titel: 'Lying leg extension stretch (Quadriceps)', spieren: 'Quadriceps.', positie: '- Zijlig of buiklig.<br>- Pak enkel vast en breng hiel naar bil.', uitvoering: '- Houd knieën naast elkaar.<br>- Bekken neutraal.<br>- 30s aanhouden.', fouten: '- Knie naar buiten.<br>- Onderrug hol trekken.<br>- Te hard trekken aan enkel.' },
-    { titel: 'Kneeling adductor stretch', spieren: 'Adductoren.', positie: '- Knieën op grond.<br>- Eén been zijwaarts gestrekt, voet plat.', uitvoering: '- Duw heup licht naar achter.<br>- Romp recht.<br>- 30s aanhouden.', fouten: '- Rug bollen.<br>- Knie buigen op gestrekte zijde.<br>- Voetpunt draaien.' },
-    { titel: 'Kneeling hip flexor stretch', spieren: 'Heupbuigers (iliopsoas).', positie: '- Eén knie op grond, andere voet voor (uitvalspas).', uitvoering: '- Kantel bekken (retroversie).<br>- Duw heupen naar voren tot rek in voorkant heup.<br>- 30s aanhouden.', fouten: '- Holle onderrug.<br>- Bekken niet kantelen.<br>- Knie te ver voorbij teen.' },
-    { titel: 'Lying glute 4 stretch (Figure 4)', spieren: 'Gluteus maximus/medius.', positie: '- Ruglig.<br>- Enkel op tegenoverliggende knie (figuur 4).', uitvoering: '- Pak achter dijbeen vast.<br>- Trek licht naar borst tot rek in bil.<br>- 30s aanhouden.', fouten: '- Nek optillen.<br>- Bekken kantelen naar holle rug.<br>- Te snel bewegen.' },
-    { titel: 'Seated crossover glute stretch', spieren: 'Gluteus medius/minimus.', positie: '- Zit, één been gekruist over het andere.', uitvoering: '- Trek knie naar borst/tegenoverliggende schouder.<br>- Romp recht.<br>- 30s aanhouden.', fouten: '- Ronding in rug.<br>- Schouders optrekken.<br>- Knie omlaag duwen i.p.v. naar borst.' },
-    { titel: 'Standing side bending stretch', spieren: 'Obliques, quadratus lumborum.', positie: '- Staand, voeten heupbreedte.', uitvoering: '- Eén arm boven hoofd.<br>- Buig zijwaarts tot rek in flank.<br>- 30s per zijde.', fouten: '- Rotatie i.p.v. zijwaarts buigen.<br>- Bekken meebewegen.<br>- Schouders optrekken.' }
+  const praktijkStretchData = [
+    { titel: 'Standing hamstrings stretch', spieren: 'Hamstrings (primair), gastrocnemius (secundair).', positie: '- Sta rechtop, 1 been gestrekt voorwaarts (hiel op grond).<br>- Achterste been licht gebogen.<br>- Bekken in anteversie (holle rug).', uitvoering: '- Buig door achterste been.<br>- Kantel romp naar voor met rechte rug.<br>- Reik naar tenen.', fouten: '- Bolle rug.<br>- Voeten op 1 lijn (balans).<br>- Stretchbeen buigen.' },
+    { titel: 'Lying leg extension stretch', spieren: 'Hamstrings.', positie: '- Ruglig.<br>- Lift 1 been gestrekt op.<br>- Pak vast in knieholte/dij.', uitvoering: '- Trek been naar schouders.<br>- Hou schouders/zitvlak op de grond.', fouten: '- Andere been komt los.<br>- Schouders los van grond.' },
+    { titel: 'Kneeling adductor stretch', spieren: 'Lange adductoren.', positie: '- Kniel op 1 knie, ander been gestrekt opzij.<br>- Handen op grond.', uitvoering: '- Duw voet zijwaarts, heup naar grond.', fouten: '- Voetpunt niet naar voor.<br>- Gewicht op gestrekt been.' },
+    { titel: 'Kneeling hip flexor stretch', spieren: 'Iliopsoas, rectus femoris.', positie: '- Kniezit (schutter).<br>- Bekken retroversie (bilspieren aan).', uitvoering: '- Duw bekken voorwaarts (heupextensie).<br>- Romp rechtop.', fouten: '- Holle rug (hyperextensie).<br>- Voeten op 1 lijn.' },
+    { titel: 'Lying glute stretch (Figure 4)', spieren: 'Gluteus, piriformis.', positie: '- Ruglig.<br>- Enkel op bovenbeen andere knie.', uitvoering: '- Neem knieholte vast en trek naar borst.<br>- Hoofd op grond.', fouten: '- Te weinig exorotatie.<br>- Hoofd los van grond.' },
+    { titel: 'Seated crossover glute stretch', spieren: 'Gluteus, piriformis.', positie: '- Zit, benen gestrekt.<br>- Zet voet over andere knie.', uitvoering: '- Draai romp naar knie.<br>- Duw knie naar binnen met elleboog.', fouten: '- Elleboog verkeerd.<br>- Doorzakken rug.' },
+    { titel: 'Standing side bending stretch', spieren: 'Schuine buikspieren, QL, TFL.', positie: '- Sta recht, kruis voeten.<br>- Hand in lenden.', uitvoering: '- Duw bekken zijwaarts.<br>- Arm over hoofd (\'banaan\').', fouten: '- Romp naar voor buigen.' }
   ];
-  const praktijkBodyweightStretchCards = praktijkBodyweightStretchData.map((d) => ({
+  const praktijkStretchCards = praktijkStretchData.map((d) => ({
     frontTitle: stripCites(d.titel),
     back: `
       <strong>Spieren:</strong> ${stripCites(d.spieren)}<br><br>
@@ -7484,29 +7484,125 @@ function getFlashcardCategories(subject) {
     `
   }));
 
-  const praktijkBodyweightCoreTitles = [
-    'lage plank', 'front bridge', 'zijwaartse plank', 'side bridge', 'supine bridge', 'bird dog', 'side plank abduction on knee', 'dead bug', 'clam shell'
+  const praktijkCoreData = [
+    { titel: 'Lage plank (Front bridge)', spieren: 'Rectus abdominis, heupbuigers.', positie: '- Ellebogen onder schouders.<br>- Steun op tenen.', uitvoering: '- Lichaam in 1 lijn.<br>- Bekken kantelen (bil/buik aan).', fouten: '- Holle rug.<br>- Bekken te hoog.' },
+    { titel: 'Zijwaartse plank (Side bridge)', spieren: 'Quadratus lumborum, obliques.', positie: '- Zijlig, elleboog onder schouder.<br>- Voeten op elkaar.', uitvoering: '- Duw bekken omhoog.<br>- Lichaam in 1 lijn.', fouten: '- Schouders niet boven elkaar.<br>- Bekken zakt in.' },
+    { titel: 'Supine bridge', spieren: 'Gluteus maximus, hamstrings.', positie: '- Ruglig, voeten plat op grond.', uitvoering: '- Duw bekken omhoog.<br>- Lijn knie-heup-schouder.', fouten: '- Holle rug (geen retroversie).<br>- Voeten te ver weg.' },
+    { titel: 'Bird dog', spieren: 'Erector spinae, gluteus.', positie: '- Handen- en knieënsteun.', uitvoering: '- Strek diagonaal arm en been uit.<br>- Rug stabiel houden.', fouten: '- Holle/bolle rug.<br>- Te hoog liften.' },
+    { titel: 'Side plank abduction on knee', spieren: 'Gluteus medius/minimus.', positie: '- Zijwaartse plank op knie.', uitvoering: '- Lift bovenste been gestrekt op (abductie).', fouten: '- Bekken zakt in.<br>- Heup niet gestrekt.' },
+    { titel: 'Dead bug', spieren: 'Rectus abdominis.', positie: '- Ruglig, armen omhoog, benen 90-90.', uitvoering: '- Strek diagonaal arm en been uit.<br>- Rug neutraal houden.', fouten: '- Holle rug trekken.' },
+    { titel: 'Clam shells', spieren: 'Gluteus medius/minimus (exorotatoren).', positie: '- Zijlig, benen gebogen.<br>- Voeten op elkaar.', uitvoering: '- Draai bovenste knie open.', fouten: '- Romp draait mee.<br>- Voeten los van elkaar.' }
   ];
-  const praktijkBodyweightStrengthTitles = ['push-up', 'lunge', 'squat'];
-  const praktijkBodyweightCards = [
-    ...praktijkBodyweightStretchCards,
-    ...selectByTitles(coreCards, praktijkBodyweightCoreTitles),
-    ...selectByTitles(freeWeightsCards, praktijkBodyweightStrengthTitles)
-  ];
+  const praktijkCoreCards = praktijkCoreData.map((d) => ({
+    frontTitle: stripCites(d.titel),
+    back: `
+      <strong>Spieren:</strong> ${stripCites(d.spieren)}<br><br>
+      <strong>Positie:</strong>
+      ${toList(d.positie)}
+      <strong>Uitvoering:</strong>
+      ${toList(d.uitvoering)}
+      <strong>Fouten:</strong>
+      ${toList(d.fouten)}
+    `
+  }));
 
-  const praktijkMachinesTitles = [
-    'Fietsergometer', 'Crosstrainer', 'Stairclimber', 'Roeiergometer', 'Loopband',
-    'Leg press', 'Chest press', 'Low row', 'Reverse fly machine', 'Pectoral fly machine', 'Lat machine', 'Leg extension', 'Leg curl', 'Shoulder press', 'Adductor', 'Abductor'
+  const praktijkBodyweightStrengthData = [
+    { titel: 'Push-up', spieren: 'Pectoralis major, triceps.', positie: '- Plankhouding, handen breed.', uitvoering: '- Zakken tot borst vlakbij grond.<br>- Ellebogen 45 graden.', fouten: '- Holle rug.<br>- Ellebogen te breed (T-vorm).' },
+    { titel: 'Lunge (Bodyweight)', spieren: 'Quadriceps, hamstrings, gluteus.', positie: '- Rechtop staan.', uitvoering: '- Grote uitvalspas.<br>- Knieën naar 90 graden.', fouten: '- Knie voorbij tenen.<br>- Romp naar voren.' },
+    { titel: 'Squat (Bodyweight)', spieren: 'Quadriceps, hamstrings, gluteus.', positie: '- Voeten schouderbreedte.', uitvoering: '- Zak door knieën (billen naar achter).<br>- Rug recht.', fouten: '- Bolle rug.<br>- Knieën naar binnen.<br>- Hielen los.' }
   ];
-  const praktijkMachinesCards = [
-    ...selectByTitles(cardioCards, ['Fietsergometer', 'Crosstrainer', 'Stairclimber', 'Roeiergometer', 'Loopband']),
-    ...selectByTitles(machinesCards, ['leg press', 'chest press', 'low row', 'upper back machine', 'reverse fly', 'pectoral fly', 'lat machine', 'leg extension', 'leg curl', 'shoulder press machine', 'adductor machine', 'abductor machine'])
-  ];
+  const praktijkBodyweightStrengthCards = praktijkBodyweightStrengthData.map((d) => ({
+    frontTitle: stripCites(d.titel),
+    back: `
+      <strong>Spieren:</strong> ${stripCites(d.spieren)}<br><br>
+      <strong>Positie:</strong>
+      ${toList(d.positie)}
+      <strong>Uitvoering:</strong>
+      ${toList(d.uitvoering)}
+      <strong>Fouten:</strong>
+      ${toList(d.fouten)}
+    `
+  }));
 
-  const praktijkFreeWeightsTitles = [
-    'barbell squat', 'barbell lunge', "cable standing fly's", 'crossover', 'dumbbell press', "dumbbell fly's", 'rear delt raise', 'lying rear row', 'single arm bentover row', 'bentover row', 'barbell bench press', 'seated military press', 'shoulder press', 'skull crusher', 'triceps pulldown', 'kickback', 'hammer curl', 'biceps curl', 'side raise', 'front raise'
+  const praktijkFreeWeightsData = [
+    { titel: 'Barbell squat', spieren: 'Quadriceps, hamstrings, gluteus.', positie: '- Barbell op trapezius.<br>- Voeten schouderbreedte.', uitvoering: '- Zakken (rug recht).<br>- Knieën niet voorbij tenen.', fouten: '- Bolle rug.<br>- Knieën naar binnen.' },
+    { titel: 'Barbell lunge', spieren: 'Quadriceps, hamstrings, gluteus.', positie: '- Barbell in nek.', uitvoering: '- Uitvalspas (90-90).<br>- Romp recht.', fouten: '- Knie voorbij tenen.<br>- Balansverlies.' },
+    { titel: "Cable standing crossover/fly’s", spieren: 'Pectoralis major.', positie: '- Uitvalspas, kabels hoog.', uitvoering: '- Trek handen naar elkaar voor borst.', fouten: '- Ellebogen strekken.<br>- Te ver naar achter.' },
+    { titel: 'Dumbbell press', spieren: 'Pectoralis major, triceps.', positie: '- Ruglig, dumbbells boven borst.', uitvoering: '- Zakken en uitduwen.', fouten: '- Asymmetrisch.<br>- Holle rug.' },
+    { titel: "Dumbbell fly’s", spieren: 'Pectoralis major.', positie: '- Ruglig, armen licht gebogen.', uitvoering: '- Openen en sluiten (omhelzing).', fouten: '- Ellebogen strekken.<br>- Te diep zakken.' },
+    { titel: 'Dumbbell lying rear row / delt raise', spieren: 'Achterkant schouder, rug.', positie: '- Buiklig op bankje.', uitvoering: '- Trek gewichten omhoog/zijwaarts.', fouten: '- Borst los van bank.<br>- Hoofd optillen.' },
+    { titel: 'Dumbbell single arm bentover row', spieren: 'Latissimus dorsi.', positie: '- Steun op bank (hand+knie).<br>- Rug recht (tafel).', uitvoering: '- Trek dumbbell naar heup.', fouten: '- Bolle rug.<br>- Roteren met romp.' },
+    { titel: 'Barbell bench press', spieren: 'Pectoralis major, triceps.', positie: '- Ruglig, barbell boven borst.', uitvoering: '- Zakken tot borst, uitduwen.', fouten: '- Holle rug.<br>- Polsen plooien.<br>- Guillotine (naar nek).' },
+    { titel: 'Seated military press (Barbell)', spieren: 'Deltoideus.', positie: '- Zit rechtop, barbell voor hoofd.', uitvoering: '- Duw verticaal uit.', fouten: '- Holle rug.<br>- Achterover leunen.' },
+    { titel: 'Dumbbell seated shoulder press', spieren: 'Deltoideus.', positie: '- Zit rechtop, dumbbells op schouders.', uitvoering: '- Duw uit tot boven hoofd.', fouten: '- Holle rug.<br>- Gewichten naar voren.' },
+    { titel: 'Barbell / Dumbbell skull crusher', spieren: 'Triceps brachii.', positie: '- Ruglig, armen omhoog.', uitvoering: '- Buig ellebogen, gewicht naar voorhoofd.', fouten: '- Ellebogen naar buiten.<br>- Beweging uit schouder.' },
+    { titel: 'Cable standing triceps pulldown', spieren: 'Triceps brachii.', positie: '- Staand, ellebogen in zij.', uitvoering: '- Duw stang/touw omlaag.', fouten: '- Ellebogen los van zij.<br>- Polsen plooien.' },
+    { titel: 'Dumbbell triceps kickbacks', spieren: 'Triceps brachii.', positie: '- Voorovergebogen, bovenarm langs romp.', uitvoering: '- Strek onderarm naar achter.', fouten: '- Bovenarm zakt.<br>- Zwaaien.' },
+    { titel: 'Dumbbell standing hammer curl', spieren: 'Brachioradialis, brachialis.', positie: '- Staand, neutrale greep (duim op).', uitvoering: '- Buig armen.', fouten: '- Zwaaien.<br>- Ellebogen naar voor.' },
+    { titel: 'Dumbbell standing biceps curl', spieren: 'Biceps brachii.', positie: '- Staand, handpalmen vooruit.', uitvoering: '- Buig armen.', fouten: '- Zwaaien.<br>- Polsen plooien.' },
+    { titel: 'Dumbbell side / front raises', spieren: 'Deltoideus (Zij / Voor).', positie: '- Staand.', uitvoering: '- Hef armen zijwaarts of voorwaarts tot schouderhoogte.', fouten: '- Boven schouderhoogte.<br>- Zwaaien.' }
   ];
-  const praktijkFreeWeightsCards = selectByTitles(freeWeightsCards, praktijkFreeWeightsTitles);
+  const praktijkFreeWeightsCards = praktijkFreeWeightsData.map((d) => ({
+    frontTitle: stripCites(d.titel),
+    back: `
+      <strong>Spieren:</strong> ${stripCites(d.spieren)}<br><br>
+      <strong>Positie:</strong>
+      ${toList(d.positie)}
+      <strong>Uitvoering:</strong>
+      ${toList(d.uitvoering)}
+      <strong>Fouten:</strong>
+      ${toList(d.fouten)}
+    `
+  }));
+
+  const praktijkMachinesStrengthData = [
+    { titel: 'Seated leg press', spieren: 'Quadriceps, hamstrings, gluteus.', positie: '- Voeten op platform, knie < 90°.', uitvoering: '- Duw weg (niet overstrekken).', fouten: '- Knieën op slot.<br>- Hielen los.' },
+    { titel: 'Chest press', spieren: 'Pectoralis major, triceps.', positie: '- Grepen op borsthoogte.', uitvoering: '- Duw uit.<br>- Keer terug tot vuist van borst.', fouten: '- Boven schouderhoogte.<br>- Te ver terug (overstrekking).' },
+    { titel: 'Low row', spieren: 'Latissimus dorsi, teres major.', positie: '- Borst tegen steun.', uitvoering: '- Trek naar buik, ellebogen smal.', fouten: '- Ellebogen breed.<br>- Borst los van steun.' },
+    { titel: 'Reverze fly machine', spieren: 'Achterkant schouder (Deltoideus posterior).', positie: '- Borst tegen steun.', uitvoering: '- Armen zijwaarts naar achteren.', fouten: '- Armen overstrekken.<br>- Borst los.' },
+    { titel: 'Pectoral fly machine', spieren: 'Pectoralis major.', positie: '- Ellebogen op schouderhoogte.', uitvoering: '- Breng armen samen voor borst.', fouten: '- Ellebogen los.<br>- Te ver terugkeren.' },
+    { titel: 'Lat machine (Front pull down)', spieren: 'Latissimus dorsi.', positie: '- Knieën klem, brede greep.', uitvoering: '- Trek stang naar borst.', fouten: '- Stang in nek.<br>- Achterover hangen.' },
+    { titel: 'Seated leg extension', spieren: 'Quadriceps.', positie: '- Knie-as gelijk met toestel.', uitvoering: '- Strek benen opwaarts.', fouten: '- Trappen (snel).<br>- Loskomen onderrug.' },
+    { titel: 'Seated leg curl', spieren: 'Hamstrings.', positie: '- Knie-as gelijk met toestel.', uitvoering: '- Buig benen omlaag.', fouten: '- Holle rug.<br>- Knie schuift.' },
+    { titel: 'Shoulder press', spieren: 'Deltoideus.', positie: '- Grepen op schouderhoogte.', uitvoering: '- Duw verticaal omhoog.', fouten: '- Holle rug.<br>- Smalle ellebogen.' },
+    { titel: 'Abductor / Adductor machine', spieren: 'Abductoren (Gluteus) / Adductoren.', positie: '- Kussens buitenkant (Ab) of binnenkant (Ad).', uitvoering: '- Duw naar buiten (Ab) of binnen (Ad).', fouten: '- Kleine beweging.<br>- Bolle rug.' }
+  ];
+  const praktijkMachinesStrengthCards = praktijkMachinesStrengthData.map((d) => ({
+    frontTitle: stripCites(d.titel),
+    back: `
+      <strong>Spieren:</strong> ${stripCites(d.spieren)}<br><br>
+      <strong>Positie:</strong>
+      ${toList(d.positie)}
+      <strong>Uitvoering:</strong>
+      ${toList(d.uitvoering)}
+      <strong>Fouten:</strong>
+      ${toList(d.fouten)}
+    `
+  }));
+
+  const praktijkCardioData = [
+    { titel: 'Fietsergometer', spieren: 'Benen, Cardio.', positie: '- Zadelhoogte: been bijna gestrekt (5° flexie).', uitvoering: '- 70-80 RPM.<br>- Handen aan stuur, kijk vooruit.', fouten: '- Zadel te laag/hoog.<br>- Bekken danst.' },
+    { titel: 'Crosstrainer', spieren: 'Full Body, Cardio.', positie: '- Voeten vooraan op pedalen.', uitvoering: '- Kruislingse beweging.<br>- 110-120 SPM.', fouten: '- Achteruit crossen.<br>- Knieën naar binnen.' },
+    { titel: 'Stairclimber', spieren: 'Benen, Bilspieren, Cardio.', positie: '- Rechtop staan.', uitvoering: '- Stap trappen op.<br>- Blijf hoog op treden.', fouten: '- Leunen op armsteunen.<br>- Te laag zakken.' },
+    { titel: 'Roeiergometer', spieren: 'Rug, Benen, Biceps, Cardio.', positie: '- Voeten vast, rug recht.', uitvoering: '- Duw benen -> romp -> armen.<br>- Keer omgekeerd terug.', fouten: '- Rug bollen/leunen.<br>- Stang te hoog trekken.' },
+    { titel: 'Loopband', spieren: 'Benen, Cardio.', positie: '- Safety clip aan.', uitvoering: '- Loop op voorste deel.<br>- Gekruiste arminzet.', fouten: '- Vasthouden aan stang.<br>- Voeten draaien.' }
+  ];
+  const praktijkCardioCards = praktijkCardioData.map((d) => ({
+    frontTitle: stripCites(d.titel),
+    back: `
+      <strong>Spieren:</strong> ${stripCites(d.spieren)}<br><br>
+      <strong>Positie:</strong>
+      ${toList(d.positie)}
+      <strong>Uitvoering:</strong>
+      ${toList(d.uitvoering)}
+      <strong>Fouten:</strong>
+      ${toList(d.fouten)}
+    `
+  }));
+
+  
+
+  
   return [
     { id: 'stretching', title: 'Stretching', cards: testStretch.map((c) => ({ frontTitle: c.question, back: c.answer })) },
     { id: 'kracht', title: 'Krachttraining', subcategories: [
@@ -7516,10 +7612,14 @@ function getFlashcardCategories(subject) {
     { id: 'core', title: 'Corestability', cards: coreCards },
     { id: 'cardio', title: 'Cardio', cards: cardioCards },
     { id: 'praktijk', title: 'Praktisch examen', subcategories: [
-      { id: 'praktijk-body', title: 'Bodyweight', cards: praktijkBodyweightCards },
-      { id: 'praktijk-machines', title: 'Machines', cards: praktijkMachinesCards },
-      { id: 'praktijk-free', title: 'Free Weights', cards: praktijkFreeWeightsCards },
-      { id: 'praktijk-cardio', title: 'Cardio', cards: selectByTitles(cardioCards, ['Fietsergometer', 'Crosstrainer', 'Stairclimber', 'Roeiergometer', 'Loopband']) }
+      { id: 'praktijk-stretch', title: 'Stretching', cards: praktijkStretchCards },
+      { id: 'praktijk-kracht', title: 'Krachttraining', subcategories: [
+        { id: 'praktijk-kracht-free', title: 'Free Weight', cards: praktijkFreeWeightsCards },
+        { id: 'praktijk-kracht-machines', title: 'Machines', cards: praktijkMachinesStrengthCards },
+        { id: 'praktijk-kracht-bodyweight', title: 'Bodyweight', cards: praktijkBodyweightStrengthCards }
+      ]},
+      { id: 'praktijk-core', title: 'Corestability', cards: praktijkCoreCards },
+      { id: 'praktijk-cardio', title: 'Cardio', cards: praktijkCardioCards }
     ]}
   ];
 }
@@ -7530,6 +7630,11 @@ function renderFlashcardsPanel(subject) {
   flashcardsPanel.hidden = false;
   flashcardsDisplay.innerHTML = '';
   const categories = getFlashcardCategories(subject);
+  const ordered = [...categories].sort((a, b) => {
+    if (a.id === 'praktijk' && b.id !== 'praktijk') return -1;
+    if (b.id === 'praktijk' && a.id !== 'praktijk') return 1;
+    return 0;
+  });
   const section = document.createElement('section');
   section.className = 'quiz-category';
   section.innerHTML = `
@@ -7542,9 +7647,11 @@ function renderFlashcardsPanel(subject) {
   `;
   const list = document.createElement('div');
   list.className = 'quiz-category__list';
-  categories.forEach((cat) => {
+  ordered.forEach((cat) => {
     const card = document.createElement('article');
     card.className = 'quiz-picker__card';
+    card.dataset.id = cat.id || '';
+    if (cat.id === 'praktijk') card.classList.add('is-praktijk');
     const total = (cat.subcategories?.length ? cat.subcategories.flatMap((s) => s.cards || []) : (cat.cards || [])).length;
     card.innerHTML = `
       <header class="quiz-picker__header">
@@ -7568,6 +7675,10 @@ function renderFlashcardsPanel(subject) {
         if (!subList) {
           subList = document.createElement('div');
           subList.className = 'quiz-picker__sublist';
+          const subHeader = document.createElement('p');
+          subHeader.className = 'quiz-picker__subheader caption';
+          subHeader.textContent = 'Subcategorieën';
+          card.appendChild(subHeader);
           cat.subcategories.forEach((sub) => {
             const subCard = document.createElement('article');
             subCard.className = 'quiz-picker__card';
