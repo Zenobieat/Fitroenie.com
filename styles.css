@@ -366,9 +366,26 @@ body.modal-open { overflow: hidden; }
 .hero__glow { display: none; }
 
 .hero__search { margin-top: 24px; }
-.searchbar { display: grid; grid-template-columns: 1fr auto auto auto; gap: 10px; background: rgba(255,255,255,0.8); border: 1px solid var(--border); border-radius: 14px; padding: 10px; box-shadow: var(--shadow-soft); max-width: 920px; }
+.searchbar { display: grid; grid-template-columns: 1fr auto auto auto; gap: 10px; background: linear-gradient(120deg, rgba(75, 107, 251, 0.06), rgba(43, 182, 115, 0.08)); border: 1px solid var(--border); border-radius: 14px; padding: 10px; box-shadow: 0 12px 28px rgba(15,47,30,0.12); max-width: 920px; }
 .searchbar input { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 16px; background: #fbfcff; }
 .searchbar input:focus { outline: none; border-color: var(--accent-3); box-shadow: 0 8px 24px rgba(75, 107, 251, 0.18); }
+
+/* Kleurrijke ghost-knoppen in de zoekbalk */
+.searchbar .btn.ghost { background: linear-gradient(120deg, #ffffff, #f8fbff); border: 1px solid rgba(75,107,251,0.24); color: #0b1f14; box-shadow: 0 8px 20px rgba(15,47,30,0.08); }
+.searchbar .btn.ghost:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(15,47,30,0.12); }
+.searchbar .btn.ghost:active { transform: translateY(0); }
+
+/* Examens (blauw tint) */
+.searchbar button.btn.ghost:nth-of-type(1) { border-color: rgba(75,107,251,0.36); background: linear-gradient(120deg, #ffffff, rgba(75,107,251,0.10)); box-shadow: 0 10px 26px rgba(75,107,251,0.18); }
+.searchbar button.btn.ghost:nth-of-type(1):hover { background: linear-gradient(120deg, #ffffff, rgba(75,107,251,0.16)); }
+
+/* Samenvattingen (paars tint) */
+.searchbar button.btn.ghost:nth-of-type(2) { border-color: rgba(195,108,251,0.36); background: linear-gradient(120deg, #ffffff, rgba(195,108,251,0.10)); box-shadow: 0 10px 26px rgba(195,108,251,0.18); }
+.searchbar button.btn.ghost:nth-of-type(2):hover { background: linear-gradient(120deg, #ffffff, rgba(195,108,251,0.16)); }
+
+/* Flashcards (groen tint) */
+.searchbar button.btn.ghost:nth-of-type(3) { border-color: rgba(43,182,115,0.36); background: linear-gradient(120deg, #ffffff, rgba(43,182,115,0.10)); box-shadow: 0 10px 26px rgba(43,182,115,0.18); }
+.searchbar button.btn.ghost:nth-of-type(3):hover { background: linear-gradient(120deg, #ffffff, rgba(43,182,115,0.16)); }
 
 .home-grid {
   display: grid;
@@ -381,10 +398,29 @@ body.modal-open { overflow: hidden; }
 .catalog { padding: 0 20px; margin-top: 16px; }
 .catalog__header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
 .catalog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
-.catalog-card { background: #ffffff; border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-.catalog-card:hover { transform: translateY(-3px); box-shadow: 0 18px 38px rgba(15,47,30,0.14); }
+.catalog-card { position: relative; overflow: hidden; background: linear-gradient(180deg, #ffffff, #f8fbff); border: 1px solid var(--border); border-radius: 18px; padding: 18px; box-shadow: 0 12px 28px rgba(15,47,30,0.12); display: flex; flex-direction: column; gap: 12px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.catalog-card::before { content: ''; position: absolute; right: -60px; top: -60px; width: 180px; height: 180px; border-radius: 50%; filter: blur(10px); opacity: 0.26; }
+.catalog-card:hover { transform: translateY(-3px); box-shadow: 0 20px 42px rgba(15,47,30,0.16); }
 .catalog-card__header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .catalog-card__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Thema-kleuren per kaart */
+.catalog-grid .catalog-card:nth-child(3n+1)::before { background: radial-gradient(40% 40% at 50% 50%, rgba(75,107,251,0.30), rgba(75,107,251,0.08)); }
+.catalog-grid .catalog-card:nth-child(3n+2)::before { background: radial-gradient(40% 40% at 50% 50%, rgba(195,108,251,0.30), rgba(195,108,251,0.08)); }
+.catalog-grid .catalog-card:nth-child(3n+3)::before { background: radial-gradient(40% 40% at 50% 50%, rgba(43,182,115,0.30), rgba(43,182,115,0.08)); }
+
+/* Ghost-knoppen tinten binnen vakkaarten */
+.catalog-grid .catalog-card:nth-child(3n+1) .btn.ghost { border-color: rgba(75,107,251,0.28); background: linear-gradient(120deg, #ffffff, rgba(75,107,251,0.08)); box-shadow: 0 8px 22px rgba(75,107,251,0.14); }
+.catalog-grid .catalog-card:nth-child(3n+1) .btn.ghost:hover { background: linear-gradient(120deg, #ffffff, rgba(75,107,251,0.14)); }
+.catalog-grid .catalog-card:nth-child(3n+2) .btn.ghost { border-color: rgba(195,108,251,0.28); background: linear-gradient(120deg, #ffffff, rgba(195,108,251,0.08)); box-shadow: 0 8px 22px rgba(195,108,251,0.14); }
+.catalog-grid .catalog-card:nth-child(3n+2) .btn.ghost:hover { background: linear-gradient(120deg, #ffffff, rgba(195,108,251,0.14)); }
+.catalog-grid .catalog-card:nth-child(3n+3) .btn.ghost { border-color: rgba(43,182,115,0.28); background: linear-gradient(120deg, #ffffff, rgba(43,182,115,0.08)); box-shadow: 0 8px 22px rgba(43,182,115,0.14); }
+.catalog-grid .catalog-card:nth-child(3n+3) .btn.ghost:hover { background: linear-gradient(120deg, #ffffff, rgba(43,182,115,0.14)); }
+
+/* Chip tinten */
+.catalog-grid .catalog-card:nth-child(3n+1) .chip { background: rgba(75,107,251,0.10); }
+.catalog-grid .catalog-card:nth-child(3n+2) .chip { background: rgba(195,108,251,0.10); }
+.catalog-grid .catalog-card:nth-child(3n+3) .chip { background: rgba(43,182,115,0.10); }
 
 .home-card {
   background: #ffffff;
