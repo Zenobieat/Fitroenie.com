@@ -7563,7 +7563,7 @@ function renderFlashcardsPanel(subject) {
     openBtn.className = 'btn';
     openBtn.textContent = 'Open';
     openBtn.addEventListener('click', () => {
-      if (cat.id === 'kracht' && cat.subcategories?.length) {
+      if (cat.subcategories?.length) {
         let subList = card.querySelector('.quiz-picker__sublist');
         if (!subList) {
           subList = document.createElement('div');
