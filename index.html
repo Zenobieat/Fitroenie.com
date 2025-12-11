@@ -58,7 +58,9 @@
           <div class="hero__search">
             <div class="searchbar">
               <input id="subject-search" type="text" placeholder="Zoek een vak of onderdeel…" aria-label="Zoek vak" />
-              <button class="btn" type="button" data-view-target="anatomie" data-panel-target="quiz-panel">Bekijk examens</button>
+              <button class="btn" type="button" data-view-target="anatomie" data-panel-target="quiz-panel">Examens</button>
+              <button class="btn ghost" type="button" data-view-target="anatomie" data-panel-target="summary-panel">Samenvattingen</button>
+              <button class="btn" type="button" data-view-target="anatomie" data-panel-target="flashcards-panel">Flashcards</button>
             </div>
           </div>
         </div>
@@ -87,6 +89,7 @@
           <div class="tabbar segmented" id="section-tabs" aria-label="Anatomie secties">
             <button class="tab active" type="button" data-panel-target="quiz-panel">Examens</button>
             <button class="tab" type="button" data-panel-target="summary-panel">Samenvattingen</button>
+            <button class="tab" type="button" data-panel-target="flashcards-panel">Flashcards</button>
           </div>
         </div>
 
@@ -102,6 +105,16 @@
             <div class="progress-banner" id="progress-banner"></div>
             <section id="quiz-picker" class="quiz-picker" aria-live="polite"></section>
           </div>
+
+          <article class="flashcards" id="flashcards-panel" data-panel="flashcards-panel" hidden>
+            <h3>Flashcards</h3>
+            <p class="lede">Kies een categorie en bekijk de kaarten. Klik op een kaart om te draaien.</p>
+            <div id="flashcards-display" class="flashcards__display" aria-live="polite"></div>
+          </article>
+
+          <article class="panel panel--runner" id="flashcards-play-panel" data-panel="flashcards-play-panel" hidden>
+            <div id="flashcards-play" aria-live="polite"></div>
+          </article>
         </div>
       </div>
     </section>

@@ -11,6 +11,10 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js';
 
 const quizPicker = document.getElementById('quiz-picker');
+const flashcardsPanel = document.getElementById('flashcards-panel');
+const flashcardsDisplay = document.getElementById('flashcards-display');
+const flashcardsPlayPanel = document.getElementById('flashcards-play-panel');
+const flashcardsPlay = document.getElementById('flashcards-play');
 const quizRunner = document.getElementById('quiz-runner');
 const quizResults = document.getElementById('quiz-results');
 const summaryDisplay = document.getElementById('summary-display');
@@ -131,6 +135,7 @@ let authMode = 'login';
 let lastFocusedElement = null;
 let lastQuestionDelta = 0;
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let activeFlashcardsCategory = null;
 
 const STORAGE_KEY = 'fitroenie-anatomie';
 const PROGRESS_NS = 'fitroenie-progress';
@@ -5084,6 +5089,12 @@ function setActivePanel(panelId) {
     btn.setAttribute('aria-current', isActive ? 'page' : 'false');
   });
   updateHash();
+  const subject = getActiveSubject();
+  if (panelId === 'flashcards-panel') {
+    renderFlashcardsPanel(subject);
+  } else if (panelId === 'flashcards-play-panel') {
+    renderFlashcardsPlay(subject);
+  }
 }
 
 function handleSubjectNavigation(subjectName, panelTarget = 'quiz-panel') {
@@ -6153,6 +6164,8 @@ function render() {
   activeSubjectHeading.textContent = subject?.name || 'Kies een vak';
   renderSummary(subject);
   renderQuizPicker(subject);
+  renderFlashcardsPanel(subject);
+  renderFlashcardsPlay(subject);
   renderSubjectSidebar(subject);
   renderQuizRunner(subject);
   renderQuizResults(subject);
@@ -6492,7 +6505,12 @@ function renderHomeCatalog() {
     sumBtn.type = 'button';
     sumBtn.textContent = 'Samenvattingen';
     sumBtn.addEventListener('click', () => handleSubjectNavigation(s.name, 'summary-panel'));
-    actions.append(examBtn, sumBtn);
+    const flashBtn = document.createElement('button');
+    flashBtn.className = 'btn';
+    flashBtn.type = 'button';
+    flashBtn.textContent = 'Flashcards';
+    flashBtn.addEventListener('click', () => handleSubjectNavigation(s.name, 'flashcards-panel'));
+    actions.append(examBtn, sumBtn, flashBtn);
     card.appendChild(actions);
     subjectCatalog.appendChild(card);
   });
@@ -6549,4 +6567,1082 @@ function loadUserPrefs() {
 
 function persistUserPrefs() {
   localStorage.setItem(USER_PREFS_KEY, JSON.stringify(userPrefs || {}));
+}
+function getFlashcardCategories(subject) {
+  // Demo/test data if subject lacks flashcards
+  const base = subject?.flashcards || [];
+  const testStretch = [
+    {
+      question: 'Standing calf stretch (lange kuitspier)',
+      answer: `
+        <strong>Spieren:</strong> m. gastrocnemius, secundair m. soleus.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Voor muur, handen schouderhoogte.</li>
+          <li>1 voet achteruit, tippen vooruit.</li>
+          <li>Achterste been gestrekt, hiel op grond.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Leun voorwaarts.</li>
+          <li>Achterste been gestrekt houden.</li>
+          <li>30s aanhouden.</li>
+        </ul>
+        <strong>Fouten:</strong> Voeten niet recht, hiel los, holle rug.
+      `
+    },
+    {
+      question: 'Soleus stretch (korte kuitspier)',
+      answer: `
+        <strong>Spieren:</strong> m. soleus.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Voor muur, handen schouderhoogte.</li>
+          <li>Beide voeten vooruit, achterste knie licht gebogen.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Buig knieën en leun voorwaarts.</li>
+          <li>Hielen op de grond.</li>
+          <li>30s aanhouden.</li>
+        </ul>
+      `
+    },
+    {
+      question: 'Hamstring stretch (staande vooroverbuiging)',
+      answer: `
+        <strong>Spieren:</strong> hamstrings.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Voeten heupbreed, knieën licht gestrekt.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Buig vanuit heupen, rug neutraal.</li>
+          <li>Handen naar scheenbenen/grond.</li>
+          <li>20–30s aanhouden.</li>
+        </ul>
+      `
+    },
+    {
+      question: 'Quadriceps stretch (staand, enkel vastpakken)',
+      answer: `
+        <strong>Spieren:</strong> quadriceps femoris.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Sta rechtop, houd enkel vast achter je.</li>
+          <li>Knieën bij elkaar, bekken neutraal.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Breng hiel richting bil zonder holle rug.</li>
+          <li>20–30s aanhouden per zijde.</li>
+        </ul>
+      `
+    },
+    {
+      question: 'Hip flexor stretch (lunge)',
+      answer: `
+        <strong>Spieren:</strong> iliopsoas, rectus femoris.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Lunge-stand, achterste knie op grond.</li>
+          <li>Borst omhoog, bekken licht achterover kantelen.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Leun door voorste heup, voel rek aan voorkant heup.</li>
+          <li>20–30s aanhouden per zijde.</li>
+        </ul>
+      `
+    },
+    {
+      question: 'Adductor stretch (staand breed)',
+      answer: `
+        <strong>Spieren:</strong> adductoren.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Voeten breder dan heupbreed.</li>
+          <li>Gewicht naar één kant, andere knie gestrekt.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Zak door heup, houd rug neutraal.</li>
+          <li>20–30s aanhouden per zijde.</li>
+        </ul>
+      `
+    },
+    {
+      question: 'Glute stretch (liggende figuur-4)',
+      answer: `
+        <strong>Spieren:</strong> gluteus maximus/piriformis.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Lig rug, kruis enkel op knie (figuur-4).</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Trek onderbeen naar borst, voel rek bil.</li>
+          <li>20–30s per zijde.</li>
+        </ul>
+      `
+    },
+    {
+      question: 'Lat stretch (stand, arm boven hoofd)',
+      answer: `
+        <strong>Spieren:</strong> latissimus dorsi.<br><br>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Arm boven hoofd, buig zijwaarts.</li>
+          <li>Voel rek zijkant romp, 20–30s.</li>
+        </ul>
+      `
+    },
+    {
+      question: 'Chest stretch (deurpost)',
+      answer: `
+        <strong>Spieren:</strong> pectoralis major/minor.<br><br>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Onderarmen tegen deurpost, stap voorwaarts.</li>
+          <li>Voel rek borst, 20–30s.</li>
+        </ul>
+      `
+    },
+    {
+      question: 'Triceps stretch (arm boven hoofd)',
+      answer: `
+        <strong>Spieren:</strong> triceps brachii.<br><br>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Hand op bovenrug, andere hand duwt elleboog.</li>
+          <li>20–30s per zijde.</li>
+        </ul>
+      `
+    },
+    {
+      question: 'Neck stretch (lateroflexie)',
+      answer: `
+        <strong>Spieren:</strong> SCM/upper traps.<br><br>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Oor naar schouder, hand geeft lichte druk.</li>
+          <li>20s per zijde, rustig ademen.</li>
+        </ul>
+      `
+    }
+  ];
+  testStretch.push(
+    {
+      question: 'Standing quadriceps stretch',
+      answer: `
+        <strong>Spieren:</strong> Quadriceps (m. rectus femoris e.a.).<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Sta rechtop, rug neutraal.</li>
+          <li>Plooi 1 been, neem enkel vast.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Breng hiel naar zitvlak.</li>
+          <li>Knieën samen.</li>
+          <li>Kantel bekken (retroversie).</li>
+          <li>Hou 30s aan.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Balansverlies.</li>
+          <li>Wreef vastnemen.</li>
+          <li>Holle rug.</li>
+          <li>Knieën uit elkaar.</li>
+        </ul>
+        <strong>Variant:</strong> Vereenvoudiging: Steun zoeken.
+      `
+    },
+    {
+      question: 'Butterfly stretch (adductoren)',
+      answer: `
+        <strong>Spieren:</strong> Adductoren, pectineus, gracilis.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Ga zitten, voetzolen tegen elkaar.</li>
+          <li>Neem voeten vast, rug lang.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Laat knieën richting grond zakken.</li>
+          <li>Eventueel licht naar voren kantelen uit heup.</li>
+          <li>Hou 30–45s aan, rustig ademen.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Ronde rug.</li>
+          <li>Druk op knieën i.p.v. ontspanning.</li>
+        </ul>
+        <strong>Variant:</strong> Gebruik blok onder knieën voor comfort.
+      `
+    },
+    {
+      question: 'Side lunge adductor stretch',
+      answer: `
+        <strong>Spieren:</strong> Adductoren (lange/korte), hamstrings mediaal.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Sta breed, voeten licht naar voren.</li>
+          <li>Verplaats gewicht naar 1 kant, andere knie gestrekt.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Zak door heup, voel rek binnenzijde bovenbeen.</li>
+          <li>Hou 20–30s, wissel zijde.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Instorting van knie naar binnen.</li>
+          <li>Holle rug of overmatige vooroverkanteling.</li>
+        </ul>
+        <strong>Variant:</strong> Plaats handen op steun voor balans.
+      `
+    },
+    {
+      question: 'Kneeling hip flexor stretch',
+      answer: `
+        <strong>Spieren:</strong> Heupbuigers (iliopsoas), rectus femoris.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Half-lunge met achterste knie op mat.</li>
+          <li>Bekken licht achterover (retroversie), ribben omlaag.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Schuif heup zachtjes naar voren tot lichte rek.</li>
+          <li>Hou 30s, wissel zijde.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Holle onderrug.</li>
+          <li>Bekken voorover (anteversie).</li>
+        </ul>
+        <strong>Variant:</strong> Arm boven hoofd voor extra lengte op psoas.
+      `
+    },
+    {
+      question: 'Figuur-4 bilspier stretch (liggend)',
+      answer: `
+        <strong>Spieren:</strong> Bilspieren, piriformis.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Lig op rug, enkel op tegenoverliggende knie.</li>
+          <li>Handen achter het onderbeen.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Trek onderbeen naar borst tot rek in bil.</li>
+          <li>Hou 20–30s per zijde.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Schouders optillen.</li>
+          <li>Knie naar binnen forceren.</li>
+        </ul>
+        <strong>Variant:</strong> Gebruik strap indien bereik beperkt is.
+      `
+    },
+    {
+      question: 'Pigeon pose (bilspier/stretch heuprotatoren)',
+      answer: `
+        <strong>Spieren:</strong> Gluteus maximus/medius, diepe rotatoren.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Voorste knie gebogen naar buiten, achterste been gestrekt.</li>
+          <li>Heupen vierkant naar voren, steun op handen/onderarmen.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Laat rompt langzaam zakken tot rek in bil/heup.</li>
+          <li>Hou 20–40s, adem rustig.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Heupen kantelen en wegdraaien.</li>
+          <li>Pijnlijke compressie op knie.</li>
+        </ul>
+        <strong>Variant:</strong> Plaats blok onder bil voor steun.
+      `
+    },
+    {
+      question: 'Seated single-leg hamstring stretch',
+      answer: `
+        <strong>Spieren:</strong> Hamstrings (m. biceps femoris e.a.).<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Zit, 1 been gestrekt, andere gebogen.</li>
+          <li>Rug lang, borst omhoog.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Kantel vanuit heupen naar gestrekt been.</li>
+          <li>Hou 20–30s, wissel.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Ronde rug.</li>
+          <li>Overdruk op knie.</li>
+        </ul>
+        <strong>Variant:</strong> Strap rond voet voor extra bereik.
+      `
+    },
+    {
+      question: 'Frog stretch (adductoren)',
+      answer: `
+        <strong>Spieren:</strong> Adductoren, binnenzijde dij.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Op handen/knieën, knieën breed, voeten in lijn.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Verplaats heup zacht naar achter tot rek.</li>
+          <li>Hou 20–40s, adem rustig.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Holle onderrug.</li>
+          <li>Knieën draaien naar binnen.</li>
+        </ul>
+        <strong>Variant:</strong> Kussen onder knieën voor comfort.
+      `
+    },
+    {
+      question: 'Standing lat stretch (tegen muur)',
+      answer: `
+        <strong>Spieren:</strong> Latissimus dorsi, serratus anterior.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Handen tegen muur boven hoofd, voeten heupbreed.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Zak licht door knieën en duw borst naar beneden.</li>
+          <li>Voel rek zijkant romp/oksels, 20–30s.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Overmatige holle rug.</li>
+          <li>Schouders optrekken.</li>
+        </ul>
+        <strong>Variant:</strong> 1 arm tegelijk voor focus.
+      `
+    },
+    {
+      question: 'Doorway chest stretch (90-90)',
+      answer: `
+        <strong>Spieren:</strong> Pectoralis major/minor.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Elleboog 90°, schouder 90°, onderarmen tegen deurpost.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Stap klein voorwaarts tot rek in borst.</li>
+          <li>Hou 20–30s, niet in schouders hangen.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Holle onderrug.</li>
+          <li>Schouders naar oren.</li>
+        </ul>
+        <strong>Variant:</strong> Enkele arm voor gerichte rek.
+      `
+    }
+  );
+  testStretch.push(
+    {
+      question: '16. Kneeling back & shoulder stretch (Child pose)',
+      answer: `
+        <strong>Spieren:</strong> Erector spinae, latissimus dorsi.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Handen- en knieënsteun.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Bekken naar hielen.</li>
+          <li>Handen ver naar voor (vingers kruipen).</li>
+          <li>Borst naar beneden. Hou 30s aan.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Holle rug (moet bollen/verlengen).</li>
+        </ul>
+        <strong>Variant:</strong> Handen naar 1 zijde (accent lats).
+      `
+    },
+    {
+      question: '17. Prone lying back extension stretch',
+      answer: `
+        <strong>Spieren:</strong> Rectus abdominis.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Buiklig, ellebogen onder schouders.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Lift borstkas, maak rug lang.</li>
+          <li>Nek lang.</li>
+          <li>Hou 30s aan.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Inzinken schouders.</li>
+          <li>Hyperlordose lage rug.</li>
+        </ul>
+      `
+    },
+    {
+      question: '18. Standing side bending stretch',
+      answer: `
+        <strong>Spieren:</strong> Schuine buikspieren, quadratus lumborum, TFL.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Sta recht, kruis voeten.</li>
+          <li>Hand in lenden.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Duw bekken zijwaarts, arm over hoofd ('banaan').</li>
+          <li>Lift ribbenkast. Hou 30s aan.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Foutief wegduwen.</li>
+          <li>Romp/arm naar voor.</li>
+        </ul>
+      `
+    },
+    {
+      question: '19. Standing pectoral wall stretch',
+      answer: `
+        <strong>Spieren:</strong> Pectoralis major/minor, deltoideus.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Arm 90-90 tegen muur.</li>
+          <li>Rug neutraal.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Span buikspieren.</li>
+          <li>Leun licht voorwaarts. Hou 30s aan.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Schouder optillen.</li>
+          <li>Holle rug.</li>
+        </ul>
+        <strong>Variant:</strong> Gestrekte arm (biceps mee).
+      `
+    },
+    {
+      question: '20. Standing chest stretch',
+      answer: `
+        <strong>Spieren:</strong> Pectoralis, deltoideus.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Handen haken achter rug.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Strek armen, beweeg licht opwaarts.</li>
+          <li>Schouders laag. Hou 30s aan.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Schouders optillen/naar voor.</li>
+          <li>Holle rug.</li>
+        </ul>
+      `
+    },
+    {
+      question: '21. Cross body shoulder stretch',
+      answer: `
+        <strong>Spieren:</strong> Deltoideus (achter), kapsel.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Arm gestrekt voor borst.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Trek arm naar overkant.</li>
+          <li>Torso stil. Hou 30s aan.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Meedraaien romp.</li>
+        </ul>
+      `
+    },
+    {
+      question: '22. Shoulder stretch (Eagle pose)',
+      answer: `
+        <strong>Spieren:</strong> Deltoideus (achter), trapezius, rhomboidei.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Kruis armen, verstrengel voorarmen.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Lift ellebogen lichtjes.</li>
+          <li>Nek recht. Hou 30s aan.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Teveel retractie schouders.</li>
+        </ul>
+        <strong>Variant:</strong> Vereenvoudiging: Gewoon kruisen zonder vingers.
+      `
+    },
+    {
+      question: '23. Shoulder endorotation stretch behind back',
+      answer: `
+        <strong>Spieren:</strong> Exorotatoren (onderste arm).<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Handdoek achter rug (1 nek, 1 laag).</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Bovenste hand trekt onderste omhoog.</li>
+          <li>Rug neutraal. Hou 30s aan.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Bovenrug bollen.</li>
+        </ul>
+        <strong>Variant:</strong> Vingers haken (zonder gordel).
+      `
+    },
+    {
+      question: '24. Shoulder exorotation stretch behind back',
+      answer: `
+        <strong>Spieren:</strong> Endorotatoren (bovenste arm), triceps.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Handdoek achter rug.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Onderste hand trekt bovenste omlaag.</li>
+          <li>Rug neutraal. Hou 30s aan.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Bovenrug bollen.</li>
+        </ul>
+        <strong>Variant:</strong> Vingers haken (zonder gordel).
+      `
+    },
+    {
+      question: '25. Sleepersstretch',
+      answer: `
+        <strong>Spieren:</strong> Achterste kapsel, exorotatoren.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Zijlig, hoofd op kussen.</li>
+          <li>Elleboog 90° op schouderhoogte.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Duw pols naar grond.</li>
+          <li>Elleboog blijft vast. Hou 30s aan.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Geen kussen.</li>
+          <li>Elleboog verschuift.</li>
+          <li>Pols forceren.</li>
+        </ul>
+      `
+    },
+    {
+      question: '26. Standing/kneeling triceps stretch',
+      answer: `
+        <strong>Spieren:</strong> Triceps, latissimus dorsi.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Arm op, hand tussen schouderbladen.</li>
+          <li>Andere hand pakt elleboog.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Trek elleboog omlaag.</li>
+          <li>Rug neutraal. Hou 30s aan.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Hoofd naar voor.</li>
+          <li>Vingers kruipen.</li>
+          <li>Holle rug.</li>
+        </ul>
+      `
+    },
+    {
+      question: '27. Standing biceps stretch',
+      answer: `
+        <strong>Spieren:</strong> Bovenarmflexoren (biceps).<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Armen zijwaarts, palmen voor.</li>
+          <li>Rug neutraal.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Draai duimen neerwaarts (pronatie).</li>
+          <li>Armen achteruit. Hou 30s aan.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Schouders naar voor.</li>
+          <li>Hoofd naar voor.</li>
+        </ul>
+      `
+    },
+    {
+      question: '28. Standing fore arm stretch',
+      answer: `
+        <strong>Spieren:</strong> Voorarmflexoren, biceps.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Arm voor, pols geplooid (vingers neer).</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Trek vingers naar je toe.</li>
+          <li>Spreid duim. Arm gestrekt. Hou 30s aan.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Arm gebogen.</li>
+          <li>Duim niet gespreid.</li>
+        </ul>
+      `
+    },
+    {
+      question: '29. Kneeling fore arm stretch',
+      answer: `
+        <strong>Spieren:</strong> Voorarmflexoren, biceps.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Kniezit, handen op grond.</li>
+          <li>Vingers naar knieën, palm op grond.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Duw palm in grond, schuif bekken achteruit.</li>
+          <li>Ellebogen gestrekt. Hou 30s aan.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Armen gebogen.</li>
+          <li>Palm komt los.</li>
+        </ul>
+        <strong>Variant:</strong> Handrug op grond (extensoren).
+      `
+    },
+    {
+      question: '30. Standing sideways neck stretch',
+      answer: `
+        <strong>Spieren:</strong> Trapezius (boven), scalenus.<br><br>
+        <strong>Positie:</strong>
+        <ul>
+          <li>Sta/zit. Hand over hoofd boven oor.</li>
+          <li>Romp aan.</li>
+        </ul>
+        <strong>Uitvoering:</strong>
+        <ul>
+          <li>Kantel hoofd zijwaarts.</li>
+          <li>Reik met vrije hand neerwaarts.</li>
+          <li>Hou 30s aan.</li>
+        </ul>
+        <strong>Fouten:</strong>
+        <ul>
+          <li>Schouder op.</li>
+          <li>Flexie i.p.v. lateroflexie.</li>
+        </ul>
+        <strong>Variant:</strong> Hoofd draaien (Levator Scapulae).
+      `
+    }
+  );
+  if (testStretch.length > 30) {
+    testStretch.splice(0, testStretch.length - 30);
+  }
+  const machinesData = [
+    { titel: 'Abdominal crunch machine', spieren: 'M. rectus abdominis (primair), m. obliquus (secundair).', positie: '- Schoudersteunen comfortabel over schouders.<br>- Voeten op steunen.<br>- Buig voorwaarts vanuit de romp.', uitvoering: '- Duw schoudersteunen omlaag vanuit buikspieren (niet trekken met armen).<br>- Romp stabiliseren.<br>- Kijk voorwaarts.', fouten: '- Loskomen van schoudersteunen.<br>- Beweging vanuit armen.<br>- Nek overstrekken of te diep buigen.' },
+    { titel: 'Rotary torso machine', spieren: 'M. obliquus externus en internus.', positie: '- Stel draaihoek in.<br>- Knieën en bekken gefixeerd tegen steunkussens.<br>- Schoudersteunen tegen schouders.', uitvoering: '- Roteer de romp naar het midden/overkant.<br>- Bekken en knieën blijven stil.', fouten: '- Compenseren met benen.<br>- Trekken met handen i.p.v. romp.' },
+    { titel: 'Back extension (Roman chair)', spieren: 'M. erector spinae, m. multifidi.', positie: '- Bekken net over het steunkussen (heup moet vrij kunnen buigen).<br>- Kruis handen voor borst.', uitvoering: '- Buig vanuit de heup met rechte rug naar voor.<br>- Keer terug tot neutrale positie (één lijn).', fouten: '- Bolle rug.<br>- Hyperextensie (te ver terugkeren, holle rug).<br>- Steunkussen te hoog.' },
+    { titel: 'Seated leg press', spieren: 'Quadriceps, hamstrings, gluteus maximus.', positie: '- Voeten op schouderbreedte op platform.<br>- Kniehoek net geen 90 graden bij start.<br>- Rug tegen kussen.', uitvoering: '- Duw weg vanuit hielen.<br>- Strek benen (niet volledig in slot).<br>- Keer terug tot 90 graden.', fouten: '- Knieën overstrekken (slot).<br>- Hielen los van platform.<br>- Knieën naar binnen knikken.' },
+    { titel: 'Seated leg extension', spieren: 'Quadriceps.', positie: '- Rotatieas knie gelijk aan rotatieas toestel.<br>- Rolkussen op enkelplooi.<br>- Rug tegen leuning.', uitvoering: '- Strek benen gecontroleerd opwaarts.<br>- Tenen opwaarts trekken.', fouten: '- Trappende beweging.<br>- Loskomen onderrug.<br>- Rolkussen op scheenbeen.' },
+    { titel: 'Seated leg curl', spieren: 'Hamstrings.', positie: '- Rotatieas knie gelijk aan toestel.<br>- Bovenste rolkussen klemt boven knie.<br>- Onderste kussen op achillespees.', uitvoering: '- Buig benen omlaag tot volledige flexie.<br>- Keer rustig terug.', fouten: '- Hyperlordose (holle rug).<br>- Verkeerde uitlijning knie.' },
+    { titel: 'Adductor machine', spieren: 'Adductoren (longus, brevis, magnus), pectineus.', positie: '- Voeten op steunen, binnenkant knie tegen kussens.<br>- Startpositie zo wijd mogelijk (comfortabel).', uitvoering: '- Duw benen naar elkaar toe.<br>- Keer gecontroleerd terug.', fouten: '- Te kleine bewegingsuitslag.<br>- Bolle rug.' },
+    { titel: 'Abductor machine', spieren: 'Gluteus medius/minimus, piriformis.', positie: '- Buitenkant knie tegen kussens.<br>- Benen gesloten bij start.', uitvoering: '- Duw benen buitenwaarts (maximaal).', fouten: '- Duwen vanuit voeten i.p.v. knieën.<br>- Bolle rug.' },
+    { titel: 'Gluteus machine', spieren: 'Gluteus maximus.', positie: '- Steunkussen op heuphoogte.<br>- Buik en borst tegen steun.<br>- Rolkussen tegen achterkant dijbeen.', uitvoering: '- Breng been gestrekt achterwaarts/opwaarts.', fouten: '- Holle rug trekken.<br>- Heup overstrekken.<br>- Bekken open draaien.' },
+    { titel: 'Seated calf raise (op leg press)', spieren: 'Gastrocnemius, soleus.', positie: '- Benen gestrekt (lichte buiging).<br>- Voorvoeten op rand platform.', uitvoering: '- Duw hielen weg (plantair flexie).<br>- Laat hielen zakken tot evenwijdig.', fouten: '- Te ver terugkeren (overbelasting achillespees).<br>- Knieën buigen tijdens beweging.' },
+    { titel: 'Chest press', spieren: 'Pectoralis major, triceps brachii.', positie: '- Handgrepen op borsthoogte (tepellijn).<br>- Voeten stabiel.<br>- Rug tegen kussen.', uitvoering: '- Duw uit tot gestrekte armen (ellebogen onder schouderhoogte).<br>- Keer terug tot vuist afstand van borst.', fouten: '- Boven schouderhoogte duwen.<br>- Te ver naar achteren (overstrekking).<br>- Rug bollen.' },
+    { titel: 'Pectoral fly machine (Pec-deck)', spieren: 'Pectoralis major.', positie: '- Ellebogen/handen op borsthoogte.<br>- 90 graden hoek (indien gebogen versie).', uitvoering: '- Breng armen naar elkaar toe voor de borst.<br>- Keer gecontroleerd terug (niet voorbij schouderlijn).', fouten: '- Ellebogen los van kussen.<br>- Overstrekking schouder.<br>- Hoofd naar voor.' },
+    { titel: 'Vertical traction', spieren: 'Latissimus dorsi, teres major, trapezius.', positie: '- Stoelhoogte: vingertoppen aan grepen.<br>- Borst tegen steun.', uitvoering: '- Trek omlaag met brede ellebogen tot schouderhoogte.<br>- Keer rustig terug.', fouten: '- Asymmetrisch trekken.<br>- Te ver doortrekken (schouder kantelt).' },
+    { titel: 'Lat machine (Front pull down)', spieren: 'Latissimus dorsi, teres major.', positie: '- Knieën klem onder rolkussens.<br>- Brede greep.<br>- Leun iets achterover.', uitvoering: '- Trek stang naar bovenkant borst.<br>- Ellebogen wijzen omlaag/buiten.', fouten: '- Stang in nek trekken.<br>- Te ver achterover hangen.' },
+    { titel: 'Pull up assist machine', spieren: 'Latissimus dorsi, biceps.', positie: '- Kniel op platform.<br>- Brede greep (rug focus) of smal (biceps).', uitvoering: '- Trek op tot kin boven grepen is.<br>- Ellebogen breed.', fouten: '- Voeten los van platform.<br>- Holle rug.' },
+    { titel: 'Upper back machine', spieren: 'Trapezius (transversus), rhomboidei.', positie: '- Borst tegen steun.<br>- Grepen op borsthoogte.', uitvoering: '- Trek naar achter (retractie schouderbladen).<br>- Ellebogen breed.', fouten: '- Borst los van steun.<br>- Schouders optrekken.' },
+    { titel: 'Low row', spieren: 'Latissimus dorsi, teres major.', positie: '- Borst tegen steun.<br>- Neutrale greep.', uitvoering: '- Trek naar buik met smalle ellebogen langs lichaam.', fouten: '- Ellebogen breed (foutief).<br>- Borst los van steun.' },
+    { titel: 'Shoulder press machine', spieren: 'Deltoideus (voor/zij), supraspinatus.', positie: '- Handgrepen op schouderhoogte.<br>- Rug tegen steun.', uitvoering: '- Duw verticaal omhoog.<br>- Ellebogen blijven breed.', fouten: '- Holle rug.<br>- Handen smaller dan ellebogen.' },
+    { titel: 'Arm curl machine (Biceps)', spieren: 'Biceps brachii.', positie: '- Rotatieas elleboog gelijk aan toestel.<br>- Ellebogen op kussen.', uitvoering: '- Buig armen naar schouders.<br>- Keer terug (niet overstrekken).', fouten: '- Polsen plooien.<br>- Romp bewegen.' },
+    { titel: 'Triceps extension machine', spieren: 'Triceps brachii.', positie: '- Ellebogen smal naast lenden.', uitvoering: '- Strek armen volledig uit.<br>- Keer terug tot 90 graden.', fouten: '- Ellebogen naar buiten.<br>- Niet simultaan strekken.' },
+    { titel: 'Dip assist machine', spieren: 'Triceps brachii, pectoralis.', positie: '- Smalle greep (triceps) of breed (borst).<br>- Kniel op platform.', uitvoering: '- Duw omlaag, ellebogen naar achteren (triceps).', fouten: '- Ellebogen naar buiten (bij triceps focus).<br>- Te diep zakken.' }
+  ];
+  function toList(str) {
+    const items = String(str || '').split(/<br>|\n/).map((s) => s.replace(/^\s*-\s*/, '').trim()).filter((s) => s.length);
+    return `<ul>${items.map((i) => `<li>${i}</li>`).join('')}</ul>`;
+  }
+  function stripCites(str) {
+    return String(str || '').replace(/\[cite_start\]/g, '').replace(/\[cite:[^\]]+\]/g, '').trim();
+  }
+  const machinesCards = machinesData.map((d) => ({
+    frontTitle: d.titel,
+    back: `
+      <strong>Spieren:</strong> ${d.spieren}<br><br>
+      <strong>Positie:</strong>
+      ${toList(d.positie)}
+      <strong>Uitvoering:</strong>
+      ${toList(d.uitvoering)}
+      <strong>Fouten:</strong>
+      ${toList(d.fouten)}
+      ${d.variant ? `<strong>Variant:</strong> ${d.variant}` : ''}
+    `
+  }));
+  const freeWeightsData = [
+    { titel: 'Squat (Bodyweight / Dumbbell / Barbell)', spieren: 'Quadriceps, hamstrings, gluteus maximus[cite: 955, 1030, 1038].', positie: '- Voeten schouderbreedte.<br>- Rug neutraal (lichte lordose).<br>- Barbell op trapezius (indien barbell).', uitvoering: '- Zak door knieën (billen naar achter).<br>- Knieën niet voorbij tenen.<br>- Dijbenen parallel aan vloer.', fouten: '- Bolle rug.<br>- Knieën naar binnen.<br>- Hielen van de grond.' },
+    { titel: 'Lunge (Front / Walking)', spieren: 'Quadriceps, hamstrings, gluteus[cite: 970, 1034, 1042].', positie: '- Rechtop, voeten heupbreedte.<br>- Dumbbells langs lichaam of barbell in nek.', uitvoering: '- Grote uitvalspas.<br>- Beide knieën naar 90 graden.<br>- Romp rechtop houden.', fouten: '- Voorste knie voorbij tenen.<br>- Romp naar voren.<br>- Voeten op één lijn (balans).' },
+    { titel: 'Barbell Straight Leg Deadlift (Hinge)', spieren: 'Hamstrings, gluteus, erector spinae[cite: 1046].', positie: '- Lichte kniebuiging (slot eraf).<br>- Rug recht.', uitvoering: '- Buig vanuit heup naar voren.<br>- Barbell langs benen laten zakken.<br>- Rug blijft recht.', fouten: '- Bolle rug (gevaarlijk!).<br>- Knieën te veel buigen.<br>- Barbell te ver van lichaam.' },
+    { titel: 'Standing Calf Raise (Dumbbell / Cable / Barbell)', spieren: 'Gastrocnemius, soleus[cite: 1026, 1036, 1048].', positie: '- Voorvoeten op verhoog.<br>- Benen gestrekt.', uitvoering: '- Hielen zakken diep.<br>- Krachtig uitduwen op tenen.', fouten: '- Knieën buigen.<br>- Veren.' },
+    { titel: 'Push-up', spieren: 'Pectoralis major, triceps[cite: 1058].', positie: '- Plankhouding, handen breder dan schouders.', uitvoering: '- Zakken tot borst vuist van grond is.<br>- Ellebogen 45 gr t.o.v. romp.', fouten: '- Holle rug.<br>- Ellebogen te breed (T-vorm).' },
+    { titel: "Cable Standing Fly's (Crossover)", spieren: 'Pectoralis major[cite: 1074].', positie: '- Uitvalspas.<br>- Armen licht gebogen.', uitvoering: '- Trek handen naar elkaar toe voor de borst.<br>- Romp stil houden.', fouten: '- Handen te ver naar achter (schouderstress).<br>- Ellebogen strekken.' },
+    { titel: 'Dumbbell / Barbell Bench Press', spieren: 'Pectoralis major, triceps[cite: 1078, 1084].', positie: '- Ruglig op bank.<br>- Voeten stabiel.', uitvoering: '- Zakken tot borsthoogte (of vuist erboven).<br>- Uitduwen.', fouten: "- Holle rug.<br>- 'Guillotine' (stang naar nek).<br>- Asymmetrisch duwen." },
+    { titel: "Dumbbell Fly's", spieren: 'Pectoralis major[cite: 1082].', positie: '- Ruglig.<br>- Armen licht gebogen boven borst.', uitvoering: '- Openen tot schouderhoogte.<br>- Sluiten (omhelsbeweging).', fouten: '- Ellebogen strekken.<br>- Te diep zakken.' },
+    { titel: 'Barbell Pullover', spieren: 'Pectoralis major, latissimus dorsi[cite: 1086].', positie: '- Ruglig.<br>- Barbell boven borst.', uitvoering: '- Barbell met licht gebogen armen achter hoofd brengen.<br>- Terugkeren.', fouten: '- Holle rug trekken.<br>- Ellebogen plooien/strekken.' },
+    { titel: 'Pull-up / Chin-up', spieren: 'Latissimus dorsi (pull-up) / Biceps (chin-up)[cite: 1092, 1093].', positie: '- Hangend aan stang.', uitvoering: '- Optrekken tot kin boven stang.<br>- Gecontroleerd zakken.', fouten: '- Zwaaien met benen.<br>- Holle rug.' },
+    { titel: 'Cable Seated Row', spieren: 'Latissimus dorsi, rhomboidei[cite: 1101].', positie: '- Zittend op grond/bank.<br>- Benen licht gebogen.', uitvoering: '- Trek greep naar buik.<br>- Ellebogen smal langs lichaam.', fouten: '- Achterover leunen.<br>- Schouders optrekken.' },
+    { titel: 'Bentover Row (Dumbbell / Barbell)', spieren: 'Latissimus dorsi, trapezius[cite: 1103, 1108].', positie: '- Voorovergebogen (rechte rug!).<br>- Knieën licht gebogen.', uitvoering: '- Trek gewicht naar heup/buik.<br>- Ellebogen langs lichaam.', fouten: '- Bolle rug.<br>- Roteren vanuit romp.<br>- Nek overstrekken.' },
+    { titel: 'Shrugs (Dumbbell / Barbell)', spieren: 'Trapezius (bovenkant)[cite: 1104].', positie: '- Staand, gewichten in hand.', uitvoering: '- Schouders optrekken richting oren.<br>- Rustig zakken.', fouten: '- Rollen met schouders.<br>- Ellebogen plooien.' },
+    { titel: 'Dumbbell Lying Rear Delt Raise/Row', spieren: 'Achterkant schouder, bovenrug[cite: 1105].', positie: '- Buiklig op bankje.', uitvoering: '- Gewichten zijwaarts (raise) of omhoog (row) trekken.', fouten: '- Borst los van bankje.<br>- Hoofd optillen.' },
+    { titel: 'Upright Row (Barbell)', spieren: 'Trapezius, deltoideus[cite: 1110].', positie: '- Staand, smalle greep.', uitvoering: '- Trek stang langs lichaam omhoog tot kin.<br>- Ellebogen hoog.', fouten: '- Ellebogen lager dan polsen.<br>- Zwaaien.' },
+    { titel: 'Tube Exorotation / Endorotation', spieren: 'Rotator cuff (Infraspinatus / Subscapularis)[cite: 1116].', positie: '- Elleboog 90 graden in zij.', uitvoering: '- Draai onderarm naar buiten of binnen.', fouten: '- Elleboog los van zij.<br>- Romp meedraaien.' },
+    { titel: 'Side Raise (Cable / Dumbbell)', spieren: 'Deltoideus (zijkant)[cite: 1119, 1121].', positie: '- Staand.', uitvoering: '- Armen zijwaarts heffen tot schouderhoogte.<br>- Lichte buiging elleboog.', fouten: '- Boven schouderhoogte.<br>- Zwaaien.' },
+    { titel: 'Front Raise (Cable / Dumbbell / Barbell)', spieren: 'Deltoideus (voorkant)[cite: 1123, 1125].', positie: '- Staand.', uitvoering: '- Armen voorwaarts heffen tot schouderhoogte.', fouten: '- Achterover leunen.<br>- Armen volledig strekken.' },
+    { titel: 'Shoulder Press (Dumbbell / Barbell)', spieren: 'Deltoideus[cite: 1120, 1126].', positie: '- Zittend of staand.<br>- Gewicht op schouderhoogte.', uitvoering: '- Uitduwen tot boven hoofd.<br>- Rug recht.', fouten: '- Holle rug.<br>- Gewicht te ver naar achteren.' },
+    { titel: 'Biceps Curl (Cable / Dumbbell / Barbell)', spieren: 'Biceps brachii[cite: 1133, 1134, 1142].', positie: '- Staand.<br>- Ellebogen in de zij.', uitvoering: '- Buigen onderarmen.<br>- Ellebogen blijven vast.', fouten: '- Zwaaien met rug.<br>- Ellebogen naar voren.' },
+    { titel: 'Hammer Curl', spieren: 'Brachioradialis, brachialis[cite: 1136].', positie: '- Neutrale greep (duim omhoog).', uitvoering: '- Buigen als een hamer.', fouten: '- Zie biceps curl.' },
+    { titel: 'Scott / Preacher Curl', spieren: 'Biceps brachii[cite: 1137, 1143].', positie: '- Armen rusten op bankje.', uitvoering: '- Geïsoleerd buigen.', fouten: '- Loskomen van bankje.<br>- Polsen plooien.' },
+    { titel: 'Cable Push Down', spieren: 'Triceps brachii[cite: 1148].', positie: '- Staand voor kabel.<br>- Ellebogen in de zij.', uitvoering: '- Duw stang/touw omlaag.', fouten: '- Ellebogen los van zij.<br>- Polsen plooien.' },
+    { titel: 'Overhead Extension (Cable / Dumbbell)', spieren: 'Triceps brachii[cite: 1150, 1152].', positie: '- Armen boven hoofd.', uitvoering: '- Gewicht achter hoofd laten zakken.<br>- Uitstrekken.', fouten: '- Ellebogen te ver naar buiten.<br>- Holle rug.' },
+    { titel: 'Kickback (Dumbbell)', spieren: 'Triceps brachii[cite: 1154].', positie: '- Voorovergebogen.<br>- Bovenarm langs romp.', uitvoering: '- Onderarm uitstrekken naar achter.', fouten: '- Bovenarm zakt naar beneden.<br>- Zwaaien.' },
+    { titel: 'Skull Crusher / French Press (Barbell)', spieren: 'Triceps brachii[cite: 1155, 1157].', positie: '- Ruglig.<br>- Barbell boven borst/hoofd.', uitvoering: '- Stang naar voorhoofd laten zakken.<br>- Uitduwen.', fouten: '- Ellebogen naar buiten.<br>- Beweging vanuit schouder.' },
+    { titel: 'Wrist Curl (Barbell)', spieren: 'Voorarmflexoren/extensoren[cite: 1160].', positie: '- Onderarmen op bankje.', uitvoering: '- Polsen buigen en strekken.', fouten: '- Voorarmen los van bankje.<br>- Te wild.' }
+  ];
+  const freeWeightsCards = freeWeightsData.map((d) => ({
+    frontTitle: d.titel,
+    back: `
+      <strong>Spieren:</strong> ${stripCites(d.spieren)}<br><br>
+      <strong>Positie:</strong>
+      ${toList(d.positie)}
+      <strong>Uitvoering:</strong>
+      ${toList(d.uitvoering)}
+      <strong>Fouten:</strong>
+      ${toList(d.fouten)}
+    `
+  }));
+  const coreData = [
+    { titel: 'Lage front plank (Front bridge) [cite: 534]', spieren: 'Primair: m. rectus abdominis, heupbuigers.<br>Secundair: obliques, transversus.', positie: '- Ellebogen loodrecht onder schouders.<br>- Voorarmen plat op de grond.<br>- Start op knieën.', uitvoering: '- Til lichaam op tot plank (steun op ellebogen/tenen).<br>- Lichaam in 1 lijn.<br>- Kantel bekken (retroversie): span bil- en buikspieren aan.', fouten: '- Doorhangen onderrug (hyperlordose).<br>- Bekken te hoog.<br>- Hoofd niet in 1 lijn.<br>- Ellebogen te ver naar voor.' },
+    { titel: 'Hoge front plank [cite: 550]', spieren: 'Primair: m. rectus abdominis, heupbuigers.<br>Secundair: triceps, schouderspieren.', positie: '- Handen onder schouders (vingers naar voor).<br>- Start op handen en knieën.', uitvoering: '- Duw lichaam omhoog tot plank op handen en voeten.<br>- Lichaam in 1 lijn.<br>- Span buik- en bilspieren actief aan.', fouten: '- Doorhangen onderrug.<br>- Bekken te hoog.<br>- Handen te ver naar voor (voorbij schouders).' },
+    { titel: 'Zijwaartse plank (Side bridge) [cite: 562]', spieren: 'Focus: m. quadratus lumborum.<br>Secundair: obliques (schuine buikspieren).', positie: '- Zijlig, voeten op elkaar.<br>- Elleboog loodrecht onder schouder.<br>- Hand op heup.', uitvoering: '- Duw bekken omhoog (lichaam in 1 lijn).<br>- Open borstkas, schouders boven elkaar.<br>- Heupen naar voor duwen.', fouten: '- Lichaam niet in 1 lijn (voeten te ver naar voor/achter).<br>- Schouders niet boven elkaar.<br>- Doorzakken van bekken.' },
+    { titel: 'Supine bridge (Glute bridge) [cite: 577]', spieren: 'Focus: m. gluteus maximus, erector spinae.<br>Secundair: hamstrings.', positie: '- Ruglig, voeten plat op grond dicht bij zitvlak (heupbreedte).<br>- Armen 45 graden naast lichaam.', uitvoering: '- Kantel bekken (retroversie).<br>- Duw bekken omhoog tot knie-heup-schouder in 1 lijn zijn.', fouten: '- Geen bekkenkanteling (holle rug).<br>- Voeten te ver weg (hamstring dominantie).<br>- Voeten niet op schouderbreedte.' },
+    { titel: 'Omgekeerde tafelpositie [cite: 590]', spieren: 'Focus: Rugstrekkers, gluteus maximus, hamstrings.<br>Stretch: Pectoralis, voorste schouder.', positie: '- Zit op zitvlak, handen naast zitvlak (vingers naar voor).<br>- Voeten plat op grond.', uitvoering: '- Lift zitvlak, span bil/romp aan.<br>- Duw heupen omhoog tot tafelpositie.<br>- Rechte lijn knie-heup-schouder-hoofd.', fouten: '- Hyperlordose onderrug.<br>- Hoofd gebogen (niet in lijn).<br>- Oneven heuphoogte.' },
+    { titel: 'Bird dog [cite: 602]', spieren: 'Focus: m. erector spinae, gluteus maximus.<br>Secundair: armstrekkers.', positie: '- Handen- en knieënsteun (handen onder schouders, knieën onder heup).<br>- Rug neutraal.', uitvoering: '- Strek diagonaal arm en been uit tot in verlengde van wervelzuil.<br>- Duim wijst omhoog.<br>- Rug blijft stabiel (geen beweging).', fouten: '- Starten met holle/bolle rug.<br>- Arm/been te hoog liften (holle rug).<br>- Knieën/handen niet goed geplaatst.' },
+    { titel: 'Side plank abduction on knee [cite: 618]', spieren: 'Focus: Gluteus medius/minimus, QL.<br>Secundair: schuine buikspieren.', positie: '- Zijlig, steun op elleboog en knie.<br>- Elleboog loodrecht onder schouder.', uitvoering: '- Duw op tot zijwaartse plank op knie.<br>- Strek heup naar voor.<br>- Lift bovenste been gestrekt op (abductie).', fouten: '- Heupstartpositie fout (meteen op 1 lijn).<br>- Hyperlordose bij strekken.<br>- Borstkas niet open.<br>- Bekken zakt in.' },
+    { titel: 'Prone cobra (Back extension) [cite: 634]', spieren: 'Focus: m. erector spinae, gluteus maximus.', positie: '- Buiklig, armen naast lichaam (handpalmen naar grond).<br>- Voorhoofd op mat.', uitvoering: '- Activeer bil/buik (retroversie).<br>- Retractie schouderbladen.<br>- Lift borst en hoofd, roteer duimen omhoog.', fouten: '- Hyperlordose onderrug.<br>- Hyperextensie nek.<br>- Handpalmen blijven omlaag.' },
+    { titel: 'Dead bug [cite: 644]', spieren: 'Focus: m. rectus abdominis, transversus abdominis.', positie: '- Ruglig, armen gestrekt omhoog.<br>- Heupen en knieën 90 graden.<br>- Onderrug neutraal.', uitvoering: '- Laat tegenoverliggende arm en been gecontroleerd zakken.<br>- Druk onderrug licht in mat.<br>- Keer terug en wissel.', fouten: '- Holle rug.<br>- Bekken kantelt.<br>- Snelle, ongecontroleerde beweging.' },
+    { titel: 'Curl up (McGill) [cite: 657]', spieren: 'Focus: m. rectus abdominis.', positie: '- Ruglig, één knie gebogen, andere gestrekt.<br>- Handen onder onderrug (neutrale lordose).<br>- Hoofd in verlengde van wervelzuil.', uitvoering: '- Breng schouders licht van mat (mini-crunch).<br>- Houd nek neutraal.<br>- Pauzeer en zak gecontroleerd terug.', fouten: '- Trekken aan nek.<br>- Te hoog liften.<br>- Onderrug platdrukken.' },
+    { titel: 'Crossover curl up [cite: 671]', spieren: 'Focus: m. rectus abdominis, obliques.', positie: '- Ruglig, knie gebogen.<br>- Handen achter oren of gekruist voor borst.', uitvoering: '- Breng tegenoverliggende elleboog richting knie met lichte rotatie.<br>- Controleer ademhaling.<br>- Keer terug en wissel.', fouten: '- Trekken aan nek.<br>- Bekken meedraaien.<br>- Te snelle rotatie.' },
+    { titel: 'Mountain climber [cite: 685]', spieren: 'Focus: m. rectus abdominis, heupbuigers.<br>Secundair: schouders.', positie: '- Hoge plank op handen.<br>- Handen onder schouders.<br>- Lichaam in één lijn.', uitvoering: '- Breng afwisselend knieën richting borst in tempo.<br>- Romp stabiel.<br>- Adem gecontroleerd.', fouten: '- Doorhangen onderrug.<br>- Bekken draaien.<br>- Voeten springen wijd.' },
+    { titel: 'Russian twist [cite: 699]', spieren: 'Focus: obliques, rectus abdominis.', positie: '- Zit, romp licht achterover.<br>- Voeten op grond of opgetild.<br>- Borst open.', uitvoering: '- Rotatie links/rechts met handen of gewicht.<br>- Heupen stil.<br>- Blik volgt handen.', fouten: '- Bolle rug.<br>- Alleen armen bewegen.<br>- Te diep achterover.' },
+    { titel: 'Clam shells [cite: 709]', spieren: 'Focus: gluteus medius/minimus.', positie: '- Zijlig, heupen gestapeld.<br>- Knieën 90 graden.<br>- Hielen op elkaar.', uitvoering: '- Open bovenste knie (abductie/externe rotatie) zonder bekken te kantelen.<br>- Pauze en sluit gecontroleerd.', fouten: '- Bekken rollen achterover.<br>- Hielen los.<br>- Romp meebewegen.' },
+    { titel: 'Side lying adductor raise [cite: 722]', spieren: 'Focus: adductoren (longus, brevis, gracilis).', positie: '- Zijlig.<br>- Onderste been gestrekt.<br>- Bovenste been gebogen en voor lichaam gesteund.', uitvoering: '- Lift onderbeen recht omhoog.<br>- Houd romp stil.<br>- Controleer neerwaartse fase.', fouten: '- Rotatie romp.<br>- Heupen niet gestapeld.<br>- Te ver omhoog zwaaien.' }
+  ];
+  const coreCards = coreData.map((d) => ({
+    frontTitle: stripCites(d.titel),
+    back: `
+      <strong>Spieren:</strong> ${stripCites(d.spieren)}<br><br>
+      <strong>Positie:</strong>
+      ${toList(d.positie)}
+      <strong>Uitvoering:</strong>
+      ${toList(d.uitvoering)}
+      <strong>Fouten:</strong>
+      ${toList(d.fouten)}
+    `
+  }));
+  const cardioData = [
+    { titel: 'Algemene richtlijnen Cardio (ACSM)', spieren: 'Cardiovasculair systeem.', positie: 'Richtlijnen voor modale klant[cite: 1168].', uitvoering: '- Frequentie: 3 à 5 keer per week [cite: 1168][cite_start].<br>- Intensiteit: 60 tot 90% van het maximum [cite: 1168][cite_start].<br>- Tijd: 20 tot 60 min continue arbeid [cite: 1168][cite_start].<br>- Type: Grote spiergroepen, aerobe energielevering[cite: 1168].', fouten: 'N.v.t.' },
+    { titel: 'Ligfietsergometer (Recumbent Bike)', spieren: 'Benen, Cardio.', positie: '- Stoelafstand: bij gestrekt been nog lichte buiging (5° flexie) in knie [cite: 1169][cite_start].<br>- Controleer na 1-2 omwentelingen [cite: 1169][cite_start].<br>- Span voetriempjes aan[cite: 1169].', uitvoering: '- Optimaal ritme: 70 à 80 RPM (rotaties per minuut) [cite: 1169][cite_start].<br>- Handvaten naast je vastnemen [cite: 1169][cite_start].<br>- Kijk ontspannen vooruit[cite: 1169].', fouten: '- Stoel te dicht (knie te gebogen) [cite: 1169][cite_start].<br>- Stoel te ver (knie overstrekt) [cite: 1169][cite_start].<br>- Cervicale hyperextensie (naar TV kijken)[cite: 1169].' },
+    { titel: 'Fietsergometer (Upright Bike)', spieren: 'Benen, Cardio.', positie: '- Zadelhoogte: bij gestrekt been nog lichte buiging (5° flexie) in knie [cite: 1170][cite_start].<br>- Bekken mag niet dansen op zadel (te hoog) [cite: 1170][cite_start].<br>- Span voetriempjes aan[cite: 1170].', uitvoering: '- Optimaal ritme: 70 à 80 RPM [cite: 1170][cite_start].<br>- Handvaten vastnemen, kijk vooruit[cite: 1170].', fouten: '- Zadel te laag (knie te gebogen) [cite: 1170][cite_start].<br>- Zadel te hoog (overstrekking, bekken danst) [cite: 1170][cite_start].<br>- Cervicale hyperextensie[cite: 1170].' },
+    { titel: 'Armergometer', spieren: 'Bovenlichaam, Armen, Cardio.', positie: '- As net onder schouderhoogte [cite: 1171][cite_start].<br>- Afstand: op verste punt nog 5° flexie in elleboog [cite: 1171][cite_start].<br>- Handvaten 45° naar binnen gedraaid (pronatie)[cite: 1171].', uitvoering: '- Optimaal ritme: 50 à 60 RPM [cite: 1171][cite_start].<br>- Kijk recht vooruit[cite: 1171].', fouten: '- Stoel te dicht (te gebogen) of te ver (overstrekt) [cite: 1171][cite_start].<br>- Boven schouderhoogte werken [cite: 1171][cite_start].<br>- Cervicale hyperextensie[cite: 1171].' },
+    { titel: 'Crossover / Schaatser', spieren: 'Benen (abductoren/adductoren), Cardio.', positie: '- Voeten vooraan in midden van voetplatformen[cite: 1172].', uitvoering: '- Duw been zijwaarts naar buiten, ander been volgt binnenwaarts [cite: 1172][cite_start].<br>- Armen volgen gekruist [cite: 1172][cite_start].<br>- Optimaal ritme: 110 à 120 SPM (steps per minute)[cite: 1172].', fouten: '- Krampachtig binnenwaarts trekken [cite: 1172][cite_start].<br>- Bekken te veel fixeren [cite: 1172][cite_start].<br>- Trekken aan armen [cite: 1172][cite_start].<br>- Te traag of te grote amplitude[cite: 1172].' },
+    { titel: 'Crosstrainer (Synchro)', spieren: 'Full Body, Cardio.', positie: '- Voeten vooraan in midden van platformen[cite: 1173].', uitvoering: '- Gewicht naar voor op 1 been om te starten [cite: 1173][cite_start].<br>- Voetpunt en knie recht vooruit [cite: 1173][cite_start].<br>- Armen volgen gekruist [cite: 1173][cite_start].<br>- Optimaal ritme: 110 à 120 SPM[cite: 1173].', fouten: '- Achteruit crossen [cite: 1173][cite_start].<br>- Cervicale hyperextensie [cite: 1173][cite_start].<br>- Knieën naar binnen knikken[cite: 1173].' },
+    { titel: 'Vario', spieren: 'Full Body, Cardio.', positie: '- Voeten vooraan in midden van platformen[cite: 1174].', uitvoering: 'Kies variatie[cite: 1174]:<br>1. Stepping (trap).<br>2. Normale crossing.<br>3. [cite_start]Long strides (grote amplitude).<br>- Optimaal ritme: 110 à 120 SPM[cite: 1174].', fouten: '- Achteruit crossen [cite: 1174][cite_start].<br>- Knieën naar binnen knikken [cite: 1174][cite_start].<br>- Krampachtig steunen/hangen (bij stepping) [cite: 1174][cite_start].<br>- Te traag/te grote amplitude (end of motion raken)[cite: 1174].' },
+    { titel: 'Roeiergometer', spieren: 'Rug, Benen, Biceps, Cardio.', positie: '- Weerstand: Witte zone (level 1-10) voor cardio [cite: 1175][cite_start].<br>- Voeten vast, riempjes aan [cite: 1175][cite_start].<br>- Stang in kneukelgreep[cite: 1175].', uitvoering: 'Coördinatie[cite: 1175]:<br>1. Duw benen (strekken).<br>2. Trek stang naar navel (armen buigen).<br>3. Armen terug strekken.<br>4. [cite_start]Benen terug buigen.<br>- Ritme: 28 à 30 slagen/min[cite: 1175].', fouten: '- Rug niet rechtop (achterover leunen) [cite: 1175][cite_start].<br>- Stang naar borst trekken i.p.v. navel [cite: 1175][cite_start].<br>- Foutieve volgorde/coördinatie [cite: 1175][cite_start].<br>- Werken op powerstand (rood) voor cardio[cite: 1175].' },
+    { titel: 'Loopband', spieren: 'Benen, Cardio.', positie: '- Safety wasknijper bevestigen[cite: 1176].', uitvoering: '- Start traag (wandelen) [cite: 1176][cite_start].<br>- Gekruiste arminzet [cite: 1176][cite_start].<br>- Loop op eerste 2/3de van band [cite: 1176][cite_start].<br>- Knieën en voeten recht vooruit[cite: 1176].', fouten: '- Knieën naar binnen knikken [cite: 1176][cite_start].<br>- Voeten draaien [cite: 1176][cite_start].<br>- Lopen zonder arminzet [cite: 1176][cite_start].<br>- Op laatste deel band lopen[cite: 1176].' },
+    { titel: 'Stairclimber (Trappenloper)', spieren: 'Benen, Bilspieren, Cardio.', positie: '- Start traag [cite: 1177][cite_start].<br>- Voeten recht vooruit[cite: 1177].', uitvoering: '- Blijf hoog op de trappen (hoogste 2-3 treden) [cite: 1177][cite_start].<br>- Handsteunen vast of los (uitdaging)[cite: 1177].', fouten: '- Knieën naar binnen knikken [cite: 1177][cite_start].<br>- Voeten draaien [cite: 1177][cite_start].<br>- Te laag zakken (gevaar voor struikelen)[cite: 1177].' }
+  ];
+  const cardioCards = cardioData.map((d) => ({
+    frontTitle: stripCites(d.titel),
+    back: `
+      <strong>Spieren:</strong> ${stripCites(d.spieren)}<br><br>
+      <strong>Positie:</strong>
+      ${toList(stripCites(d.positie))}
+      <strong>Uitvoering:</strong>
+      ${toList(stripCites(d.uitvoering))}
+      <strong>Fouten:</strong>
+      ${toList(stripCites(d.fouten))}
+    `
+  }));
+  return [
+    { id: 'stretching', title: 'Stretching', cards: testStretch.map((c) => ({ frontTitle: c.question, back: c.answer })) },
+    { id: 'kracht', title: 'Krachttraining', subcategories: [
+      { id: 'kracht-body', title: 'Free Weight', cards: freeWeightsCards },
+      { id: 'kracht-machines', title: 'Machines', cards: machinesCards }
+    ]},
+    { id: 'core', title: 'Corestability', cards: coreCards },
+    { id: 'cardio', title: 'Cardio', cards: cardioCards }
+  ];
+}
+
+function renderFlashcardsPanel(subject) {
+  if (!flashcardsPanel || !flashcardsDisplay) return;
+  if (activePanel !== 'flashcards-panel') { flashcardsPanel.hidden = true; return; }
+  flashcardsPanel.hidden = false;
+  flashcardsDisplay.innerHTML = '';
+  const categories = getFlashcardCategories(subject);
+  const section = document.createElement('section');
+  section.className = 'quiz-category';
+  section.innerHTML = `
+    <header class="quiz-category__header">
+      <div>
+        <p class="eyebrow">Flashcards</p>
+        <h3>Kies een hoofdcategorie</h3>
+      </div>
+    </header>
+  `;
+  const list = document.createElement('div');
+  list.className = 'quiz-category__list';
+  categories.forEach((cat) => {
+    const card = document.createElement('article');
+    card.className = 'quiz-picker__card';
+    const total = (cat.subcategories?.length ? cat.subcategories.flatMap((s) => s.cards || []) : (cat.cards || [])).length;
+    card.innerHTML = `
+      <header class="quiz-picker__header">
+        <div>
+          <p class="eyebrow">Categorie</p>
+          <h3>${cat.title}</h3>
+        </div>
+        <div class="chip">${total} kaarten</div>
+      </header>
+      <p class="caption">Open om te starten.</p>
+    `;
+    const actions = document.createElement('div');
+    actions.className = 'quiz-picker__actions';
+    const openBtn = document.createElement('button');
+    openBtn.type = 'button';
+    openBtn.className = 'btn';
+    openBtn.textContent = 'Open';
+    openBtn.addEventListener('click', () => {
+      if (cat.id === 'kracht' && cat.subcategories?.length) {
+        let subList = card.querySelector('.quiz-picker__sublist');
+        if (!subList) {
+          subList = document.createElement('div');
+          subList.className = 'quiz-picker__sublist';
+          cat.subcategories.forEach((sub) => {
+            const subCard = document.createElement('article');
+            subCard.className = 'quiz-picker__card';
+            const count = (sub.cards || []).length;
+            subCard.innerHTML = `
+              <header class="quiz-picker__header">
+                <div>
+                  <p class="eyebrow">Subcategorie</p>
+                  <h3>${sub.title}</h3>
+                </div>
+                <div class="chip">${count} kaarten</div>
+              </header>
+              <p class="caption">Open om deze kaarten te bekijken.</p>
+            `;
+            const subActions = document.createElement('div');
+            subActions.className = 'quiz-picker__actions';
+            const subOpen = document.createElement('button');
+            subOpen.type = 'button';
+            subOpen.className = 'btn';
+            subOpen.textContent = 'Open';
+            subOpen.addEventListener('click', () => {
+              activeFlashcardsCategory = { id: sub.id, title: sub.title, cards: sub.cards || [] };
+              setActivePanel('flashcards-play-panel');
+              render();
+            });
+            subActions.appendChild(subOpen);
+            subCard.appendChild(subActions);
+            subList.appendChild(subCard);
+          });
+          card.appendChild(subList);
+        } else {
+          subList.hidden = !subList.hidden;
+        }
+      } else {
+        activeFlashcardsCategory = cat;
+        setActivePanel('flashcards-play-panel');
+        render();
+      }
+    });
+    actions.appendChild(openBtn);
+    card.appendChild(actions);
+    list.appendChild(card);
+  });
+  section.appendChild(list);
+  flashcardsDisplay.appendChild(section);
+}
+
+function renderFlashcardsList(cards) {
+  flashcardsDisplay.innerHTML = '';
+  if (!cards.length) {
+    flashcardsDisplay.innerHTML = '<p class="caption">Nog geen kaarten in deze categorie.</p>';
+    return;
+  }
+  const grid = document.createElement('div');
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(220px, 1fr))';
+  grid.style.gap = '12px';
+  cards.forEach((c) => {
+    const card = document.createElement('div');
+    card.className = 'flashcard';
+    const inner = document.createElement('div');
+    inner.className = 'flashcard__inner';
+    const front = document.createElement('div');
+    front.className = 'flashcard__face flashcard__front';
+    front.innerHTML = `<div><strong>${c.frontTitle || c.question || ''}</strong></div>`;
+    const back = document.createElement('div');
+    back.className = 'flashcard__face flashcard__back';
+    const html = c.back || c.backHtml || c.answer || '';
+    back.innerHTML = `<div class="flashcard__content">${html}</div>`;
+    inner.append(front, back);
+    card.appendChild(inner);
+    card.addEventListener('click', () => { card.classList.toggle('is-flipped'); });
+    requestAnimationFrame(() => {
+      const h = Math.max(front.scrollHeight, back.scrollHeight);
+      card.style.height = `${h}px`;
+    });
+    grid.appendChild(card);
+  });
+  flashcardsDisplay.appendChild(grid);
+}
+
+function renderStretchingCategory(cat) {
+  const cards = cat.cards || [];
+  flashcardsDisplay.innerHTML = '';
+  const header = document.createElement('section');
+  header.className = 'quiz-category';
+  header.innerHTML = `
+    <header class="quiz-category__header">
+      <div>
+        <p class="eyebrow">Stretching</p>
+        <h3>Oefen of bekijk kaarten</h3>
+      </div>
+    </header>
+  `;
+  const actions = document.createElement('div');
+  actions.className = 'quiz-picker__actions';
+  const oefenBtn = document.createElement('button');
+  oefenBtn.type = 'button';
+  oefenBtn.className = 'btn';
+  oefenBtn.textContent = 'Oefen';
+  oefenBtn.addEventListener('click', () => {
+    activeFlashcardsCategory = cat;
+    setActivePanel('flashcards-play-panel');
+    render();
+  });
+  actions.appendChild(oefenBtn);
+  header.appendChild(actions);
+  flashcardsDisplay.appendChild(header);
+  renderFlashcardsList(cards);
+}
+function renderFlashcardsPlay(subject) {
+  if (!flashcardsPlayPanel) return;
+  if (activePanel !== 'flashcards-play-panel') { flashcardsPlayPanel.hidden = true; return; }
+  flashcardsPlayPanel.hidden = false;
+  const cat = activeFlashcardsCategory || (getFlashcardCategories(subject).find((c) => c.id === 'stretching')) || null;
+  const cards = cat?.cards || [];
+  flashcardsPlayPanel.innerHTML = '';
+  const header = document.createElement('div');
+  header.className = 'panel__header';
+  const left = document.createElement('div');
+  const backBtn = document.createElement('button');
+  backBtn.className = 'tab';
+  backBtn.type = 'button';
+  backBtn.textContent = 'Terug';
+  backBtn.addEventListener('click', () => { setActivePanel('flashcards-panel'); });
+  left.appendChild(backBtn);
+  const right = document.createElement('div');
+  right.innerHTML = `
+    <p class="eyebrow">Flashcards</p>
+    <h2>${cat ? cat.title : 'Oefenen'}</h2>
+    <p class="caption">Klik op de kaart om te draaien. Navigeer met de pijlen.</p>
+  `;
+  header.append(left, right);
+  const runner = document.createElement('div');
+  runner.className = 'quiz-runner';
+  const practiceCard = document.createElement('div');
+  practiceCard.className = 'quiz-runner__card';
+  const practiceStep = document.createElement('p');
+  practiceStep.className = 'quiz-runner__step';
+  const big = document.createElement('div');
+  big.className = 'flashcard flashcard--big';
+  const bigInner = document.createElement('div');
+  bigInner.className = 'flashcard__inner';
+  const bigFront = document.createElement('div');
+  bigFront.className = 'flashcard__face flashcard__front';
+  const bigBack = document.createElement('div');
+  bigBack.className = 'flashcard__face flashcard__back';
+  bigInner.append(bigFront, bigBack);
+  big.append(bigInner);
+  big.addEventListener('click', () => { big.classList.toggle('is-flipped'); });
+  const nav = document.createElement('div');
+  nav.className = 'quiz-runner__nav';
+  const prevBtn = document.createElement('button');
+  prevBtn.type = 'button'; prevBtn.className = 'btn'; prevBtn.textContent = '<';
+  const nextBtn = document.createElement('button');
+  nextBtn.type = 'button'; nextBtn.className = 'btn'; nextBtn.textContent = '>';
+  nav.append(prevBtn, nextBtn);
+  practiceCard.append(practiceStep, big);
+  runner.append(practiceCard, nav);
+  flashcardsPlayPanel.append(header, runner);
+  let index = 0; const count = cards.length;
+  function update() {
+    big.classList.remove('is-flipped');
+    const current = cards[index] || {};
+    bigFront.innerHTML = `<div><strong>${current.frontTitle || current.question || 'Kaart'}</strong></div>`;
+    const html = current.back || current.backHtml || current.answer || '';
+    bigBack.innerHTML = `<div class="flashcard__content">${html}</div>`;
+    practiceStep.textContent = `Kaart ${index + 1} van ${count}`;
+    prevBtn.disabled = index === 0;
+    nextBtn.disabled = index >= count - 1;
+    requestAnimationFrame(() => {
+      const h = Math.max(bigFront.scrollHeight, bigBack.scrollHeight);
+      big.style.height = `${h}px`;
+    });
+  }
+  prevBtn.addEventListener('click', () => { if (index > 0) { index -= 1; update(); } });
+  nextBtn.addEventListener('click', () => { if (index < count - 1) { index += 1; update(); } });
+  update();
 }
