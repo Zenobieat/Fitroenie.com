@@ -7444,6 +7444,69 @@ function getFlashcardCategories(subject) {
       ${toList(stripCites(d.fouten))}
     `
   }));
+
+  function normalizeTitle(s = '') {
+    return stripCites(String(s)).toLowerCase().replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
+  }
+  function titleIncludes(cardTitle, target) {
+    const a = normalizeTitle(cardTitle);
+    const b = normalizeTitle(target);
+    return a.includes(b) || b.includes(a);
+  }
+  function selectByTitles(cards = [], titles = []) {
+    const res = [];
+    titles.forEach((t) => {
+      const found = cards.find((c) => titleIncludes(c.frontTitle || '', t));
+      if (found) res.push(found);
+    });
+    return res;
+  }
+
+  const praktijkBodyweightStretchData = [
+    { titel: 'Standing hamstrings stretch', spieren: 'Hamstrings.', positie: '- Staand, voet voor op verhoog of grond.<br>- Knie licht gebogen.', uitvoering: '- Kantel bekken naar voren.<br>- Buig bovenlichaam licht naar voren over het been.<br>- 30s aanhouden, rustig ademen.', fouten: '- Bolle rug.<br>- Knie overstrekken.<br>- Voetpunt naar binnen draaien.' },
+    { titel: 'Lying leg extension stretch (Quadriceps)', spieren: 'Quadriceps.', positie: '- Zijlig of buiklig.<br>- Pak enkel vast en breng hiel naar bil.', uitvoering: '- Houd knieën naast elkaar.<br>- Bekken neutraal.<br>- 30s aanhouden.', fouten: '- Knie naar buiten.<br>- Onderrug hol trekken.<br>- Te hard trekken aan enkel.' },
+    { titel: 'Kneeling adductor stretch', spieren: 'Adductoren.', positie: '- Knieën op grond.<br>- Eén been zijwaarts gestrekt, voet plat.', uitvoering: '- Duw heup licht naar achter.<br>- Romp recht.<br>- 30s aanhouden.', fouten: '- Rug bollen.<br>- Knie buigen op gestrekte zijde.<br>- Voetpunt draaien.' },
+    { titel: 'Kneeling hip flexor stretch', spieren: 'Heupbuigers (iliopsoas).', positie: '- Eén knie op grond, andere voet voor (uitvalspas).', uitvoering: '- Kantel bekken (retroversie).<br>- Duw heupen naar voren tot rek in voorkant heup.<br>- 30s aanhouden.', fouten: '- Holle onderrug.<br>- Bekken niet kantelen.<br>- Knie te ver voorbij teen.' },
+    { titel: 'Lying glute 4 stretch (Figure 4)', spieren: 'Gluteus maximus/medius.', positie: '- Ruglig.<br>- Enkel op tegenoverliggende knie (figuur 4).', uitvoering: '- Pak achter dijbeen vast.<br>- Trek licht naar borst tot rek in bil.<br>- 30s aanhouden.', fouten: '- Nek optillen.<br>- Bekken kantelen naar holle rug.<br>- Te snel bewegen.' },
+    { titel: 'Seated crossover glute stretch', spieren: 'Gluteus medius/minimus.', positie: '- Zit, één been gekruist over het andere.', uitvoering: '- Trek knie naar borst/tegenoverliggende schouder.<br>- Romp recht.<br>- 30s aanhouden.', fouten: '- Ronding in rug.<br>- Schouders optrekken.<br>- Knie omlaag duwen i.p.v. naar borst.' },
+    { titel: 'Standing side bending stretch', spieren: 'Obliques, quadratus lumborum.', positie: '- Staand, voeten heupbreedte.', uitvoering: '- Eén arm boven hoofd.<br>- Buig zijwaarts tot rek in flank.<br>- 30s per zijde.', fouten: '- Rotatie i.p.v. zijwaarts buigen.<br>- Bekken meebewegen.<br>- Schouders optrekken.' }
+  ];
+  const praktijkBodyweightStretchCards = praktijkBodyweightStretchData.map((d) => ({
+    frontTitle: stripCites(d.titel),
+    back: `
+      <strong>Spieren:</strong> ${stripCites(d.spieren)}<br><br>
+      <strong>Positie:</strong>
+      ${toList(d.positie)}
+      <strong>Uitvoering:</strong>
+      ${toList(d.uitvoering)}
+      <strong>Fouten:</strong>
+      ${toList(d.fouten)}
+    `
+  }));
+
+  const praktijkBodyweightCoreTitles = [
+    'lage plank', 'front bridge', 'zijwaartse plank', 'side bridge', 'supine bridge', 'bird dog', 'side plank abduction on knee', 'dead bug', 'clam shell'
+  ];
+  const praktijkBodyweightStrengthTitles = ['push-up', 'lunge', 'squat'];
+  const praktijkBodyweightCards = [
+    ...praktijkBodyweightStretchCards,
+    ...selectByTitles(coreCards, praktijkBodyweightCoreTitles),
+    ...selectByTitles(freeWeightsCards, praktijkBodyweightStrengthTitles)
+  ];
+
+  const praktijkMachinesTitles = [
+    'Fietsergometer', 'Crosstrainer', 'Stairclimber', 'Roeiergometer', 'Loopband',
+    'Leg press', 'Chest press', 'Low row', 'Reverse fly machine', 'Pectoral fly machine', 'Lat machine', 'Leg extension', 'Leg curl', 'Shoulder press', 'Adductor', 'Abductor'
+  ];
+  const praktijkMachinesCards = [
+    ...selectByTitles(cardioCards, ['Fietsergometer', 'Crosstrainer', 'Stairclimber', 'Roeiergometer', 'Loopband']),
+    ...selectByTitles(machinesCards, ['leg press', 'chest press', 'low row', 'upper back machine', 'reverse fly', 'pectoral fly', 'lat machine', 'leg extension', 'leg curl', 'shoulder press machine', 'adductor machine', 'abductor machine'])
+  ];
+
+  const praktijkFreeWeightsTitles = [
+    'barbell squat', 'barbell lunge', "cable standing fly's", 'crossover', 'dumbbell press', "dumbbell fly's", 'rear delt raise', 'lying rear row', 'single arm bentover row', 'bentover row', 'barbell bench press', 'seated military press', 'shoulder press', 'skull crusher', 'triceps pulldown', 'kickback', 'hammer curl', 'biceps curl', 'side raise', 'front raise'
+  ];
+  const praktijkFreeWeightsCards = selectByTitles(freeWeightsCards, praktijkFreeWeightsTitles);
   return [
     { id: 'stretching', title: 'Stretching', cards: testStretch.map((c) => ({ frontTitle: c.question, back: c.answer })) },
     { id: 'kracht', title: 'Krachttraining', subcategories: [
@@ -7451,7 +7514,13 @@ function getFlashcardCategories(subject) {
       { id: 'kracht-machines', title: 'Machines', cards: machinesCards }
     ]},
     { id: 'core', title: 'Corestability', cards: coreCards },
-    { id: 'cardio', title: 'Cardio', cards: cardioCards }
+    { id: 'cardio', title: 'Cardio', cards: cardioCards },
+    { id: 'praktijk', title: 'Praktisch examen', subcategories: [
+      { id: 'praktijk-body', title: 'Bodyweight', cards: praktijkBodyweightCards },
+      { id: 'praktijk-machines', title: 'Machines', cards: praktijkMachinesCards },
+      { id: 'praktijk-free', title: 'Free Weights', cards: praktijkFreeWeightsCards },
+      { id: 'praktijk-cardio', title: 'Cardio', cards: selectByTitles(cardioCards, ['Fietsergometer', 'Crosstrainer', 'Stairclimber', 'Roeiergometer', 'Loopband']) }
+    ]}
   ];
 }
 
