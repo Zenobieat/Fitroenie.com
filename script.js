@@ -141,7 +141,7 @@ const STORAGE_KEY = 'fitroenie-anatomie';
 const PROGRESS_NS = 'fitroenie-progress';
 const allowedOsteologySections = ['osteo-upper', 'osteo-lower', 'osteo-proef'];
 const VERSION_KEY = 'fitroenie-version';
-const CURRENT_VERSION = '3';
+const CURRENT_VERSION = '4';
 const USER_PREFS_KEY = 'fitroenie-userprefs';
 const AVAILABLE_AVATARS = ['Bob.png','Dog Boss.png','Happy.png','Jessy.png','Pingoe.png','Poes.png','Sniffy.png','Wolfje.png'];
 let userPrefs = loadUserPrefs();
@@ -349,7 +349,7 @@ function createDefaultSubjects() {
       ]
     },
     {
-      title: 'Arthrologie – 20 vragen + oplossingen',
+      title: 'Algemeen Examen – 20 vragen + oplossingen',
       questions: [
         {
           question: 'Wat is een diarthrose?',
@@ -515,9 +515,83 @@ function createDefaultSubjects() {
         id: 'arthrologie-core',
         domain: 'arthrologie',
         section: 'arthrologie',
-        title: 'Arthrologie',
+        title: 'Algemeen Examen',
         description: 'Examenvragen over gewrichten en ligamenten.',
         quizSets: [arthrologieHoofdstuk]
+      },
+      {
+        id: 'arthro-upper',
+        domain: 'arthrologie',
+        section: 'arthro-upper',
+        title: 'Bovenste ledematen',
+        description: 'Gewrichten van schoudergordel tot hand.',
+        quizSets: [
+          {
+            title: 'Bovenste Ledematen – 20 vragen',
+            questions: [
+              { question: 'Welk ligament verbindt de eerste rib met de onderzijde van de clavicula (impressio ligamenti costoclavicularis)?', options: ['Ligamentum interclaviculare','Ligamentum costoclaviculare','Ligamentum sternocostale radiatum','Ligamentum coracoclaviculare'], answerIndex: 1 },
+              { question: 'Waar bevindt het Ligamentum interclaviculare zich?', options: ['Tussen het sternum en de ribben','Tussen het coracoid en het acromion','Bovenaan tussen de twee claviculae ter hoogte van de incisura jugularis','Aan de onderzijde van het sternoclaviculaire gewricht'], answerIndex: 2 },
+              { question: 'Wat is een kenmerk van het Ligamentum sternocostale radiatum?', options: ['Het is lusvormig','Het loopt door het wervelkanaal','Het vertakt en verbreedt zich op de insertie van het andere botstuk','Het verbindt de scapula met de humerus'], answerIndex: 2 },
+              { question: 'Welke bewegingen worden specifiek geremd door het Ligamentum coraco-acromiale?', options: ['Elevatie en depressie van de scapula','Abductie en anteversie van de schouder','Exorotatie en endorotatie','Pronatie en supinatie'], answerIndex: 1 },
+              { question: 'Uit welke twee delen bestaat het Ligamentum coracoclaviculare?', options: ['Lig. trapezoideum en Lig. conoideum','Lig. collaterale ulnare en radiale','Lig. flavum en Lig. nuchae','Lig. supraspinatus en Lig. infraspinatus'], answerIndex: 0 },
+              { question: 'Waarvoor dient de Recessus axillaris in het gewrichtskapsel van de schouder?', options: ['Het beschermt de bloedvaten','Het zorgt voor smering van de bicepspees','Het helpt voor meer bewegingsvrijheid bij het heffen van de arm','Het verbindt het acromion met de clavicula'], answerIndex: 2 },
+              { question: 'Welke ligamenten stabiliseren specifiek de voorzijde van het schouderkapsel?', options: ['Ligamenta glenohumeralia (superius, medium, inferius)','Ligamentum transversum scapulae','Ligamentum sacrospinale','Ligamentum nuchae'], answerIndex: 0 },
+              { question: 'Welke beweging vindt plaats rond de sagittale as in het schoudergewricht (Articulatio humeri)?', options: ['Anteflexie en retroflexie','Exorotatie en endorotatie','Adductie en abductie','Pronatie en supinatie'], answerIndex: 2 },
+              { question: 'Welke beweging vindt plaats rond de frontale as in het schoudergewricht?', options: ['Anteflexie en retroflexie','Adductie en abductie','Exorotatie en endorotatie','Circumductie'], answerIndex: 0 },
+              { question: 'Welk ligament in de elleboog is lusvormig en loopt rond de radiuskop?', options: ['Ligamentum collaterale radiale','Ligamentum collaterale ulnare','Ligamentum anulare radii','Chorda obliqua'], answerIndex: 2 },
+              { question: 'Wat is de functie van het Ligamentum anulare radii?', options: ['Het remt de buiging van de elleboog','Het zorgt voor de geleiding van de draaiing van de radiuskop','Het verbindt de ulna met de humerus','Het voorkomt abductie van de onderarm'], answerIndex: 1 },
+              { question: 'Wat is de functie van de collaterale ligamenten in de elleboog?', options: ['Ze zorgen voor rotatie','Ze zorgen voor mediale en laterale stabiliteit','Ze zorgen voor glijbewegingen van de pols','Ze verbinden de biceps met de radius'], answerIndex: 1 },
+              { question: 'Hoe wordt het gewricht tussen Humerus en Ulna geclassificeerd in de tekst?', options: ['3-assig kogelgewricht','2-assig zadelgewricht','1-assig scharniergewricht','1-assig draaigewricht'], answerIndex: 2 },
+              { question: 'Hoe wordt het gewricht tussen Humerus en Radius geclassificeerd in de tekst?', options: ['1-assig scharniergewricht','2-assig eigewricht','3-assig kogelgewricht','Vlak gewricht'], answerIndex: 2 },
+              { question: 'Welk type gewricht is de verbinding tussen Radius en Ulna?', options: ['Scharniergewricht','Draaigewricht (Articulatio trochoidea)','Zadelgewricht','Vlak gewricht'], answerIndex: 1 },
+              { question: 'Wat laten de collaterale ligamenten van de vingergewrichten (vingers) toe?', options: ['Enkel rotatie','Enkel flexie en extensie','Abductie en adductie in gestrekte stand','Circumductie'], answerIndex: 1 },
+              { question: 'Wat is de functie van de Ligamenta palmaria in de hand?', options: ['Ze zorgen voor spreiding van de vingers','Ze houden overstrekking (hyperextensie) van de vingers tegen','Ze verbinden de polsbeentjes met de radius','Ze beschermen de nagelriemen'], answerIndex: 1 },
+              { question: 'Waar bevindt het Ligamentum transversum scapulae superius zich?', options: ['Over de incisura scapulae','Tussen het acromion en de clavicula','Tussen de processus spinosi','In de elleboog'], answerIndex: 0 },
+              { question: 'Waar loopt het Ligamentum coracohumerale?', options: ['Van het coracoid naar de clavicula','Van het coracoid naar het acromion','Van het coracoid naar de humerus (dorsaal kapsel)','Tussen radius en ulna'], answerIndex: 2 },
+              { question: 'Wat is de algemene functie van een discus of meniscus in een gewricht (zoals genoemd bij de incongruentie van vlakken)?', options: ['Productie van synoviaal vocht','Zorgen voor grotere congruentie (passend maken)','Verbinding van spieren aan bot','Voeding van het bot'], answerIndex: 1 }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'arthro-lower',
+        domain: 'arthrologie',
+        section: 'arthro-lower',
+        title: 'Onderste ledematen',
+        description: 'Gewrichten van heup tot voet.',
+        quizSets: [
+          {
+            title: 'Onderste Ledematen – deel 1 (10 vragen)',
+            questions: [
+              { question: 'Welke vorm heeft de Meniscus Medialis in het kniegewricht?', options: ['O-vormig (kleiner oppervlak)','C-vormig (groter oppervlak)','Driehoekig','Vierkant'], answerIndex: 1 },
+              { question: 'Wat is de functie van het Ligamentum transversum genus in de knie?', options: ['Het verbindt de tibia met de fibula.','Het verbindt de femur met de patella.','Het verbindt beide menisci aan de ventrale zijde met elkaar.','Het verbindt de kruisbanden met elkaar.'], answerIndex: 2 },
+              { question: 'Waar hecht het Ligamentum cruciatum anterius (voorste kruisband) aan op het dijbeen?', options: ['De laterale zijde van de condylus medialis femoris.','De mediale zijde van de condylus lateralis femoris.','De fossa intercondylaris.','De tuberositas tibiae.'], answerIndex: 1 },
+              { question: 'Welk ligament in de knie is verweven met de mediale meniscus?', options: ['Ligamentum collaterale laterale (fibulare)','Ligamentum cruciatum posterius','Ligamentum collaterale mediale (tibiale)','Ligamentum patellae'], answerIndex: 2 },
+              { question: 'Wat is de specifieke functie van het Ligamentum collaterale laterale (LCL) van de knie?', options: ['Het voorkomt een valgusbeweging (X-stand).','Het voorkomt een varusbeweging (O-stand) en beperkt exorotatie.','Het zorgt voor de slotextensie.','Het trekt de meniscus naar achteren tijdens flexie.'], answerIndex: 1 },
+              { question: 'Welk ligament aan de achterzijde van de knie (dorsaal) vertrekt van de fibula en buigt af over de spier (afgebogen)?', options: ['Ligamentum popliteum obliquum','Ligamentum popliteum arcuatum','Ligamentum meniscofemorale posterius','Ligamentum cruciatum posterius'], answerIndex: 1 },
+              { question: 'Wat is een kenmerk van het Ligamentum popliteum obliquum?', options: ['Het heeft een perforatie.','Het ligt intra-articulair (in het gewricht).','Het verbindt de patella met de tibia.','Het is het zwakste ligament van de knie.'], answerIndex: 0 },
+              { question: 'Wanneer is rotatie in het kniegewricht mogelijk?', options: ['In volledige extensie (gestrekt been).','Tijdens het lopen.','Enkel in lichte flexie (gebogen stand).','Nooit, de knie is een scharniergewricht dat geen rotatie toelaat.'], answerIndex: 2 },
+              { question: 'Wat wordt bedoeld met "Slotextensie" van de knie?', options: ['De knie kan niet meer buigen door een blokkade.','De stand waarin de collaterale ligamenten maximaal gespannen zijn (volledige strekking).','De meniscus zit klem tussen de botten.','Een geforceerde hyperextensie van meer dan 10 graden.'], answerIndex: 1 },
+              { question: 'Welke botstukken vormen het Articulatio talocruralis (bovenste spronggewricht)?', options: ['Tibia, Fibula en Calcaneus.','Tibia, Fibula en Talus.','Talus, Calcaneus en Naviculare.','Femur, Tibia en Patella.'], answerIndex: 1 }
+            ]
+          }
+          ,
+          {
+            title: 'Onderste Ledematen – deel 2 (10 vragen)',
+            questions: [
+              { question: 'Welk ligament behoort niet tot de laterale ligamenten van de enkel?', options: ['Ligamentum talofibulare anterius','Ligamentum calcaneofibulare','Ligamentum talofibulare posterius','Ligamentum tibionavicularis'], answerIndex: 3 },
+              { question: 'Uit hoeveel delen bestaat het Ligamentum deltoideum (mediale enkelband)?', options: ['2 delen','3 delen','4 delen','5 delen'], answerIndex: 2 },
+              { question: 'Welk deel van het Ligamentum deltoideum loopt van de malleolus tibialis naar het os naviculare?', options: ['Pars tibiotalaris anterior','Pars tibiocalcanearis','Pars tibionavicularis','Pars tibiotalaris posterior'], answerIndex: 2 },
+              { question: 'Wat is de functie van de membrana interossea in het onderbeen?', options: ['Het verbindt de tibia en fibula over de lengte.','Het beschermt de achillespees.','Het zorgt voor de voeding van de kuitspier.','Het vormt het gewrichtsoppervlak van de enkel.'], answerIndex: 0 },
+              { question: 'Welk ligament aan de plantaire zijde (zool) van de voet is het belangrijkst voor het in stand houden van het voetgewelf?', options: ['Ligamentum bifurcatum','Ligamentum plantare longum','Ligamentum talocalcaneum laterale','Ligamentum metatarsalia dorsalia'], answerIndex: 1 },
+              { question: 'Waar bevindt het Ligamentum bifurcatum zich?', options: ['Aan de dorsale zijde (bovenkant) van de voet.','Aan de plantaire zijde (onderkant) van de voet.','Aan de achterzijde van de hiel.','Tussen tibia en fibula.'], answerIndex: 0 },
+              { question: 'Wat is de functie van het Ligamentum patellae?', options: ['Het zorgt voor zijdelingse stabiliteit van de knie.','Het brengt de kracht van de quadriceps over op de tibia.','Het houdt de meniscus op zijn plaats.','Het voorkomt hyperextensie van de knie.'], answerIndex: 1 },
+              { question: 'Wat is een "Valgum" stand van de knie?', options: ['O-benen (femur staat te recht).','X-benen (femur heeft een te verre inclinatie naar binnen).','Een overstrekte knie.','Een gedraaide knie.'], answerIndex: 1 },
+              { question: 'Welk ligament loopt van de malleolus lateralis naar het os calcaneus?', options: ['Ligamentum talofibulare anterius','Ligamentum calcaneofibulare','Ligamentum deltoideum','Ligamentum bifurcatum'], answerIndex: 1 },
+              { question: 'Wat is de functie van de menisci in de knie?', options: ['Ze produceren gewrichtsvocht.','Ze zorgen voor optimalisatie van de congruentie (pasvorm) van het gewrichtsoppervlak.','Ze verbinden de kruisbanden met de collaterale banden.','Ze dienen als aanhechting voor de quadriceps.'], answerIndex: 1 }
+            ]
+          }
+        ]
       },
       {
         id: 'myo-les1',
@@ -3257,9 +3331,11 @@ function createDefaultSubjects() {
         sections: [
           {
             id: 'arthrologie',
-            title: 'Arthrologie',
+            title: 'Algemeen Examen',
             categoryIds: ['arthrologie-core']
-          }
+          },
+          { id: 'arthro-upper', title: 'Bovenste ledematen', categoryIds: ['arthro-upper'] },
+          { id: 'arthro-lower', title: 'Onderste ledematen', categoryIds: ['arthro-lower'] }
         ]
       },
       {
@@ -4759,6 +4835,138 @@ if (mergeResult.mutated) {
   persistSubjects();
 }
 
+function migrateArthroGeneral(subjectsList) {
+  let changed = false;
+  const updated = subjectsList.map((subj) => {
+    if (!subj || !Array.isArray(subj.categories)) return subj;
+    const copy = { ...subj };
+    copy.categories = copy.categories.map((cat) => {
+      if (!cat) return cat;
+      if (cat.id === 'arthrologie-core') {
+        const c = { ...cat };
+        if (c.title !== 'Algemeen Examen') {
+          c.title = 'Algemeen Examen';
+          changed = true;
+        }
+        if (Array.isArray(c.quizSets)) {
+          c.quizSets = c.quizSets.map((set) => {
+            if (!set || typeof set.title !== 'string') return set;
+            if (set.title.trim().toLowerCase().startsWith('arthrologie')) {
+              changed = true;
+              return { ...set, title: 'Algemeen Examen – 20 vragen + oplossingen' };
+            }
+            return set;
+          });
+        }
+        return c;
+      }
+      return cat;
+    });
+
+    if (Array.isArray(copy.examDomains)) {
+      copy.examDomains = copy.examDomains.map((dom) => {
+        if (dom.id !== 'arthrologie') return dom;
+        const d = { ...dom };
+        d.sections = (d.sections || []).map((sec) => {
+          if (sec.id !== 'arthrologie') return sec;
+          const s = { ...sec };
+          if (s.title !== 'Algemeen Examen') {
+            s.title = 'Algemeen Examen';
+            changed = true;
+          }
+          return s;
+        });
+        return d;
+      });
+    }
+
+    return copy;
+  });
+
+  return { subjects: updated, changed };
+}
+
+const mig = migrateArthroGeneral(subjects);
+if (mig.changed) {
+  subjects = mig.subjects.map((s) => normalizeSubject(s));
+  persistSubjects();
+}
+
+function migrateCombineUpperSets(subjectsList) {
+  let changed = false;
+  const updated = subjectsList.map((subj) => {
+    if (!subj || subj.name !== 'Anatomie' || !Array.isArray(subj.categories)) return subj;
+    const copy = { ...subj };
+    const idx = copy.categories.findIndex((c) => c.id === 'arthro-upper');
+    if (idx === -1) return copy;
+    const cat = { ...copy.categories[idx] };
+    const sets = Array.isArray(cat.quizSets) ? cat.quizSets : [];
+    const upperSets = sets.filter((s) => typeof s.title === 'string' && /bovenste\s+ledematen/i.test(s.title));
+    if (upperSets.length >= 2) {
+      const allQuestions = upperSets.flatMap((s) => Array.isArray(s.questions) ? s.questions : []);
+      if (allQuestions.length >= 20) {
+        const combined = { title: 'Bovenste Ledematen – 20 vragen', questions: allQuestions.slice(0, 20) };
+        cat.quizSets = [combined];
+        changed = true;
+      }
+    }
+    // Ensure at least one combined set exists
+    if ((!Array.isArray(cat.quizSets) || cat.quizSets.length === 0) && upperSets.length) {
+      const allQuestions = upperSets.flatMap((s) => Array.isArray(s.questions) ? s.questions : []);
+      if (allQuestions.length) {
+        cat.quizSets = [{ title: 'Bovenste Ledematen – 20 vragen', questions: allQuestions.slice(0, 20) }];
+        changed = true;
+      }
+    }
+    copy.categories[idx] = cat;
+    return copy;
+  });
+  return { subjects: updated, changed };
+}
+
+const migUpper = migrateCombineUpperSets(subjects);
+if (migUpper.changed) {
+  subjects = migUpper.subjects.map((s) => normalizeSubject(s));
+  persistSubjects();
+}
+
+function migrateCombineLowerSets(subjectsList) {
+  let changed = false;
+  const updated = subjectsList.map((subj) => {
+    if (!subj || subj.name !== 'Anatomie' || !Array.isArray(subj.categories)) return subj;
+    const copy = { ...subj };
+    const idx = copy.categories.findIndex((c) => c.id === 'arthro-lower');
+    if (idx === -1) return copy;
+    const cat = { ...copy.categories[idx] };
+    const sets = Array.isArray(cat.quizSets) ? cat.quizSets : [];
+    const lowerSets = sets.filter((s) => typeof s.title === 'string' && /onderste\s+ledematen/i.test(s.title));
+    if (lowerSets.length >= 2) {
+      const allQuestions = lowerSets.flatMap((s) => Array.isArray(s.questions) ? s.questions : []);
+      if (allQuestions.length >= 20) {
+        const combined = { title: 'Onderste Ledematen – 20 vragen', questions: allQuestions.slice(0, 20) };
+        cat.quizSets = [combined];
+        changed = true;
+      }
+    }
+    if ((!Array.isArray(cat.quizSets) || cat.quizSets.length === 0) && lowerSets.length) {
+      const allQuestions = lowerSets.flatMap((s) => Array.isArray(s.questions) ? s.questions : []);
+      if (allQuestions.length) {
+        cat.quizSets = [{ title: 'Onderste Ledematen – 20 vragen', questions: allQuestions.slice(0, 20) }];
+        changed = true;
+      }
+    }
+    copy.categories[idx] = cat;
+    return copy;
+  });
+  return { subjects: updated, changed };
+}
+
+const migLower = migrateCombineLowerSets(subjects);
+if (migLower.changed) {
+  subjects = migLower.subjects.map((s) => normalizeSubject(s));
+  persistSubjects();
+}
+
 const cleanedSubjects = subjects.map((s) => cleanSubject(normalizeSubject(s)));
 const cleanedChanged = JSON.stringify(cleanedSubjects) !== JSON.stringify(subjects);
 if (cleanedChanged || FORCE_CLEAN) {
@@ -5408,7 +5616,7 @@ function renderQuizPicker(subject) {
     });
   };
 
-  if (domain?.id === 'osteologie' && activeOsteologySection) {
+  if (activeOsteologySection) {
     const isValid = normalizedSections.some((sec) => sec.id === activeOsteologySection);
     if (!isValid) activeOsteologySection = null;
   }
@@ -5614,7 +5822,8 @@ function renderQuizPicker(subject) {
     return;
   }
 
-  const sections = domain.id === 'osteologie'
+  const hasActiveSection = activeOsteologySection && normalizedSections.some((s) => s.id === activeOsteologySection);
+  const sections = hasActiveSection
     ? normalizedSections.filter((s) => s.id === activeOsteologySection)
     : normalizedSections.length
       ? normalizedSections
@@ -6162,6 +6371,18 @@ function restoreLastAttempt(subjectName, setTitle) {
 function render() {
   const subject = getActiveSubject();
   activeSubjectHeading.textContent = subject?.name || 'Kies een vak';
+  const flashTab = sectionTabs?.querySelector('[data-panel-target="flashcards-panel"]');
+  const allowFlashcards = subject && subject.name === 'Individuele Fitness';
+  if (flashTab) flashTab.hidden = !allowFlashcards;
+  if (!allowFlashcards && (activePanel === 'flashcards-panel' || activePanel === 'flashcards-play-panel')) {
+    setActivePanel('quiz-panel');
+  }
+  if (!allowFlashcards) {
+    const fcPanel = document.getElementById('flashcards-panel');
+    const fcPlay = document.getElementById('flashcards-play-panel');
+    if (fcPanel) fcPanel.hidden = true;
+    if (fcPlay) fcPlay.hidden = true;
+  }
   renderSummary(subject);
   renderQuizPicker(subject);
   renderFlashcardsPanel(subject);
