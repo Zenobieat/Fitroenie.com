@@ -7827,7 +7827,7 @@ function getFlashcardCategories(subject) {
   return [
     { id: 'stretching', title: 'Stretching', cards: testStretch.map((c) => ({ frontTitle: c.question, back: c.answer })) },
     { id: 'kracht', title: 'Krachttraining', subcategories: [
-      { id: 'kracht-body', title: 'Free Weight', cards: freeWeightsCards },
+      { id: 'kracht-body', title: 'Free weights', cards: freeWeightsCards },
       { id: 'kracht-machines', title: 'Machines', cards: machinesCards }
     ]},
     { id: 'core', title: 'Corestability', cards: coreCards },
@@ -7835,14 +7835,36 @@ function getFlashcardCategories(subject) {
     { id: 'praktijk', title: 'Praktisch examen', subcategories: [
       { id: 'praktijk-stretch', title: 'Stretching', cards: praktijkStretchCards },
       { id: 'praktijk-kracht', title: 'Krachttraining', subcategories: [
-        { id: 'praktijk-kracht-free', title: 'Free Weight', cards: praktijkFreeWeightsCards },
-        { id: 'praktijk-kracht-machines', title: 'Machines', cards: praktijkMachinesStrengthCards },
-        { id: 'praktijk-kracht-bodyweight', title: 'Bodyweight', cards: praktijkBodyweightStrengthCards }
+        { id: 'praktijk-kracht-free', title: 'Free weights', cards: praktijkFreeWeightsCards },
+        { id: 'praktijk-kracht-machines', title: 'Machines', cards: praktijkMachinesStrengthCards }
       ]},
       { id: 'praktijk-core', title: 'Corestability', cards: praktijkCoreCards },
       { id: 'praktijk-cardio', title: 'Cardio', cards: praktijkCardioCards }
     ]}
   ];
+}
+
+function findFlashcardNode(subject, id) {
+  const cats = getFlashcardCategories(subject);
+  for (const c of cats) {
+    if (c.id === id) return c;
+    const subs = c.subcategories || [];
+    for (const s of subs) {
+      if (s.id === id) return s;
+      const subs2 = s.subcategories || [];
+      for (const t of subs2) {
+        if (t.id === id) return t;
+      }
+    }
+  }
+  return null;
+}
+
+function countCards(node) {
+  if (!node) return 0;
+  const own = (node.cards || []).length;
+  const subs = node.subcategories || [];
+  return own + subs.reduce((acc, s) => acc + countCards(s), 0);
 }
 
 function renderFlashcardsPanel(subject) {
@@ -7873,7 +7895,7 @@ function renderFlashcardsPanel(subject) {
     card.className = 'quiz-picker__card';
     card.dataset.id = cat.id || '';
     if (cat.id === 'praktijk') card.classList.add('is-praktijk');
-    const total = (cat.subcategories?.length ? cat.subcategories.flatMap((s) => s.cards || []) : (cat.cards || [])).length;
+    const total = countCards(cat);
     card.innerHTML = `
       <header class="quiz-picker__header">
         <div>
@@ -7906,7 +7928,7 @@ function renderFlashcardsPanel(subject) {
         cat.subcategories.forEach((sub) => {
           const subCard = document.createElement('article');
           subCard.className = 'quiz-picker__card';
-          const count = (sub.cards || []).length;
+          const count = countCards(sub);
           subCard.innerHTML = `
             <header class="quiz-picker__header">
               <div>
@@ -7924,9 +7946,56 @@ function renderFlashcardsPanel(subject) {
           subOpen.className = 'btn';
           subOpen.textContent = 'Open';
           subOpen.addEventListener('click', () => {
-            activeFlashcardsCategory = { id: sub.id, title: sub.title, cards: sub.cards || [] };
-            setActivePanel('flashcards-play-panel');
-            render();
+            if (sub.subcategories?.length) {
+              // Toon een nested subpanel met de leaf-subcategorieën
+              const innerPanel = document.createElement('div');
+              innerPanel.className = 'quiz-picker__subpanel';
+              const innerHeader = document.createElement('p');
+              innerHeader.className = 'quiz-picker__subheader caption';
+              innerHeader.textContent = 'Subcategorieën';
+              const innerList = document.createElement('div');
+              innerList.className = 'quiz-picker__sublist';
+              sub.subcategories.forEach((leaf) => {
+                const leafCard = document.createElement('article');
+                leafCard.className = 'quiz-picker__card';
+                const leafCount = countCards(leaf);
+                leafCard.innerHTML = `
+                  <header class="quiz-picker__header">
+                    <div>
+                      <p class="eyebrow">Subcategorie</p>
+                      <h3>${leaf.title}</h3>
+                    </div>
+                    <div class="chip">${leafCount} kaarten</div>
+                  </header>
+                  <p class="caption">Open om te starten.</p>
+                `;
+                const leafActions = document.createElement('div');
+                leafActions.className = 'quiz-picker__actions';
+                const leafOpen = document.createElement('button');
+                leafOpen.type = 'button';
+                leafOpen.className = 'btn';
+                leafOpen.textContent = 'Open';
+                leafOpen.addEventListener('click', () => {
+                  activeFlashcardsCategory = { id: leaf.id, title: leaf.title, cards: leaf.cards || [] };
+                  setActivePanel('flashcards-play-panel');
+                  render();
+                });
+                leafActions.appendChild(leafOpen);
+                leafCard.appendChild(leafActions);
+                innerList.appendChild(leafCard);
+              });
+              innerPanel.append(innerHeader, innerList);
+              // Voeg direct na deze subCard toe
+              const parentList = subCard.parentElement;
+              if (parentList) {
+                parentList.insertBefore(innerPanel, subCard.nextSibling);
+                innerPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            } else {
+              activeFlashcardsCategory = { id: sub.id, title: sub.title, cards: sub.cards || [] };
+              setActivePanel('flashcards-play-panel');
+              render();
+            }
           });
           subActions.appendChild(subOpen);
           subCard.appendChild(subActions);
@@ -8035,6 +8104,56 @@ function renderFlashcardsPlay(subject) {
     <p class="caption">Klik op de kaart om te draaien. Navigeer met de pijlen.</p>
   `;
   header.append(left, right);
+  if (!cards.length) {
+    const node = (cat && cat.id) ? findFlashcardNode(subject, cat.id) : null;
+    const subs = node?.subcategories || [];
+    if (subs.length) {
+      const chooser = document.createElement('section');
+      chooser.className = 'quiz-category';
+      chooser.innerHTML = `
+        <header class="quiz-category__header">
+          <div>
+            <p class="eyebrow">Keuze</p>
+            <h3>${node.title}</h3>
+          </div>
+        </header>
+      `;
+      const list = document.createElement('div');
+      list.className = 'quiz-category__list';
+      subs.forEach((sub) => {
+        const subCard = document.createElement('article');
+        subCard.className = 'quiz-picker__card';
+        const count = countCards(sub);
+        subCard.innerHTML = `
+          <header class="quiz-picker__header">
+            <div>
+              <p class="eyebrow">Subcategorie</p>
+              <h3>${sub.title}</h3>
+            </div>
+            <div class="chip">${count} kaarten</div>
+          </header>
+          <p class="caption">Open om te starten.</p>
+        `;
+        const actions = document.createElement('div');
+        actions.className = 'quiz-picker__actions';
+        const open = document.createElement('button');
+        open.type = 'button';
+        open.className = 'btn';
+        open.textContent = 'Open';
+        open.addEventListener('click', () => {
+          activeFlashcardsCategory = { id: sub.id, title: sub.title, cards: sub.cards || [] };
+          render();
+        });
+        actions.appendChild(open);
+        subCard.appendChild(actions);
+        list.appendChild(subCard);
+      });
+      chooser.appendChild(list);
+      flashcardsPlayPanel.appendChild(header);
+      flashcardsPlayPanel.appendChild(chooser);
+      return;
+    }
+  }
   const runner = document.createElement('div');
   runner.className = 'quiz-runner';
   const practiceCard = document.createElement('div');
