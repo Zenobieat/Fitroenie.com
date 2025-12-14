@@ -4786,7 +4786,7 @@ function createDefaultSubjects() {
 const defaultSubjects = createDefaultSubjects();
 
 let subjects = loadSubjects();
-let progress = {};
+let progress = loadProgress();
 let activeSubject = null;
 let activeView = 'home';
 let activePanel = 'quiz-panel';
@@ -5226,11 +5226,14 @@ function getProgressKeyForUser(user) {
   return `${PROGRESS_NS}:${user.uid}`;
 }
 
+function getProgressKey() {
+  const uid = currentUser?.uid || 'guest';
+  return `${PROGRESS_NS}:${uid}`;
+}
+
 function loadProgress() {
-  if (!currentUser) return {};
   try {
-    const key = getProgressKeyForUser(currentUser);
-    if (!key) return {};
+    const key = getProgressKey();
     const raw = localStorage.getItem(key);
     return raw ? JSON.parse(raw) : {};
   } catch (error) {
@@ -5240,9 +5243,7 @@ function loadProgress() {
 }
 
 function persistProgress() {
-  if (!currentUser) return;
-  const key = getProgressKeyForUser(currentUser);
-  if (!key) return;
+  const key = getProgressKey();
   localStorage.setItem(key, JSON.stringify(progress));
 }
 
@@ -5454,11 +5455,7 @@ function computeSetCounts(set, state) {
 }
 
 function getSetProgress(subjectName, setTitle, questions = []) {
-  if (!currentUser) {
-    const zero = { answers: {} };
-    return { ...zero, answered: 0, correct: 0, completed: false };
-  }
-  const subjectProgress = progress[subjectName];
+  const subjectProgress = progress[subjectName] || {};
   const base = subjectProgress?.[setTitle] || { answers: {} };
   const state = { answers: base.answers || {} };
   const answered = questions.reduce((acc, _, idx) => acc + (pickAnswered(state.answers[idx]) ? 1 : 0), 0);
