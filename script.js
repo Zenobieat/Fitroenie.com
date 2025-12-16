@@ -10,6 +10,8 @@ import {
   signOut
 } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js';
 
+console.log("FITROENIE SCRIPT V4 LOADED - Les 4 Updated");
+
 const quizPicker = document.getElementById('quiz-picker');
 const flashcardsPanel = document.getElementById('flashcards-panel');
 const flashcardsDisplay = document.getElementById('flashcards-display');
@@ -184,7 +186,7 @@ function normalizeWords(str = '') {
   return clean.split(/\s+/).filter((w) => w.length > 1);
 }
 
-function openAnswerCorrect(userText = '', correct) {
+function openAnswerCorrect(userText = '', correct, minMatches = 2) {
   const uSet = new Set(normalizeWords(userText));
   const cWords = Array.isArray(correct) ? correct : normalizeWords(String(correct || ''));
   let matches = 0;
@@ -193,10 +195,10 @@ function openAnswerCorrect(userText = '', correct) {
     if (uSet.has(w) && !seen.has(w)) {
       seen.add(w);
       matches += 1;
-      if (matches >= 2) break;
+      if (matches >= minMatches) break;
     }
   }
-  return matches >= 2;
+  return matches >= minMatches;
 }
 
 function pickAnswered(pick) {
@@ -213,7 +215,8 @@ function computePickCorrect(question, pick) {
   }
   if (isOpenQuestion(question)) {
     const correctText = question.answerText || (question.answerKeywords ? question.answerKeywords.join(' ') : '');
-    return openAnswerCorrect(pick.text || '', correctText);
+    const required = question.minMatches || 2;
+    return openAnswerCorrect(pick.text || '', correctText, required);
   }
   return false;
 }
@@ -507,6 +510,122 @@ function createDefaultSubjects() {
 
   const [osteologieHoofdstuk, arthrologieHoofdstuk] = vasteHoofdstukken;
 
+  const les2MC = [
+    {
+      question: 'Welke spier behoort NIET tot de groep van de borstspieren zoals beschreven in hoofdstuk 4?',
+      options: ['Musculus Pectoralis Major', 'Musculus Serratus Anterior', 'Musculus Subclavius', 'Musculus Trapezius'],
+      answerIndex: 3
+    },
+    {
+      question: 'De Musculus Pectoralis Major heeft drie delen. Welk deel ontspringt aan de buikspier aponeurose (rectusschede)?',
+      options: ['Pars Clavicularis', 'Pars Sternocostalis', 'Pars Abdominalis', 'Pars Acromialis'],
+      answerIndex: 2
+    },
+    {
+      question: 'Wat is de insertie van de Musculus Pectoralis Major?',
+      options: ['Crista Tuberculi Minoris', 'Crista Tuberculi Majoris (Ventraal op humerus)', 'Processus Coracoideus', 'Tuberositas Deltoidea'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke functie heeft de Musculus Pectoralis Major?',
+      options: ['Abductie', 'Retroversie', 'Exorotatie', 'Adductie en Endorotatie'],
+      answerIndex: 3
+    },
+    {
+      question: 'Wat is de specifieke functie van de Musculus Subclavius?',
+      options: ['Elevatie van de clavicula', 'Stabilisatie van de Clavicula in het Sternoclaviculair gewricht', 'Protractie van de scapula', 'Depressie van de humerus'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke spier behoort tot de schoudergordel?',
+      options: ['Musculus Deltoideus', 'Musculus Supraspinatus', 'Musculus Rhomboideus Major', 'Musculus Teres Major'],
+      answerIndex: 2
+    },
+    {
+      question: 'De Musculus Latissimus Dorsi heeft een zeer brede oorsprong. Welke structuur hoort hierbij?',
+      options: ['Manubrium Sterni', 'Fascia Thoracolumbalis', 'Fossa Subscapularis', 'Spina Scapulae'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wat is de insertie van de Musculus Latissimus Dorsi?',
+      options: ['Crista Tuberculi Majoris', 'Crista Tuberculi Minoris (Ventraal Humerus)', 'Tuberculum Majus', 'Tuberculum Minus'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke functie heeft de Musculus Latissimus Dorsi op de schouder zelf (naast adductie en endorotatie)?',
+      options: ['Ondersteunt Elevatie en Protractie', 'Ondersteunt Depressie en Retractie', 'Ondersteunt Abductie en Anteversie', 'Ondersteunt Exorotatie'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke spier bedekt de schouderkop en bestaat uit een Pars Clavicularis, Pars Acromialis en Pars Spinalis?',
+      image: 'Les 2 Myologie/Deltoideus.png',
+      imageAlt: 'Deltoideus',
+      options: ['Musculus Trapezius', 'Musculus Deltoideus', 'Musculus Pectoralis Major', 'Musculus Supraspinatus'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke functie heeft de Pars Acromialis (laterale deel) van de Musculus Deltoideus?',
+      options: ['Adductie', 'Abductie tot horizontaal (Horizontale abductie)', 'Anteflexie', 'Endorotatie'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wat is de oorsprong van de Musculus Supraspinatus?',
+      options: ['Fossa Infraspinata', 'Spina Scapulae', 'Fossa Supraspinata Scapulae', 'Margo Lateralis'],
+      answerIndex: 2
+    },
+    {
+      question: 'Welke spier ligt onder de spina scapulae in de Fossa Infraspinata en hecht aan op het Tuberculum Majus?',
+      image: 'Les 2 Myologie/Infraspinatus.png',
+      imageAlt: 'Infraspinatus',
+      options: ['Musculus Supraspinatus', 'Musculus Teres Minor', 'Musculus Infraspinatus', 'Musculus Subscapularis'],
+      answerIndex: 2
+    },
+    {
+      question: 'Wat is de functie van de Musculus Teres Minor?',
+      options: ['Endorotatie en Adductie', 'Exorotatie en Adductie', 'Abductie en Exorotatie', 'Retroversie en Endorotatie'],
+      answerIndex: 1
+    },
+    {
+      question: 'De Musculus Teres Major heeft dezelfde functie als de Latissimus Dorsi (endorotatie en adductie). Waar is zijn insertie?',
+      options: ['Tuberculum Minus', 'Tuberculum Majus', 'Crista Tuberculi Majoris', 'Tuberositas Deltoidea'],
+      answerIndex: 2
+    },
+    {
+      question: 'Welke spier vult de Fossa Subscapularis (aan de ribbenkast-zijde) en hecht aan op het Tuberculum Minus?',
+      image: 'Les 2 Myologie/Subscapularis.png',
+      imageAlt: 'Subscapularis',
+      options: ['Musculus Serratus Anterior', 'Musculus Subscapularis', 'Musculus Pectoralis Minor', 'Musculus Infraspinatus'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wat is de functie van het Craniale deel van de Musculus Subscapularis?',
+      options: ['Exorotatie en Abductie', 'Endorotatie en Abductie', 'Endorotatie en Adductie', 'Retroversie'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke vier spieren vormen de Rotator Cuff?',
+      image: 'Les 2 Myologie/RC.png',
+      imageAlt: 'Rotator Cuff',
+      options: ['Supraspinatus, Infraspinatus, Teres Major, Subscapularis', 'Supraspinatus, Infraspinatus, Teres Minor, Subscapularis', 'Deltoideus, Infraspinatus, Teres Minor, Subscapularis', 'Supraspinatus, Infraspinatus, Teres Minor, Subclavius'],
+      answerIndex: 1
+    },
+    {
+      question: 'De Musculus Deltoideus bestaat uit drie delen. Welke combinatie van functies hoort bij de Pars Spinalis (het dorsale deel)?',
+      options: ['Abductie tot horizontaal', 'Adductie, Endorotatie en Anteflexie', 'Adductie, Exorotatie en Retroflexie', 'Abductie, Endorotatie en Retroflexie'],
+      answerIndex: 2
+    },
+    {
+      question: 'De Musculus Infraspinatus heeft een craniaal en een caudaal deel met licht verschillende functies. Welke functie voert het Caudale Deel uit (naast exorotatie)?',
+      options: ['Abductie', 'Adductie', 'Endorotatie', 'Anteversie'],
+      answerIndex: 1
+    }
+  ];
+
+  const les2Myo = {
+    title: 'Myologie – Les 2 (20 vragen)',
+    questions: les2MC
+  };
+
   const anatomie = {
     name: 'Anatomie',
     summary: 'Hier komen de samenvattingen van Anatomie zodra ze beschikbaar zijn.',
@@ -754,6 +873,14 @@ function createDefaultSubjects() {
             ]
           }
         ]
+      },
+      {
+        id: 'myo-les2',
+        domain: 'myologie',
+        section: 'myo-les-2',
+        title: 'Les 2',
+        description: 'Borstspieren tot en met schouderspieren',
+        quizSets: [les2Myo]
       },
       {
         id: 'upper',
@@ -3351,9 +3478,10 @@ function createDefaultSubjects() {
       {
         id: 'myologie',
         title: 'Myologie',
-        description: 'Les 1 – Spieren uit hoofdstuk 1, 2 & 3',
+        description: 'Les 1 & Les 2',
         sections: [
-          { id: 'myo-les-1', title: 'Les 1', categoryIds: ['myo-les1'] }
+          { id: 'myo-les-1', title: 'Les 1', categoryIds: ['myo-les1'] },
+          { id: 'myo-les-2', title: 'Les 2', categoryIds: ['myo-les2'] }
         ]
       }
     ]
@@ -3387,18 +3515,7 @@ function createDefaultSubjects() {
 
   const les1Set = { title: 'Basisonderwijs – Les 1 (20 vragen)', questions: [...les1MC, ...les1Open] };
 
-  const les2MC = [
-    { question: 'Wat zijn de drie fundamenten van goed bewegingsonderwijs?', options: ['Fun – Uithouding – Snelheid', 'Fun – Basis techniek – Basis tactiek', 'Conditie – Techniek – Sport', 'Tactiek – Kracht – Coördinatie'], answerIndex: 1 },
-    { question: 'Welke is een klein-motorische vaardigheid?', options: ['Lopen', 'Bal trappen', 'Veters strikken', 'Springen'], answerIndex: 2 },
-    { question: 'Wat hoort bij ABV (6–9 jaar)?', options: ['Trefspelen', 'Balanceren', 'Doelspelen', 'Terugslagspelen'], answerIndex: 1 },
-    { question: 'Wat is FASE 1 van FRED?', options: ['Overleven', 'Waterwennen', 'Doelmatig voortbewegen', 'Ademtechniek'], answerIndex: 1 },
-    { question: 'Waarom gebruik je inkleding?', options: ['Om kinderen rustig te houden', 'Om opdrachten leuker en uitdagender te maken', 'Om tijd te winnen', 'Om minder materiaal te gebruiken'], answerIndex: 1 },
-    { question: 'Wie moet bewegingsproblemen leren oplossen?', options: ['Enkel sterke leerlingen', 'Enkel leerkrachten', 'Kinderen zelf', 'Niemand'], answerIndex: 2 },
-    { question: 'Wat is een fout bij het noteren van een tikspel?', options: ['Sporttak in hoofdletters', 'Lichaamsdelen met hoofdletter', 'Samengestelde woorden uitschrijven', 'VTB – HB – BAB'], answerIndex: 2 },
-    { question: 'Wat is het doel van instructie?', options: ['Kinderen laten spelen', 'Alleen tonen', 'Informatieoverdracht vóór uitvoering', 'Enkel vertellen'], answerIndex: 2 },
-    { question: 'Wat hoort bij een goede demo?', options: ['Supersnel voordoen', 'Toon wat je zegt & zeg wat je toont', 'Fouten enkel tonen', 'Niet kijken'], answerIndex: 1 },
-    { question: 'Wat is een signaalinstrument?', options: ['Bal', 'Muziek / handtrom / bellenring', 'Pylon', 'Satéstok'], answerIndex: 1 }
-  ];
+
 
   const les2Open = [
     { type: 'open', question: 'Geef twee voorbeelden van ABV-basisbewegingen.', answerKeywords: ['stappen','lopen','sluipen','kruipen','klauteren','klimmen','balanceren','springen','landen','zwaaien','roteren','omgekeerde','houdingen','rollen','werpen','vangen','slaan','trappen','dribbelen','heffen','dragen','trekken','duwen'] },
@@ -3443,33 +3560,33 @@ function createDefaultSubjects() {
 
   const les3Set = { title: 'Basisonderwijs – Les 3 (20 vragen)', questions: [...les3MC, ...les3Open] };
 
-  const les4MC = [
-    { question: 'Wat is een opstellingsvorm?', options: ['Hoe leerlingen ingedeeld worden in groepen','De manier waarop deelnemers in de ruimte staan t.o.v. elkaar en materiaal','De manier waarop je feedback geeft','De methode om een spel uit te leggen'], answerIndex: 1 },
-    { question: 'Wat is géén vuistregel voor opstellingsvormen van leerlingen?', options: ['Overzicht moet mogelijk zijn','Kinderen moeten 1 armlengte afstand houden','Opstelling mag veel tijd kosten','Volledige ruimte benutten'], answerIndex: 2 },
-    { question: 'Waar moet de lesgever zich opstellen?', options: ['Tussen de leerlingen','In het midden','Aan de buitenzijde met overzicht','In een hoek van de zaal'], answerIndex: 2 },
-    { question: 'Welke opstellingsvorm zie je bij ‘vrij verspreid’? ', options: ['LLN staan in rijen','LLN staan in een kring','LLN staan los verspreid in de zaal','LLN staan in groepen van vier'], answerIndex: 2 },
-    { question: 'Welke opstellingsvorm gebruik je voor uitleg aan een grote groep?', options: ['Vrij verspreid','Groepen','Kring / halve kring','Rijen'], answerIndex: 2 },
-    { question: 'Wat is een nadeel van oefenen in duo’s (partnerwerk)?', options: ['Geen betrokkenheid','Kans op kietelen, lachen en plagen','Moeilijk voor de leerkracht om overzicht te behouden','De oefeningen duren te lang'], answerIndex: 1 },
-    { question: 'Wat is een voordeel van klassikaal werken?', options: ['Weinig feedbackkansen','Overzicht is moeilijk','Iedereen werkt tegelijk → hoge intensiteit','Differentiatie is makkelijk'], answerIndex: 2 },
-    { question: 'Bij welke organisatievorm stoppen alle leerlingen tegelijk bij uitleg?', options: ['Postenwerk','Klassikaal','Groepswerk','Omloopvorm'], answerIndex: 1 },
-    { question: 'Wanneer gebruik je klassieke organisatievormen?', options: ['Ritmeoefeningen, dans, balvaardigheden','Individuele testen','Lange wachtrijen','Spelen met één bal'], answerIndex: 0 },
-    { question: 'Bij welke organisatievorm zijn er vaste hoeken met verschillende oefeningen?', options: ['Klassikaal','Postenwerk','Kringopstelling','Rijen'], answerIndex: 1 }
+  const les4MC_v2 = [
+    { question: 'Je wilt een klassikale opwarming geven aan een groep van het 1e of 2e leerjaar. Welk hulpmiddel wordt aangeraden om ervoor te zorgen dat ze goed verspreid staan?', options: ['Ze moeten elkaars hand vasthouden.', 'Je werkt met fluitsignalen.', 'Je gebruikt merktekens op de vloer.', 'Je zet ze in een flankkring.'], answerIndex: 2 },
+    { question: 'Bekijk de afbeelding in de cursus (Pagina 13, middelste figuur links: cirkel met T\'s die naar het midden wijzen). Hoe heet deze opstelling?', options: ['Flankkring', 'Frontkring binnenwaarts', 'Frontrij', 'Halve kring'], answerIndex: 1 },
+    { question: 'Bij welke organisatievorm is er sprake van een vast moment van recuperatie (rust) of terugkeren naar de startpositie, terwijl de andere leerlingen bezig zijn?', options: ['Klassikaal werken', 'Golven', 'Bewegingsomloop', 'Individueel werken'], answerIndex: 1 },
+    { question: 'Wat is de hoofdfunctie van de lesgever bij de vernieuwde organisatievorm "Werken in Vakken"?', options: ['Rondlopen en overal een beetje helpen.', 'Aan de kant staan voor totaaloverzicht.', 'Het "Focusvak" begeleiden met de nieuwe leerstof.', 'De tijd opnemen en fluiten voor de wissel.'], answerIndex: 2 },
+    { question: 'Je organiseert partneroefeningen waarbij kinderen elkaar moeten duwen of trekken. Waarop moet je, naast de positie, vooral letten bij de samenstelling van de duo\'s?', options: ['Dat vriendjes altijd samen zitten.', 'Dat lengte en gewicht op elkaar zijn afgestemd.', 'Dat jongens en meisjes apart werken.', 'Dat de snelste leerling bij de traagste zit.'], answerIndex: 1 },
+    { question: 'Welk nadeel komt vaak voor bij een Bewegingsomloop als er twee moeilijke opdrachten in het parcours zitten?', options: ['De leerlingen worden te moe.', 'Er ontstaan \'bottlenecks\' of opstoppingen.', 'Het materiaal raakt te snel beschadigd.', 'De lesgever kan het niet alleen opbouwen.'], answerIndex: 1 },
+    { question: 'Welke stelling over de positie van de lesgever is fout?', options: ['De lesgever verplaatst zich tijdens de les (is mobiel).', 'De lesgever staat aan de buitenzijde van de groep.', 'De lesgever staat vastgeroest op één centrale plaats.', 'De lesgever kiest een positie met een goed overzicht.'], answerIndex: 2 },
+    { question: 'Wat is een kenmerk van "Fitnessposten" (Circuit) in de derde graad?', options: ['Ze worden vooral gebruikt in het 1e leerjaar.', 'Ze focussen op het aanleren van fijne motoriek.', 'De volgorde is zo gekozen dat grote spiergroepen afwisselend belast worden.', 'Er zijn maximaal 3 posten.'], answerIndex: 2 },
+    { question: 'Bekijk de afbeelding op pagina 13 (onderste figuur: T\'s in een boogvorm rond de lesgever). Wanneer gebruik je deze halve kring vaak?', options: ['Als iedereen achter elkaar moet lopen.', 'Als de lesgever instructie geeft en iedereen hem moet kunnen zien.', 'Als de leerlingen tegen elkaar strijden.', 'Als de zaal te klein is voor een hele kring.'], answerIndex: 1 },
+    { question: 'Waarom is tijdsefficiëntie een belangrijke vuistregel bij het kiezen van een opstelling?', options: ['Zodat de lesgever vroeger naar huis kan.', 'De opstelling mag niet veel tijd kosten om te organiseren.', 'Zodat de leerlingen sneller kunnen lopen.', 'Zodat het materiaal niet gebruikt hoeft te worden.'], answerIndex: 1 }
   ];
 
-  const les4Open = [
-    { type: 'open', question: 'Noem de vuistregels voor opstelling van leerlingen.', answerKeywords: ['overzichtelijk','ruimte','benutten','armlengte','afstand','niet','raken','minder','praten','snel','organiseren'] },
-    { type: 'open', question: 'Noem de vuistregels voor de opstelling van de lesgever.', answerKeywords: ['overzicht','buitenzijde','mobiel','niet','plaats','blijven','verplaatsen'] },
-    { type: 'open', question: 'Geef alle opstellingsvormen die voorkomen in LES 4.', answerKeywords: ['vrij','verspreid','groepen','kring','halve','kring','rangen','rijen'] },
-    { type: 'open', question: 'Wat zijn voordelen van klassikaal werken?', answerKeywords: ['hoge','intensiteit','iedereen','tegelijk','overzicht','feedbackkansen','eenvoudige','organisatie','orde'] },
-    { type: 'open', question: 'Wat zijn nadelen van klassikaal werken?', answerKeywords: ['geen','differentiatie','stilleggen','groep','uitleg','zelfstandigheid','moeilijk','verschillen'] },
-    { type: 'open', question: 'Wanneer gebruik je klassikale organisatie?', answerKeywords: ['opwarming','aanleren','dans','rope','skipping','balvaardigheden','iedereen','tegelijk'] },
-    { type: 'open', question: 'Wat zijn kenmerken van partneroefeningen?', answerKeywords: ['per','twee','helpen','ondersteunen','contact','lachen','kietelen','plagen','sociale','interactie'] },
-    { type: 'open', question: 'Wat is het doel van organisatievormen?', answerKeywords: ['structuur','veiligheid','overzicht','efficiënt','les','verloop','oefenstof','vlot'] },
-    { type: 'open', question: 'Wat moet je noteren bij de opstelling in een lesvoorbereiding?', answerKeywords: ['uitgangshouding','lln','aantal','positie','lk','terreinafbakening','materiaal','aantallen','organisatievorm'] },
-    { type: 'open', question: 'Waarom moet een opstelling snel te organiseren zijn?', answerKeywords: ['tijdverlies','vermijden','efficiëntie','meer','beweegtijd','overgang','oefeningen','vlot','aandacht'] }
+  const les4Open_v2 = [
+    { type: 'open', question: 'Bij het werken in Golven (rij per rij): Wanneer mag de volgende leerling of rij vertrekken? Geef één concreet signaal of moment.', answerKeywords: ['voorganger', 'merkteken'], minMatches: 1 },
+    { type: 'open', question: 'Je wilt gemakkelijk "Orde en Tucht" bewaren in een grote groep en ritmeoefeningen geven waarbij iedereen gelijktijdig werkt. Welke organisatievorm is hiervoor het meest geschikt volgens de theorie?', answerKeywords: ['klassikale', 'organisatie'], minMatches: 1 },
+    { type: 'open', question: 'Wat doe je bij een bewegingsomloop als je merkt dat één opdracht veel langer duurt dan de andere en de kinderen moeten wachten (om opstoppingen te voorkomen)?', answerKeywords: ['parallelweg', 'voorzien'], minMatches: 1 },
+    { type: 'open', question: 'Kijk naar de afbeeldingen van Rangen en Rijen (Pagina 14). Wat is het essentiële verschil in positie van de leerlingen tussen een Frontrij en een Flankrij?', answerKeywords: ['naast', 'achter'], minMatches: 1 },
+    { type: 'open', question: 'Bij "Werken in Vakken" werken de leerlingen in het focusvak met de leerkracht. Hoe moeten de leerlingen in de andere vakken kunnen werken?', answerKeywords: ['zelfstandig', 'semi-zelfstandig'], minMatches: 1 },
+    { type: 'open', question: 'Waarom is de organisatievorm Individueel (1-op-1 met de leerkracht) moeilijk toe te passen in een gemiddelde klas? Wat vereist dit van de groep?', answerKeywords: ['verantwoordelijkheidsgevoel', 'achterstand'], minMatches: 1 },
+    { type: 'open', question: 'Wat is een belangrijk didactisch nadeel van de Klassikale organisatie als je kijkt naar het leerniveau van de kinderen?', answerKeywords: ['differentiatie', 'individueel', 'niveau'], minMatches: 1 },
+    { type: 'open', question: 'Om het doorschuiven bij posten/vakken vlot te laten verlopen, geeft de cursus een praktische organisatietip met nummers. Wat moet je doen met de nummers en in welke richting laat je ze draaien?', answerKeywords: ['lamineren', 'wijzerzin'], minMatches: 1 },
+    { type: 'open', question: 'Volgens de theorie over de leercurve (Pagina 39): Waarom is het beter om meerdere vaardigheden per les te oefenen (in vakken) zodat ze snel terugkomen, in plaats van één vaardigheid heel lang klassikaal?', answerKeywords: ['gevarieerde', 'herhaling', 'leerwinst'], minMatches: 1 },
+    { type: 'open', question: 'Bij "Spelposten" (bijvoorbeeld balspelen) wordt aangeraden om de groepjes klein te houden. Hoe pas je de ruimte aan om dit mogelijk te maken in plaats van één groot veld in de lengte te gebruiken?', answerKeywords: ['terreintjes', 'breedte'], minMatches: 1 }
   ];
 
-  const les4Set = { title: 'Basisonderwijs – Les 4 (20 vragen)', questions: [...les4MC, ...les4Open] };
+  const les4Set_v2 = { title: 'Basisonderwijs – Les 4 (20 vragen)', questions: [...les4MC_v2, ...les4Open_v2] };
 
   const les5MC = [
     { question: 'Met welke tool teken je digitaal een zaalopstelling volgens LES 5?', options: ['Word','Paint','3D SportsEditor','Autocad'], answerIndex: 2 },
@@ -3646,7 +3763,7 @@ function createDefaultSubjects() {
       { id: 'les1', domain: 'basisonderwijs', section: 'les-1', title: 'Les 1', description: 'Les 1 – 20 vragen', quizSets: [les1Set] },
       { id: 'les2', domain: 'basisonderwijs', section: 'les-2', title: 'Les 2', description: 'Les 2 – 20 vragen', quizSets: [les2Set] },
       { id: 'les3', domain: 'basisonderwijs', section: 'les-3', title: 'Les 3', description: 'Les 3 – 20 vragen', quizSets: [les3Set] },
-      { id: 'les4', domain: 'basisonderwijs', section: 'les-4', title: 'Les 4', description: 'Les 4 – 20 vragen', quizSets: [les4Set] },
+      { id: 'les4', domain: 'basisonderwijs', section: 'les-4', title: 'Les 4', description: 'Les 4 – 20 vragen', quizSets: [les4Set_v2] },
       { id: 'les5', domain: 'basisonderwijs', section: 'les-5', title: 'Les 5', description: 'Les 5 – 20 vragen', quizSets: [les5Set] },
       { id: 'les6', domain: 'basisonderwijs', section: 'les-6', title: 'Les 6', description: 'Les 6 – 20 vragen', quizSets: [les6Set] },
       { id: 'les7', domain: 'basisonderwijs', section: 'les-7', title: 'Les 7', description: 'Les 7 – 20 vragen', quizSets: [les7Set] },
