@@ -6737,7 +6737,10 @@ function renderHomeCatalog() {
     flashBtn.type = 'button';
     flashBtn.textContent = 'Flashcards';
     flashBtn.addEventListener('click', () => handleSubjectNavigation(s.name, 'flashcards-panel'));
-    actions.append(examBtn, sumBtn, flashBtn);
+    actions.append(examBtn, sumBtn);
+    if (s.name === 'Individuele Fitness') {
+      actions.append(flashBtn);
+    }
     card.appendChild(actions);
     subjectCatalog.appendChild(card);
   });
