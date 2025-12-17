@@ -623,6 +623,7 @@ function createDefaultSubjects() {
 
   const les2Myo = {
     title: 'Myologie – Les 2 (20 vragen)',
+    description: '4. Borstspieren t.e.m Schouderspieren',
     questions: les2MC
   };
 
@@ -1012,7 +1013,6 @@ function createDefaultSubjects() {
         quizSets: [
           {
             title: 'Myologie – Les 3',
-            description: 'Dorsale Bovenarmspieren t.e.m. Oppervlakkig Gelegen Ventrale Voorarmspieren',
             questions: les3MyoMC
           }
         ]
@@ -5431,7 +5431,13 @@ function mergeDefaultSubjects(currentSubjects, defaults) {
       }
 
       defCat.quizSets?.forEach((defSet) => {
-        const existingSet = targetCat.quizSets.find((set) => set.title === defSet.title);
+        let existingSet = targetCat.quizSets.find((set) => set.title === defSet.title);
+
+        if (!existingSet) {
+           const normDef = formatSetTitle(defSet.title).trim().toLowerCase();
+           existingSet = targetCat.quizSets.find((set) => formatSetTitle(set.title).trim().toLowerCase() === normDef);
+        }
+
         if (!existingSet) {
           targetCat.quizSets.push(deepClone(defSet));
           mutated = true;
@@ -5450,10 +5456,20 @@ function mergeDefaultSubjects(currentSubjects, defaults) {
       mutated = true;
     }
     defaultFlat.forEach((defSet) => {
-      const exists = existing.quizSets.some((set) => set.title === defSet.title);
-      if (!exists) {
+      let existingSet = existing.quizSets.find((set) => set.title === defSet.title);
+      if (!existingSet) {
+         const normDef = formatSetTitle(defSet.title).trim().toLowerCase();
+         existingSet = existing.quizSets.find((set) => formatSetTitle(set.title).trim().toLowerCase() === normDef);
+      }
+
+      if (!existingSet) {
         existing.quizSets.push(deepClone(defSet));
         mutated = true;
+      } else {
+        if (defSet.description && existingSet.description !== defSet.description) {
+          existingSet.description = defSet.description;
+          mutated = true;
+        }
       }
     });
   });
