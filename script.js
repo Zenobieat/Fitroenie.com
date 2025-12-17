@@ -747,6 +747,130 @@ function createDefaultSubjects() {
     questions: les3MyoMC
   };
 
+  const les4MyoMC = [
+    {
+      question: 'Welke spier, die goed zichtbaar is bij een "Hammer Curl", zie je hier aan de radiale zijde van de onderarm?',
+      description: 'Afbeelding: Brachioradialis.png',
+      image: 'Les 4 Myologie/Brachioradialis.png',
+      imageAlt: 'Brachioradialis',
+      options: ['Musculus Extensor Carpi Radialis Longus', 'Musculus Brachioradialis', 'Musculus Supinator', 'Musculus Extensor Carpi Ulnaris'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wat is de insertie van de Musculus Brachioradialis?',
+      options: ['Basis Metacarpalis II', 'Basis Metacarpalis III', 'Processus Styloideus', 'Tuberositas Radii'],
+      answerIndex: 2
+    },
+    {
+      question: 'Welke functie hebben alle drie de radiale spieren (Brachioradialis, Extensor Carpi Radialis Longus & Brevis) gemeen ter hoogte van de elleboog?',
+      options: ['Extensie', 'Flexie', 'Alleen Supinatie', 'Alleen Pronatie'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wat is de insertie van de Musculus Extensor Carpi Radialis Longus?',
+      options: ['Dorsaal op basis Metacarpalis II', 'Dorsaal op basis Metacarpalis III', 'Processus Styloideus', 'Os Trapezium'],
+      answerIndex: 0
+    },
+    {
+      question: 'De Musculus Extensor Carpi Radialis Brevis (in jouw tekst "Musculus Carpi Radialis Longus" bij 1.3 genoemd, maar herkenbaar aan de insertie) hecht aan op:',
+      options: ['Basis Metacarpalis I', 'Basis Metacarpalis II', 'Basis Metacarpalis III', 'Basis Metacarpalis V'],
+      answerIndex: 2
+    },
+    {
+      question: 'Welke spier loopt centraal over de dorsale zijde van de onderarm en splitst zich in vier pezen naar de vingers?',
+      description: 'Afbeelding: ExtensorDigitorum.png',
+      image: 'Les 4 Myologie/ExtensorDigitorum.png',
+      imageAlt: 'Extensor Digitorum',
+      options: ['Musculus Extensor Digiti Minimi', 'Musculus Extensor Digitorum', 'Musculus Extensor Pollicis Longus', 'Musculus Extensor Indicis'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wat is de oorsprong van de Musculus Extensor Digitorum?',
+      options: ['Epicondylus Medialis Humeri', 'Epicondylus Lateralis Humeri', 'Facies Posterior Ulnae', 'Membrana Interossea'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke spier zorgt specifiek voor de extensie en abductie (spreiding) van de pink (Digitorum V)?',
+      options: ['Musculus Extensor Carpi Ulnaris', 'Musculus Extensor Digiti Minimi', 'Musculus Extensor Digitorum', 'Musculus Abductor Pollicis Longus'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wat is de insertie van de Musculus Extensor Carpi Ulnaris?',
+      options: ['Os Pisiforme', 'Basis Metacarpalis II', 'Dorsale vlak van Metacarpalis V', 'Dorsale aponeurose van de pink'],
+      answerIndex: 2
+    },
+    {
+      question: 'Welke beweging maakt de Musculus Extensor Carpi Ulnaris in de pols (carpus) naast extensie?',
+      options: ['Radiale deviatie', 'Ulnaire deviatie', 'Pronatie', 'Supinatie'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke diepe spier (hier zichtbaar) zorgt voor de extensie van de duim en hecht aan op de Eindphalanx?',
+      description: 'Afbeelding: ExtensorPollicisLongus.png',
+      image: 'Les 4 Myologie/ExtensorPollicisLongus.png',
+      imageAlt: 'Extensor Pollicis Longus',
+      options: ['Musculus Extensor Pollicis Brevis', 'Musculus Abductor Pollicis Longus', 'Musculus Extensor Pollicis Longus', 'Musculus Extensor Indicis'],
+      answerIndex: 2
+    },
+    {
+      question: 'Wat is de insertie van de Musculus Extensor Indicis?',
+      options: ['Dorsale Aponeurose Digitorum II (Wijsvinger)', 'Dorsale Aponeurose Digitorum V (Pink)', 'Basis Metacarpalis II', 'Eindphalanx Duim'],
+      answerIndex: 0
+    },
+    {
+      question: 'Welke functie heeft de Musculus Extensor Pollicis Longus in het polsgewricht?',
+      options: ['Palmaire Flexie en Ulnaire Deviatie', 'Dorsale Flexie en Radiale Abductie', 'Dorsale Flexie en Ulnaire Deviatie', 'Palmaire Flexie en Radiale Abductie'],
+      answerIndex: 1
+    },
+    {
+      question: 'Waar ontspringt de Musculus Extensor Indicis?',
+      options: ['Epicondylus Lateralis', 'Facies Posterior Radii', 'Facies Posterior Ulna en Membrana Interossea', 'Processus Styloideus'],
+      answerIndex: 2
+    },
+    {
+      question: 'Welke spier loopt naar de duimbasis, hecht aan op Basis Metacarpalis Pollicis en zorgt voor abductie van de duim?',
+      description: 'Afbeelding: AbductorPollicisLongus.png',
+      image: 'Les 4 Myologie/AbductorPollicisLongus.png',
+      imageAlt: 'Abductor Pollicis Longus',
+      options: ['Musculus Abductor Pollicis Longus', 'Musculus Extensor Pollicis Brevis', 'Musculus Extensor Pollicis Longus', 'Musculus Supinator'],
+      answerIndex: 0
+    },
+    {
+      question: 'Wat is de insertie van de Musculus Extensor Pollicis Brevis?',
+      options: ['Basis Metacarpalis Pollicis', 'Proximale Phalanx Duim', 'Distale Phalanx Duim', 'Os Trapezium'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke spier heeft als functie Supinatie naast bewegingen van de duim en pols?',
+      options: ['Musculus Extensor Pollicis Brevis', 'Musculus Abductor Pollicis Longus', 'Musculus Extensor Indicis', 'Musculus Extensor Digiti Minimi'],
+      answerIndex: 1
+    },
+    {
+      question: 'De Musculus Extensor Pollicis Brevis zorgt voor abductie en repositie in welk gewricht?',
+      options: ['Articulatio Cubiti (Elleboog)', 'Articulatio Radiocarpalis (Pols)', 'Articulatio Sellaris (Zadelgewricht duim)', 'Articulatio Humeri (Schouder)'],
+      answerIndex: 2
+    },
+    {
+      question: 'Welke spier ligt net distaal van de Abductor Pollicis Longus en loopt naar het eerste kootje (proximale phalanx) van de duim?',
+      description: 'Afbeelding: ExtensorPollicisBrevis.png',
+      image: 'Les 4 Myologie/ExtensorPollicisBrevis.png',
+      imageAlt: 'Extensor Pollicis Brevis',
+      options: ['Musculus Extensor Pollicis Longus', 'Musculus Extensor Pollicis Brevis', 'Musculus Extensor Indicis', 'Musculus Flexor Pollicis Longus'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke twee spieren in deze lijst hebben hun oorsprong (deels) op de Facies Posterior Radii?',
+      options: ['Extensor Pollicis Longus en Extensor Indicis', 'Abductor Pollicis Longus en Extensor Pollicis Brevis', 'Extensor Digitorum en Extensor Digiti Minimi', 'Brachioradialis en Extensor Carpi Radialis Longus'],
+      answerIndex: 1
+    }
+  ];
+
+  const les4Myo = {
+    title: 'Myologie – Les 4',
+    description: 'Radiale Spieren VD Onderarm t.e.m. Diepe Radiale Voorarmspieren',
+    questions: les4MyoMC
+  };
+
   const anatomie = {
     name: 'Anatomie',
     summary: 'Hier komen de samenvattingen van Anatomie zodra ze beschikbaar zijn.',
@@ -1016,6 +1140,14 @@ function createDefaultSubjects() {
             questions: les3MyoMC
           }
         ]
+      },
+      {
+        id: 'myo-les4',
+        domain: 'myologie',
+        section: 'myo-les-4',
+        title: 'Les 4',
+        description: 'Radiale Spieren VD Onderarm t.e.m. Diepe Radiale Voorarmspieren',
+        quizSets: [les4Myo]
       },
       {
         id: 'upper',
@@ -3613,11 +3745,12 @@ function createDefaultSubjects() {
       {
         id: 'myologie',
         title: 'Myologie',
-        description: 'Les 1, Les 2 & Les 3',
+        description: 'Les 1, Les 2, Les 3 & Les 4',
         sections: [
           { id: 'myo-les-1', title: 'Les 1', categoryIds: ['myo-les1'], description: '1. Dorsale Spieren Craniaal t.e.m Ademhalingsspieren' },
           { id: 'myo-les-2', title: 'Les 2', categoryIds: ['myo-les2'], description: '4. Borstspieren t.e.m Schouderspieren' },
-          { id: 'myo-les-3', title: 'Les 3', categoryIds: ['myo-les3'], description: 'Dorsale Bovenarmspieren t.e.m. Oppervlakkig Gelegen Ventrale Voorarmspieren' }
+          { id: 'myo-les-3', title: 'Les 3', categoryIds: ['myo-les3'], description: 'Dorsale Bovenarmspieren t.e.m. Oppervlakkig Gelegen Ventrale Voorarmspieren' },
+          { id: 'myo-les-4', title: 'Les 4', categoryIds: ['myo-les4'], description: 'Radiale Spieren VD Onderarm t.e.m. Diepe Radiale Voorarmspieren' }
         ]
       }
     ]
