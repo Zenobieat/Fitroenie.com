@@ -5888,6 +5888,7 @@ function renderQuizPicker(subject) {
         <div>
           <p class="eyebrow">Set ${setIndex + 1}</p>
           <h3>${setHeading}</h3>
+          ${set.description ? `<p class="caption" style="margin-top: 0.25rem; opacity: 0.8;">${set.description}</p>` : ''}
         </div>
         <div class="chip">${state.completed ? `${state.correct}/${set.questions.length} punten · ${percent}%` : `${state.answered}/${set.questions.length} beantwoord`}</div>
       </header>
@@ -6099,6 +6100,7 @@ function renderQuizPicker(subject) {
         <div>
           <p class="eyebrow">${catIndex + 1}. ${domain.title}</p>
           <h3>${sec.title}</h3>
+          ${sec.description ? `<p class="caption" style="margin-top: 0.25rem; opacity: 0.8;">${sec.description}</p>` : ''}
         </div>
         <div class="quiz-picker__actions">
           ${domain.id === 'osteologie'
