@@ -626,6 +626,126 @@ function createDefaultSubjects() {
     questions: les2MC
   };
 
+  const les3MyoMC = [
+    {
+      question: 'Welke spier, hier zichtbaar aan de achterzijde van de arm, zorgt voor extensie van de elleboog en adductie van de schouder?',
+      image: 'Les 3 Myologie/Triceps.png',
+      imageAlt: 'Triceps Brachii',
+      options: ['Musculus Biceps Brachii', 'Musculus Brachialis', 'Musculus Triceps Brachii', 'Musculus Deltoideus'],
+      answerIndex: 2
+    },
+    {
+      question: 'Wat is de insertie van de Musculus Triceps Brachii?',
+      options: ['Tuberositas Radii', 'Olecranon', 'Processus Coronoideus', 'Tuberositas Ulnae'],
+      answerIndex: 1
+    },
+    {
+      question: 'Waar ontspringt het Caput Longum van de Musculus Triceps Brachii?',
+      options: ['Tuberculum Supraglenoidale', 'Tuberculum Infraglenoidale scapulae', 'Processus Coracoideus', 'Epicondylus Lateralis'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke kleine spier helpt bij de extensie van de elleboog en ontspringt aan de Epicondylus Lateralis?',
+      options: ['Musculus Anconeus', 'Musculus Supinator', 'Musculus Pronator Teres', 'Musculus Palmaris Longus'],
+      answerIndex: 0
+    },
+    {
+      question: 'Welke tweekoppige spier zie je hier aan de voorzijde van de bovenarm?',
+      image: 'Les 3 Myologie/Biceps.png',
+      imageAlt: 'Biceps Brachii',
+      options: ['Musculus Brachialis', 'Musculus Triceps Brachii', 'Musculus Biceps Brachii', 'Musculus Coracobrachialis'],
+      answerIndex: 2
+    },
+    {
+      question: 'Welke functie heeft de Musculus Biceps Brachii in de elleboog (naast flexie)?',
+      options: ['Pronatie', 'Supinatie', 'Adductie', 'Extensie'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wat is de insertie van de Musculus Brachialis?',
+      options: ['Tuberositas Radii', 'Tuberositas Ulnae', 'Processus Styloideus Radii', 'Olecranon'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke spier ligt diep onder de biceps brachii en zorgt puur voor flexie van de elleboog?',
+      image: 'Les 3 Myologie/Brachialis.png',
+      imageAlt: 'Brachialis',
+      options: ['Musculus Coracobrachialis', 'Musculus Brachialis', 'Musculus Pronator Teres', 'Musculus Triceps Brachii'],
+      answerIndex: 1
+    },
+    {
+      question: 'De Musculus Coracobrachialis heeft drie functies. Welke hoort erbij?',
+      options: ['Abductie', 'Retroversie', 'Adductie', 'Supinatie'],
+      answerIndex: 2
+    },
+    {
+      question: 'Welke spier zorgt voor pronatie en flexie en ontspringt o.a. aan de Processus Coronoideus van de Ulna?',
+      options: ['Musculus Supinator', 'Musculus Pronator Quadratus', 'Musculus Pronator Teres', 'Musculus Palmaris Longus'],
+      answerIndex: 2
+    },
+    {
+      question: 'Welke spier loopt diagonaal over de voorarm en zorgt voor pronatie?',
+      image: 'Les 3 Myologie/PronatorTeres.png',
+      imageAlt: 'Pronator Teres',
+      options: ['Musculus Flexor Carpi Radialis', 'Musculus Palmaris Longus', 'Musculus Pronator Teres', 'Musculus Brachioradialis'],
+      answerIndex: 2
+    },
+    {
+      question: 'Wat is de insertie van de Musculus Flexor Carpi Radialis?',
+      options: ['Basis Metacarpalis II', 'Basis Metacarpalis V', 'Os Pisiforme', 'Aponeurosis Palmaris'],
+      answerIndex: 0
+    },
+    {
+      question: 'Welke spier hecht aan op het Os Pisiforme en de Basis van Metacarpalis V?',
+      options: ['Musculus Flexor Carpi Radialis', 'Musculus Flexor Carpi Ulnaris', 'Musculus Extensor Carpi Ulnaris', 'Musculus Palmaris Longus'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke functie heeft de Musculus Flexor Digitorum Superficialis?',
+      options: ['Flexie van de duim', 'Extensie van de vingers', 'Flexie van Phalanx II tot V', 'Pronatie van de voorarm'],
+      answerIndex: 2
+    },
+    {
+      question: 'Welke lange, slanke spier (hier rood gekleurd) loopt centraal over de voorarm naar de handpalm?',
+      image: 'Les 3 Myologie/Palmaris.png',
+      imageAlt: 'Palmaris Longus',
+      options: ['Musculus Flexor Carpi Ulnaris', 'Musculus Palmaris Longus', 'Musculus Flexor Carpi Radialis', 'Musculus Pronator Teres'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke spier zorgt voor flexie van de duim (Distale Phalanx)?',
+      options: ['Musculus Flexor Pollicis Longus', 'Musculus Abductor Pollicis Longus', 'Musculus Flexor Digitorum Profundus', 'Musculus Extensor Pollicis Brevis'],
+      answerIndex: 0
+    },
+    {
+      question: 'Welke vierkante spier ligt diep in de pols en zorgt voor pronatie?',
+      image: 'Les 3 Myologie/PronatorQuad.png',
+      imageAlt: 'Pronator Quadratus',
+      options: ['Musculus Supinator', 'Musculus Pronator Teres', 'Musculus Pronator Quadratus', 'Musculus Flexor Retinaculum'],
+      answerIndex: 2
+    },
+    {
+      question: 'Wat is de functie van de Musculus Supinator?',
+      options: ['Pronatie', 'Supinatie', 'Flexie', 'Extensie'],
+      answerIndex: 1
+    },
+    {
+      question: 'De Musculus Flexor Digitorum Profundus hecht aan op:',
+      options: ['De middenhandsbeentjes', 'De proximale phalangen II-V', 'De distale phalangen II-V', 'De carpale beentjes'],
+      answerIndex: 2
+    },
+    {
+      question: 'Welke spier heeft zijn oorsprong op de Epicondylus Lateralis en wikkelt zich om de radius om te supineren?',
+      options: ['Musculus Pronator Teres', 'Musculus Anconeus', 'Musculus Supinator', 'Musculus Brachialis'],
+      answerIndex: 2
+    }
+  ];
+
+  const les3Myo = {
+    title: 'Myologie – Les 3 (20 vragen)',
+    questions: les3MC
+  };
+
   const anatomie = {
     name: 'Anatomie',
     summary: 'Hier komen de samenvattingen van Anatomie zodra ze beschikbaar zijn.',
@@ -717,7 +837,7 @@ function createDefaultSubjects() {
         domain: 'myologie',
         section: 'myo-les-1',
         title: 'Les 1',
-        description: 'Examen Anatomie: Les 1 Myologie, Hoofdstuk 1, 2 & 3',
+        description: '1. Dorsale Spieren Craniaal t.e.m Ademhalingsspieren',
         quizSets: [
           {
             title: 'Myologie – Les 1 (20 vragen)',
@@ -879,8 +999,21 @@ function createDefaultSubjects() {
         domain: 'myologie',
         section: 'myo-les-2',
         title: 'Les 2',
-        description: 'Borstspieren tot en met schouderspieren',
+        description: '4. Borstspieren t.e.m Schouderspieren',
         quizSets: [les2Myo]
+      },
+      {
+        id: 'myo-les3',
+        domain: 'myologie',
+        section: 'myo-les-3',
+        title: 'Les 3',
+        description: 'Dorsale Bovenarmspieren t.e.m. Oppervlakkig Gelegen Ventrale Voorarmspieren',
+        quizSets: [
+          {
+            title: 'Myologie – Les 3',
+            questions: les3MyoMC
+          }
+        ]
       },
       {
         id: 'upper',
