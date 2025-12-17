@@ -871,6 +871,278 @@ function createDefaultSubjects() {
     questions: les4MyoMC
   };
 
+  const les5MyoMC = [
+    {
+      question: 'Welke spiergroep, hier zichtbaar aan de binnenzijde van het bekken en de lendenwervels, is de krachtigste heupbuiger (flexor) en bestaat uit de M. Iliacus en M. Psoas Major?',
+      image: 'Les 5 Myologie/Iliopsoas.png',
+      imageAlt: 'Iliopsoas',
+      options: ['Musculus Sartorius', 'Musculus Quadriceps Femoris', 'Musculus Iliopsoas', 'Musculus Pectineus'],
+      answerIndex: 2
+    },
+    {
+      question: 'Wat is de insertie van de Musculus Iliopsoas (Iliacus + Psoas Major)?',
+      options: ['Trochanter Major', 'Trochanter Minor', 'Spina Iliaca Anterior Superior', 'Tuberositas Tibiae'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke drie spieren vormen samen de Pes Anserinus (Ganzenpoot) aan de mediale zijde van de tibia?',
+      options: ['Sartorius, Gracilis, Semimembranosus', 'Rectus Femoris, Vastus Medialis, Sartorius', 'Sartorius, Gracilis, Semitendinosus', 'Semitendinosus, Semimembranosus, Biceps Femoris'],
+      answerIndex: 2
+    },
+    {
+      question: 'Wat is de functie van de Musculus Psoas Minor bij de mens?',
+      options: ['Flexie van de heup', 'Geen duidelijke functie', 'Exorotatie', 'Retroversie van het bekken'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke spiergroep aan de voorzijde van het dijbeen zorgt voor extensie van de knie?',
+      image: 'Les 5 Myologie/Quadriceps.png',
+      imageAlt: 'Quadriceps',
+      options: ['Hamstrings', 'Adductoren', 'Musculus Quadriceps Femoris', 'Musculus Triceps Surae'],
+      answerIndex: 2
+    },
+    {
+      question: 'De Musculus Quadriceps Femoris bestaat uit vier koppen. Welke kop heeft ook een functie over het heupgewricht (flexie) omdat hij ontspringt aan de Spina Iliaca Anterior Inferior?',
+      options: ['Musculus Vastus Medialis', 'Musculus Vastus Lateralis', 'Musculus Rectus Femoris', 'Musculus Vastus Intermedius'],
+      answerIndex: 2
+    },
+    {
+      question: 'Wat is de gemeenschappelijke insertie van de Musculus Quadriceps Femoris?',
+      options: ['Caput Fibulae', 'Condylus Medialis Tibiae', 'Tuberositas Tibiae (via de Patella)', 'Pes Anserinus'],
+      answerIndex: 2
+    },
+    {
+      question: 'Welke lange, slanke spier bevindt zich het meest mediaal aan het bovenbeen en loopt helemaal door tot aan de Pes Anserinus op het scheenbeen?',
+      image: 'Les 5 Myologie/Gracialis.png',
+      imageAlt: 'Gracilis',
+      options: ['Musculus Adductor Longus', 'Musculus Gracilis', 'Musculus Pectineus', 'Musculus Sartorius'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke grote spier aan de binnenzijde van het dijbeen heeft een insertie op het Tuberculum Adductorium en de hele Linea Aspera?',
+      image: 'Les 5 Myologie/AdductorMagnus.png',
+      imageAlt: 'Adductor Magnus',
+      options: ['Musculus Adductor Longus', 'Musculus Adductor Magnus', 'Musculus Gracilis', 'Musculus Pectineus'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke functie heeft de Musculus Pectineus naast adductie van het bovenbeen?',
+      options: ['Extensie van de heup', 'Flexie en exorotatie van de heup', 'Flexie en endorotatie van de heup', 'Extensie en endorotatie van de heup'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke bilspier is cruciaal voor het stabiliseren van het bekken tijdens het lopen (voorkomt afzakken bekken) en zorgt voor abductie?',
+      options: ['Musculus Gluteus Maximus', 'Musculus Gluteus Medius', 'Musculus Piriformis', 'Musculus Quadratus Femoris'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wat is de insertie van de Musculus Gluteus Maximus?',
+      options: ['Trochanter Minor', 'Alleen Tuberositas Glutealis', 'Tuberositas Glutealis en Tractus Iliotibialis', 'Trochanter Major'],
+      answerIndex: 2
+    },
+    {
+      question: 'Welke spier spant de Fascia Latae op en helpt bij flexie, abductie en extensie van de knie?',
+      options: ['Musculus Tensor Fascia Latae', 'Musculus Rectus Femoris', 'Musculus Sartorius', 'Musculus Gluteus Minimus'],
+      answerIndex: 0
+    },
+    {
+      question: 'De spieren Gemellus Superior, Gemellus Inferior, Obturator Internus en Quadratus Femoris hebben allemaal als hoofdfunctie:',
+      options: ['Flexie van de heup', 'Abductie van de heup', 'Exorotatie van de heup', 'Endorotatie van de heup'],
+      answerIndex: 2
+    },
+    {
+      question: 'Op welke structuur hechten de Musculus Piriformis, Obturator Internus en de Gemelli (indirect via Fossa Trochanterica of top) aan?',
+      options: ['Trochanter Minor', 'Trochanter Major', 'Spina Iliaca Anterior Superior', 'Tuber Ischiadicum'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke specifieke spier aan de achterzijde van het bovenbeen ligt aan de laterale zijde (buitenkant) en hecht aan op het Caput Fibulae?',
+      image: 'Les 5 Myologie/BicepsFemoris.png',
+      imageAlt: 'Biceps Femoris',
+      options: ['Musculus Semitendinosus', 'Musculus Semimembranosus', 'Musculus Biceps Femoris', 'Musculus Rectus Femoris'],
+      answerIndex: 2
+    },
+    {
+      question: 'Wat is de gemeenschappelijke oorsprong van de lange kop van de Biceps Femoris, de Semitendinosus en de Semimembranosus?',
+      options: ['Crista Iliaca', 'Tuber Ischiadicum', 'Os Sacrum', 'Os Pubis'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke functie hebben de Hamstrings over het kniegewricht?',
+      options: ['Extensie', 'Flexie', 'Abductie', 'Adductie'],
+      answerIndex: 1
+    },
+    {
+      question: 'De Musculus Biceps Femoris heeft een korte kop (Caput Breve). Waar ontspringt deze?',
+      options: ['Tuber Ischiadicum', 'Epicondylus Lateralis', 'Helft van Linea Aspera (Labium Laterale)', 'Crista Iliaca'],
+      answerIndex: 2
+    },
+    {
+      question: 'Welke spier van de hamstrings hecht aan op de Condylus Medialis Tibiae (en dus niet op de Pes Anserinus)?',
+      options: ['Musculus Semitendinosus', 'Musculus Semimembranosus', 'Musculus Sartorius', 'Musculus Gracilis'],
+      answerIndex: 1
+    }
+  ];
+
+  const les5Myo = {
+    title: 'Myologie – Les 5',
+    description: 'Ventrale Heupspieren t.e.m. Dorsale Bovenbeenspieren',
+    questions: les5MyoMC
+  };
+
+  const les6MyoMC = [
+    {
+      question: 'Welke spier ligt aan de voorzijde van het scheenbeen, hecht aan op Basis metatarsalis I en zorgt voor dorsale flexie en supinatie?',
+      image: 'Les 6 Myologie/TibialisAnterior.png',
+      imageAlt: 'Tibialis Anterior',
+      options: ['Musculus Extensor Hallucis Longus', 'Musculus Tibialis Anterior', 'Musculus Extensor Digitorum Longus', 'Musculus Fibularis Tertius'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wat is de insertie van de Musculus Extensor Digitorum Longus?',
+      options: ['Dorsale vlak grote teen', 'Dorsale aponeurose tenen', 'Tuberositas Ossis Metatarsalis V', 'Os cuneiforme mediale'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke spier zorgt specifiek voor de extentie van de grote teen?',
+      options: ['Musculus Tibialis Anterior', 'Musculus Extensor Digitorum Longus', 'Musculus Extensor Hallucis Longus', 'Musculus Fibularis Longus'],
+      answerIndex: 2
+    },
+    {
+      question: 'Welke functie heeft de Musculus Fibularis Tertius (naast extentie tenen en dorsale flexie)?',
+      options: ['Supinatie in onderste spronggewricht', 'Pronatie in onderste spronggewricht (laterale abductie)', 'Plantaire flexie', 'Inversie'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wat is de oorsprong van de Musculus Tibialis Anterior?',
+      options: ['Facies Medialis Fibulae', 'Condylus lateralis en facies lateralis tibiae (plus membrana interossea)', 'Caput Fibulae', 'Epicondylus Lateralis Femur'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke spier loopt langs de buitenkant van het onderbeen en hecht helemaal onder de voet aan op Tuberositas ossis metatarsalis I en Os cuneiforme mediale?',
+      image: 'Les 6 Myologie/FibularisLongus.png',
+      imageAlt: 'Fibularis Longus',
+      options: ['Musculus Fibularis (Peroneus) Longus', 'Musculus Fibularis Brevis', 'Musculus Tibialis Anterior', 'Musculus Soleus'],
+      answerIndex: 0
+    },
+    {
+      question: 'Wat is de insertie van de Musculus Fibularis Brevis?',
+      options: ['Basis Metatarsalis I', 'Tuberositas Ossis Metatarsalis V', 'Tuber Calcanei', 'Dorsale aponeurose tenen'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke spier stelt je in staat om goed op je tenen te staan (plantaire flexie) en zorgt voor pronatie, en hecht aan de basis van de kleine teen?',
+      options: ['Musculus Fibularis Longus', 'Musculus Fibularis Brevis', 'Musculus Fibularis Tertius', 'Musculus Extensor Digitorum Longus'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wat is de oorsprong van de Musculus Fibularis Longus?',
+      options: ['Distale deel facies lateralis fibulae', 'Caput fibulae en proximale deel facies lateralis', 'Facies Posterior Tibiae', 'Epicondylus Lateralis Femur'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke functie hebben beide Fibularis spieren (Longus en Brevis) gemeen?',
+      options: ['Dorsale Flexie en Supinatie', 'Plantaire Flexie en Pronatie', 'Dorsale Flexie en Pronatie', 'Plantaire Flexie en Supinatie'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke tweekoppige spier vormt het oppervlakkige deel van de kuit en hecht aan op het Tuber Calcanei via de achillespees?',
+      image: 'Les 6 Myologie/Gastrocnemius.png',
+      imageAlt: 'Gastrocnemius',
+      options: ['Musculus Soleus', 'Musculus Gastrocnemius', 'Musculus Plantaris', 'Musculus Popliteus'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wat is de oorsprong van de Musculus Gastrocnemius?',
+      options: ['Caput Fibulae en Tibia', 'Epicondylus Medialis en Lateralis Femur', 'Linea Aspera', 'Facies Posterior Tibiae'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke brede spier ligt diep onder de Gastrocnemius en heeft zijn oorsprong o.a. aan de Arcus Tendineus Musculi Solei?',
+      image: 'Les 6 Myologie/Soleus.png',
+      imageAlt: 'Soleus',
+      options: ['Musculus Plantaris', 'Musculus Popliteus', 'Musculus Soleus', 'Musculus Tibialis Posterior'],
+      answerIndex: 2
+    },
+    {
+      question: 'Welke spier van de Triceps Surae werkt alleen over het enkelgewricht (plantaire flexie/supinatie) en niet over de knie?',
+      options: ['Musculus Gastrocnemius', 'Musculus Soleus', 'Musculus Plantaris', 'Musculus Popliteus'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke kleine spier heeft een heel lange pees, loopt parallel aan de gastrocnemius en hecht ook aan op de Tuber Calcanei?',
+      options: ['Musculus Plantaris', 'Musculus Popliteus', 'Musculus Fibularis Tertius', 'Musculus Soleus'],
+      answerIndex: 0
+    },
+    {
+      question: 'Welke kleine, driehoekige spier ligt direct achter de knie en zorgt voor endorotatie van het onderbeen?',
+      image: 'Les 6 Myologie/Popliteus.png',
+      imageAlt: 'Popliteus',
+      options: ['Musculus Plantaris', 'Musculus Popliteus', 'Musculus Soleus', 'Musculus Gastrocnemius'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wat is de oorsprong van de Musculus Popliteus?',
+      options: ['Epicondylus Medialis Femur', 'Epicondylus Lateralis Femur (en Meniscus Lateralis)', 'Caput Tibiae', 'Tuber Ischiadicum'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wat is de insertie van de Musculus Popliteus?',
+      options: ['Tuber Calcanei', 'Facies Posterior Tibiae (boven Linea Musculi Solei)', 'Tuberositas Tibiae', 'Caput Fibulae'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke spiergroep wordt gevormd door de Gastrocnemius, Soleus en Plantaris samen?',
+      options: ['Quadriceps Femoris', 'Hamstrings', 'Triceps Surae', 'Pes Anserinus'],
+      answerIndex: 2
+    },
+    {
+      question: 'Welke functie heeft de Musculus Gastrocnemius over het kniegewricht?',
+      options: ['Extensie', 'Flexie', 'Endorotatie', 'Exorotatie'],
+      answerIndex: 1
+    }
+  ];
+
+  const les6Myo = {
+    title: 'Myologie – Les 6',
+    description: 'Ventrale Onderbeenspieren t.e.m. Dorsale Onderbeenspieren',
+    questions: les6MyoMC
+  };
+
+  const les7MyoMC = [
+    {
+      question: 'Welke spier behoort tot de groep van de diep gelegen dorsale onderbeenspieren?',
+      options: ['Musculus Tibialis Anterior', 'Musculus Gastrocnemius', 'Musculus Tibialis Posterior', 'Musculus Soleus'],
+      answerIndex: 2
+    },
+    {
+      question: 'Wat is de insertie van de Musculus Tibialis Posterior?',
+      options: ['Tuber Calcanei', 'Os Navicularis en Ossa Cuneiformia', 'Eindphalanx van de 2e tot 5e teen', 'Basis Metatarsalis V'],
+      answerIndex: 1
+    },
+    {
+      question: 'Welke functie heeft de Musculus Flexor Digitorum Longus?',
+      options: ['Dorsale flexie en pronatie', 'Plantaire flexie en supinatie (plus flexie van tenen 2-5)', 'Alleen extensie van de tenen', 'Pronatie en abductie'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wat is de oorsprong van de Musculus Tibialis Posterior?',
+      options: ['Facies Posterior Tibiae, Membrana Interossea Cruris, Facies Medialis Fibulae', 'Epicondylus Lateralis Femur', 'Caput Fibulae en Linea Musculi Solei', 'Tibia Facies Anterior'],
+      answerIndex: 0
+    },
+    {
+      question: 'Op welke structuur hecht de Musculus Flexor Digitorum Longus aan?',
+      options: ['Tuber Calcanei', 'Eindphalanx van 2e tot 5e teen', 'Os Naviculare', 'Basis van de grote teen'],
+      answerIndex: 1
+    }
+  ];
+
+  const les7Myo = {
+    title: 'Myologie – Les 7',
+    description: 'Diepe Dorsale Onderbeenspieren',
+    questions: les7MyoMC
+  };
+
   const anatomie = {
     name: 'Anatomie',
     summary: 'Hier komen de samenvattingen van Anatomie zodra ze beschikbaar zijn.',
@@ -1148,6 +1420,30 @@ function createDefaultSubjects() {
         title: 'Les 4',
         description: 'Radiale Spieren VD Onderarm t.e.m. Diepe Radiale Voorarmspieren',
         quizSets: [les4Myo]
+      },
+      {
+        id: 'myo-les5',
+        domain: 'myologie',
+        section: 'myo-les-5',
+        title: 'Les 5',
+        description: 'Ventrale Heupspieren t.e.m. Dorsale Bovenbeenspieren',
+        quizSets: [les5Myo]
+      },
+      {
+        id: 'myo-les6',
+        domain: 'myologie',
+        section: 'myo-les-6',
+        title: 'Les 6',
+        description: 'Ventrale Onderbeenspieren t.e.m. Dorsale Onderbeenspieren',
+        quizSets: [les6Myo]
+      },
+      {
+        id: 'myo-les7',
+        domain: 'myologie',
+        section: 'myo-les-7',
+        title: 'Les 7',
+        description: 'Diepe Dorsale Onderbeenspieren',
+        quizSets: [les7Myo]
       },
       {
         id: 'upper',
@@ -3745,12 +4041,15 @@ function createDefaultSubjects() {
       {
         id: 'myologie',
         title: 'Myologie',
-        description: 'Les 1, Les 2, Les 3 & Les 4',
+        description: 'Les 1 t.e.m. Les 7',
         sections: [
           { id: 'myo-les-1', title: 'Les 1', categoryIds: ['myo-les1'], description: '1. Dorsale Spieren Craniaal t.e.m Ademhalingsspieren' },
           { id: 'myo-les-2', title: 'Les 2', categoryIds: ['myo-les2'], description: '4. Borstspieren t.e.m Schouderspieren' },
           { id: 'myo-les-3', title: 'Les 3', categoryIds: ['myo-les3'], description: 'Dorsale Bovenarmspieren t.e.m. Oppervlakkig Gelegen Ventrale Voorarmspieren' },
-          { id: 'myo-les-4', title: 'Les 4', categoryIds: ['myo-les4'], description: 'Radiale Spieren VD Onderarm t.e.m. Diepe Radiale Voorarmspieren' }
+          { id: 'myo-les-4', title: 'Les 4', categoryIds: ['myo-les4'], description: 'Radiale Spieren VD Onderarm t.e.m. Diepe Radiale Voorarmspieren' },
+          { id: 'myo-les-5', title: 'Les 5', categoryIds: ['myo-les5'], description: 'Ventrale Heupspieren t.e.m. Dorsale Bovenbeenspieren' },
+          { id: 'myo-les-6', title: 'Les 6', categoryIds: ['myo-les6'], description: 'Ventrale Onderbeenspieren t.e.m. Dorsale Onderbeenspieren' },
+          { id: 'myo-les-7', title: 'Les 7', categoryIds: ['myo-les7'], description: 'Diepe Dorsale Onderbeenspieren' }
         ]
       }
     ]
