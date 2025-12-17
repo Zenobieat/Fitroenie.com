@@ -772,9 +772,9 @@ function createDefaultSubjects() {
       answerIndex: 0
     },
     {
-      question: 'De Musculus Extensor Carpi Radialis Brevis (in jouw tekst "Musculus Carpi Radialis Longus" bij 1.3 genoemd, maar herkenbaar aan de insertie) hecht aan op:',
-      options: ['Basis Metacarpalis I', 'Basis Metacarpalis II', 'Basis Metacarpalis III', 'Basis Metacarpalis V'],
-      answerIndex: 2
+      question: 'Welke functie hebben de radiale spieren (Brachioradialis en de Carpi Radialis spieren) gemeen ter hoogte van de elleboog?',
+      options: ['Extensie', 'Flexie', 'Alleen Supinatie', 'Alleen Pronatie'],
+      answerIndex: 1
     },
     {
       question: 'Welke spier loopt centraal over de dorsale zijde van de onderarm en splitst zich in vier pezen naar de vingers?',
@@ -5579,6 +5579,11 @@ function mergeDefaultSubjects(currentSubjects, defaults) {
             existingSet.description = defSet.description;
             mutated = true;
           }
+          // Always ensure questions are up-to-date with code definition
+          if (defSet.questions && JSON.stringify(existingSet.questions) !== JSON.stringify(defSet.questions)) {
+            existingSet.questions = deepClone(defSet.questions);
+            mutated = true;
+          }
         }
       });
     });
@@ -5601,6 +5606,11 @@ function mergeDefaultSubjects(currentSubjects, defaults) {
       } else {
         if (defSet.description && existingSet.description !== defSet.description) {
           existingSet.description = defSet.description;
+          mutated = true;
+        }
+        // Always ensure questions are up-to-date with code definition
+        if (defSet.questions && JSON.stringify(existingSet.questions) !== JSON.stringify(defSet.questions)) {
+          existingSet.questions = deepClone(defSet.questions);
           mutated = true;
         }
       }
@@ -6408,6 +6418,23 @@ function renderQuizRunner(subject) {
   if (!isRunner || !set || !state) return;
 
   const question = set.questions[activeQuizQuestionIndex];
+  
+  if (!question) {
+    if (set.questions.length > 0) {
+       activeQuizQuestionIndex = 0;
+       // Prevent infinite loop if 0 is also undefined (unlikely if length > 0)
+       if (set.questions[0]) {
+         renderDuringQuiz();
+         return;
+       }
+    }
+    // Fallback if no questions or catastrophic failure
+    quizQuestionTitle.textContent = 'Fout bij laden vraag';
+    quizQuestionText.textContent = 'Er ging iets mis bij het ophalen van deze vraag. Probeer de pagina te verversen of de quiz opnieuw te starten.';
+    quizQuestionText.hidden = false;
+    return;
+  }
+
   const answer = state.answers?.[activeQuizQuestionIndex];
 
   quizRunnerTitle.textContent = formatSetTitle(set.title);
