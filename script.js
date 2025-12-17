@@ -3611,10 +3611,11 @@ function createDefaultSubjects() {
       {
         id: 'myologie',
         title: 'Myologie',
-        description: 'Les 1 & Les 2',
+        description: 'Les 1, Les 2 & Les 3',
         sections: [
-          { id: 'myo-les-1', title: 'Les 1', categoryIds: ['myo-les1'] },
-          { id: 'myo-les-2', title: 'Les 2', categoryIds: ['myo-les2'] }
+          { id: 'myo-les-1', title: 'Les 1', categoryIds: ['myo-les1'], description: '1. Dorsale Spieren Craniaal t.e.m Ademhalingsspieren' },
+          { id: 'myo-les-2', title: 'Les 2', categoryIds: ['myo-les2'], description: '4. Borstspieren t.e.m Schouderspieren' },
+          { id: 'myo-les-3', title: 'Les 3', categoryIds: ['myo-les3'], description: 'Dorsale Bovenarmspieren t.e.m. Oppervlakkig Gelegen Ventrale Voorarmspieren' }
         ]
       }
     ]
