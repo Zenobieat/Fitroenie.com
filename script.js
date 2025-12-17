@@ -1012,6 +1012,7 @@ function createDefaultSubjects() {
         quizSets: [
           {
             title: 'Myologie – Les 3',
+            description: 'Dorsale Bovenarmspieren t.e.m. Oppervlakkig Gelegen Ventrale Voorarmspieren',
             questions: les3MyoMC
           }
         ]
