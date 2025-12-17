@@ -743,7 +743,7 @@ function createDefaultSubjects() {
 
   const les3Myo = {
     title: 'Myologie – Les 3 (20 vragen)',
-    questions: les3MC
+    questions: les3MyoMC
   };
 
   const anatomie = {
