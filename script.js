@@ -841,6 +841,7 @@ function createDefaultSubjects() {
         quizSets: [
           {
             title: 'Myologie – Les 1 (20 vragen)',
+            description: '1. Dorsale Spieren Craniaal t.e.m Ademhalingsspieren',
             questions: [
               {
                 question: 'Welke spier zie je op deze afbeelding (de oppervlakkige laag)?',
@@ -5429,10 +5430,15 @@ function mergeDefaultSubjects(currentSubjects, defaults) {
       }
 
       defCat.quizSets?.forEach((defSet) => {
-        const exists = targetCat.quizSets.some((set) => set.title === defSet.title);
-        if (!exists) {
+        const existingSet = targetCat.quizSets.find((set) => set.title === defSet.title);
+        if (!existingSet) {
           targetCat.quizSets.push(deepClone(defSet));
           mutated = true;
+        } else {
+          if (defSet.description && existingSet.description !== defSet.description) {
+            existingSet.description = defSet.description;
+            mutated = true;
+          }
         }
       });
     });
