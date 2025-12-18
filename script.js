@@ -9387,9 +9387,9 @@ function renderFlashcardsPlay(subject) {
   header.className = 'panel__header';
   const left = document.createElement('div');
   const backBtn = document.createElement('button');
-  backBtn.className = 'tab';
+  backBtn.className = 'btn ghost';
   backBtn.type = 'button';
-  backBtn.textContent = 'Terug';
+  backBtn.textContent = '← Terug';
   backBtn.addEventListener('click', () => { setActivePanel('flashcards-panel'); });
   left.appendChild(backBtn);
   const right = document.createElement('div');
