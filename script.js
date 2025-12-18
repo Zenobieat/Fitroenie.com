@@ -1,3 +1,4 @@
+// Fitroenie Script - v1.1 - Updated with Skelet Exercise
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js';
 import { getAnalytics, isSupported as isAnalyticsSupported, setAnalyticsCollectionEnabled } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js';
 import {
