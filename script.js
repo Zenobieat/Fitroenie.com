@@ -6306,6 +6306,73 @@ function renderPractice(subject) {
                   { id: 8, label: "Musculus quadriceps femoris" }
                 ]
               }
+            },
+            {
+              id: "soorten-gewrichten",
+              title: "Soorten gewrichten",
+              type: "container-sort",
+              data: {
+                title: "Soorten Gewrichten",
+                instruction: "Sleep de kenmerken en voorbeelden naar het juiste gewrichtstype.",
+                containers: [
+                  { id: "c1", label: "Scharniergewricht (Ginglymus)" },
+                  { id: "c2", label: "Rol- of Draaigewricht (Trochoidea)" },
+                  { id: "c3", label: "Ei-gewricht (Ellipsoidea)" },
+                  { id: "c4", label: "Zadelgewricht (Sellaris)" },
+                  { id: "c5", label: "Kogelgewricht (Spheroidea)" }
+                ],
+                items: [
+                  // Scharnier & Rol (Shared)
+                  { id: "i1", label: "1-assig (Uniaciaal)", targets: ["c1", "c2"] },
+                  
+                  // Scharnier Only
+                  { id: "i2", label: "Flexie / Extensie", targets: ["c1"] },
+                  { id: "i3", label: "Humerus-ulna", targets: ["c1"] },
+                  { id: "i4", label: "Vingers (Interphalangeaal)", targets: ["c1"] },
+                  { id: "i5", label: "Knie (Functioneel)", targets: ["c1"] },
+
+                  // Rol Only
+                  { id: "i6", label: "Pronatie / Supinatie", targets: ["c2"] },
+                  { id: "i7", label: "Radius-ulna", targets: ["c2"] },
+                  { id: "i8", label: "Atlas-Axis (Dens)", targets: ["c2"] },
+
+                  // Ei & Zadel (Shared)
+                  { id: "i9", label: "2-assig (Biaxiaal)", targets: ["c3", "c4"] },
+
+                  // Ei Only
+                  { id: "i10", label: "Dorsiflexie / Palmaire flexie", targets: ["c3"] },
+                  { id: "i11", label: "Pols (Art. Radiocarpalis)", targets: ["c3"] },
+
+                  // Zadel Only
+                  { id: "i12", label: "Voor- en achterwaarts + zijwaarts", targets: ["c4"] },
+                  { id: "i13", label: "Duimbasis", targets: ["c4"] },
+
+                  // Kogel Only
+                  { id: "i14", label: "3-assig (Multiaxiaal)", targets: ["c5"] },
+                  { id: "i15", label: "Alle vlakken + Circumductie", targets: ["c5"] },
+                  { id: "i16", label: "Schouder (Art. Humeri)", targets: ["c5"] },
+                  { id: "i17", label: "Heup (Art. Coxae)", targets: ["c5"] },
+                  { id: "i18", label: "Humerus-radius", targets: ["c5"] },
+                  { id: "i19", label: "Adductie / Abductie", targets: ["c5"] }
+                ]
+              }
+            },
+            {
+              id: "skelet-gewrichten",
+              title: "Gewrichten oefenen",
+              type: "drag-drop",
+              data: {
+                title: "Gewrichten van het menselijk lichaam",
+                image: "Oefenen/Skelet.png",
+                items: [
+                  { id: 1, label: "Articulatio trochoidea - Rol- of draaigewricht (Pivot joint)" },
+                  { id: 2, label: "Articulatio sellaris - Zadelgewricht (Saddle joint)" },
+                  { id: 3, label: "Articulatio plana - Vlak gewricht (Plane joint)" },
+                  { id: 4, label: "Articulatio spheroidea - Kogelgewricht (Ball & socket joint)" },
+                  { id: 5, label: "Articulatio ellipsoidea - Ei-gewricht (Condyloid joint)" },
+                  { id: 6, label: "Ginglymus - Scharniergewricht (Hinge joint)" }
+                ]
+              }
             }
           ]
         }
@@ -6325,12 +6392,208 @@ function renderPractice(subject) {
     return;
   }
 
-  // Level 3: Exercise View (Drag & Drop)
+  // Level 3: Exercise View (Drag & Drop or Container Sort)
   if (activePracticeExercise) {
     const category = subjectPractice.categories.find(c => c.id === activePracticeCategory);
     const exercise = category ? category.exercises.find(e => e.id === activePracticeExercise) : null;
 
-    if (exercise && exercise.type === 'drag-drop') {
+    if (exercise) {
+      if (exercise.type === 'container-sort') {
+        const exerciseData = exercise.data;
+        
+        practiceDisplay.innerHTML = `
+          <div class="practice-container">
+            <div class="practice-header" style="position: relative;">
+              <button class="btn-back" id="btn-practice-back" style="position: absolute; left: 0; top: 0;">
+                ← Terug
+              </button>
+              <h3>${exerciseData.title}</h3>
+              <p>${exerciseData.instruction}</p>
+            </div>
+            
+            <div class="sort-grid">
+              ${exerciseData.containers.map(c => `
+                <div class="sort-container" data-container-id="${c.id}">
+                  <div class="sort-container__header">${c.label}</div>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="draggable-pool">
+              <div class="draggable-list" id="draggable-source">
+                ${exerciseData.items
+                  .sort(() => Math.random() - 0.5)
+                  .map(item => `
+                    <div class="draggable-item" draggable="true" data-id="${item.id}">
+                      ${item.label}
+                    </div>
+                  `).join('')}
+              </div>
+            </div>
+
+            <div class="practice-feedback" id="practice-feedback"></div>
+
+            <div class="practice-actions">
+              <button class="btn-reset" id="btn-reset-practice">Opnieuw</button>
+              <button class="btn-check" id="btn-check-practice">Controleren</button>
+            </div>
+          </div>
+        `;
+
+        // Back Button
+        document.getElementById('btn-practice-back').addEventListener('click', () => {
+          activePracticeExercise = null;
+          renderPractice(subject);
+        });
+
+        // Drag & Drop Logic
+        const draggables = practiceDisplay.querySelectorAll('.draggable-item');
+        const containers = practiceDisplay.querySelectorAll('.sort-container');
+        const sourceContainer = practiceDisplay.querySelector('#draggable-source');
+        let draggedItem = null;
+
+        draggables.forEach(draggable => {
+          draggable.addEventListener('dragstart', () => {
+            draggedItem = draggable;
+            draggable.classList.add('dragging');
+          });
+          draggable.addEventListener('dragend', () => {
+            draggable.classList.remove('dragging');
+            draggedItem = null;
+          });
+        });
+
+        function setupDropZone(zone, isSource = false) {
+          zone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            if (!isSource) zone.classList.add('drag-over');
+          });
+          zone.addEventListener('dragleave', () => {
+            if (!isSource) zone.classList.remove('drag-over');
+          });
+          zone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (!isSource) zone.classList.remove('drag-over');
+            if (draggedItem) {
+              if (!isSource && !zone.classList.contains('draggable-list')) {
+                // For sort containers, just append
+                zone.appendChild(draggedItem);
+              } else if (isSource) {
+                 // Back to pool
+                 zone.appendChild(draggedItem);
+              }
+            }
+          });
+        }
+
+        containers.forEach(zone => setupDropZone(zone));
+        setupDropZone(sourceContainer, true);
+
+        // Check Logic
+        document.getElementById('btn-check-practice').addEventListener('click', () => {
+          let correctCount = 0;
+          let totalPlaced = 0;
+          const wrongItems = [];
+
+          containers.forEach(container => {
+            const containerId = container.dataset.containerId;
+            const items = container.querySelectorAll('.draggable-item');
+            
+            container.classList.remove('correct', 'incorrect');
+            
+            items.forEach(item => {
+              totalPlaced++;
+              const itemId = item.dataset.id;
+              const itemData = exerciseData.items.find(i => i.id === itemId);
+              
+              item.style.border = "2px solid transparent";
+              
+              if (itemData && itemData.targets.includes(containerId)) {
+                item.style.borderColor = "var(--success)";
+                correctCount++;
+              } else {
+                item.style.borderColor = "var(--error)";
+                wrongItems.push({ item, itemData });
+              }
+            });
+          });
+          
+          // Check for items still in pool
+          const poolItems = sourceContainer.querySelectorAll('.draggable-item');
+          poolItems.forEach(item => {
+             const itemId = item.dataset.id;
+             const itemData = exerciseData.items.find(i => i.id === itemId);
+             wrongItems.push({ item, itemData });
+          });
+
+          const feedback = document.getElementById('practice-feedback');
+          const totalItems = exerciseData.items.length;
+          
+          if (correctCount === totalItems && totalPlaced === totalItems) {
+             feedback.textContent = "Perfect! Alle items staan in het juiste vak.";
+             feedback.style.color = "var(--success)";
+          } else {
+             feedback.textContent = `Je hebt ${correctCount} van de ${totalItems} correct. Even geduld, we zetten alles op de juiste plaats...`;
+             feedback.style.color = "var(--text)";
+             
+             // Disable interaction
+             document.body.style.pointerEvents = 'none';
+             
+             // Animate wrong items to correct places
+             wrongItems.forEach((obj, index) => {
+               setTimeout(() => {
+                 const { item, itemData } = obj;
+                 // Find first valid target container
+                 const targetId = itemData.targets[0];
+                 const targetContainer = practiceDisplay.querySelector(`.sort-container[data-container-id="${targetId}"]`);
+                 
+                 if (targetContainer) {
+                   // FLIP Animation
+                   const firstRect = item.getBoundingClientRect();
+                   targetContainer.appendChild(item);
+                   const lastRect = item.getBoundingClientRect();
+                   
+                   const invertX = firstRect.left - lastRect.left;
+                   const invertY = firstRect.top - lastRect.top;
+                   
+                   item.style.transform = `translate(${invertX}px, ${invertY}px)`;
+                   item.style.transition = 'none';
+                   item.style.borderColor = "var(--accent)"; // Highlight moving item
+                   
+                   requestAnimationFrame(() => {
+                     // Force reflow
+                     item.getBoundingClientRect();
+                     
+                     item.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                     item.style.transform = 'translate(0, 0)';
+                     
+                     setTimeout(() => {
+                       item.style.transition = '';
+                       item.style.transform = '';
+                       item.style.borderColor = "var(--success)";
+                       
+                       // Check if this was the last one
+                       if (index === wrongItems.length - 1) {
+                         document.body.style.pointerEvents = '';
+                         feedback.textContent = "Alles staat nu op de juiste plaats!";
+                         feedback.style.color = "var(--success)";
+                       }
+                     }, 500);
+                   });
+                 }
+               }, index * 600); // 600ms delay between each
+             });
+          }
+        });
+
+        document.getElementById('btn-reset-practice').addEventListener('click', () => {
+          renderPractice(subject);
+        });
+        
+        return;
+      }
+
+      if (exercise.type === 'drag-drop') {
       const exerciseData = exercise.data;
       
       practiceDisplay.innerHTML = `
@@ -6432,26 +6695,86 @@ function renderPractice(subject) {
 
       document.getElementById('btn-check-practice').addEventListener('click', () => {
         let correctCount = 0;
-        dropZones.forEach(zone => {
-          const item = zone.querySelector('.draggable-item');
-          const correctId = zone.dataset.correctId;
-          zone.classList.remove('correct', 'incorrect');
-          if (item) {
-            if (item.dataset.id === correctId) {
-              zone.classList.add('correct');
-              correctCount++;
-            } else {
-              zone.classList.add('incorrect');
-            }
-          }
+        const wrongItems = [];
+        const allItems = Array.from(practiceDisplay.querySelectorAll('.draggable-item'));
+
+        // Identify correct count and wrong items
+        allItems.forEach(item => {
+           const currentZone = item.closest('.drop-zone');
+           const correctId = item.dataset.id;
+           const targetZone = practiceDisplay.querySelector(`.drop-zone[data-correct-id="${correctId}"]`);
+           
+           if (currentZone && currentZone === targetZone) {
+             correctCount++;
+             if (currentZone) currentZone.classList.add('correct');
+           } else {
+             if (currentZone) currentZone.classList.add('incorrect');
+             wrongItems.push(item);
+           }
         });
+
         const feedback = document.getElementById('practice-feedback');
         if (correctCount === exerciseData.items.length) {
           feedback.textContent = "Geweldig! Alles is correct.";
           feedback.style.color = "var(--success)";
         } else {
-          feedback.textContent = `Je hebt ${correctCount} van de ${exerciseData.items.length} goed.`;
+          feedback.textContent = `Je hebt ${correctCount} van de ${exerciseData.items.length} goed. Even geduld, we zetten alles op de juiste plaats...`;
           feedback.style.color = "var(--text)";
+          
+          // Disable interaction
+          document.body.style.pointerEvents = 'none';
+
+          wrongItems.forEach((item, index) => {
+            setTimeout(() => {
+               const correctId = item.dataset.id;
+               const targetZone = practiceDisplay.querySelector(`.drop-zone[data-correct-id="${correctId}"]`);
+               
+               if (targetZone) {
+                 // Clear target zone if occupied by a wrong item?
+                 // Wait, if we move item A to zone A, and zone A has item B.
+                 // Item B is also in "wrongItems" list, so it will move later.
+                 // For now, just append. If CSS allows stacking, good.
+                 // If not, maybe we should move the occupant back to source?
+                 if (targetZone.children.length > 0) {
+                    const occupant = targetZone.children[0];
+                    if (occupant !== item) {
+                       sourceContainer.appendChild(occupant); // Move occupant back to pool temporarily
+                    }
+                 }
+
+                 // FLIP Animation
+                 const firstRect = item.getBoundingClientRect();
+                 targetZone.appendChild(item);
+                 const lastRect = item.getBoundingClientRect();
+                 
+                 const invertX = firstRect.left - lastRect.left;
+                 const invertY = firstRect.top - lastRect.top;
+                 
+                 item.style.transform = `translate(${invertX}px, ${invertY}px)`;
+                 item.style.transition = 'none';
+                 targetZone.classList.remove('incorrect');
+                 targetZone.classList.add('correct');
+                 
+                 requestAnimationFrame(() => {
+                   item.getBoundingClientRect(); // Force reflow
+                   
+                   item.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                   item.style.transform = 'translate(0, 0)';
+                   
+                   setTimeout(() => {
+                     item.style.transition = '';
+                     item.style.transform = '';
+                     
+                     if (index === wrongItems.length - 1) {
+                        document.body.style.pointerEvents = '';
+                        feedback.textContent = "Alles staat nu op de juiste plaats!";
+                        feedback.style.color = "var(--success)";
+                     }
+                   }, 500);
+                 });
+               }
+            }, index * 600);
+          });
         }
       });
 
@@ -6460,6 +6783,7 @@ function renderPractice(subject) {
       });
       return;
     }
+  }
   }
 
   // Level 2: Exercise List (Category Selected)
