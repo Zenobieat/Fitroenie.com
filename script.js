@@ -7178,26 +7178,70 @@ function renderPractice(subject) {
     const category = subjectPractice.categories.find(c => c.id === activePracticeCategory);
     
     if (category) {
+      const fillIn = category.exercises.filter(e => e.type === 'fill-in-blank');
+      const dragDrop = category.exercises.filter(e => e.type === 'drag-drop');
+      const sort = category.exercises.filter(e => e.type === 'container-sort');
+      const other = category.exercises.filter(e => !['fill-in-blank', 'drag-drop', 'container-sort'].includes(e.type));
+
+      const renderCard = (ex, icon, label) => `
+        <div class="quiz-picker__card" data-exercise-id="${ex.id}">
+          <div class="quiz-picker__icon-box ${ex.type}">
+            ${icon}
+          </div>
+          <div class="quiz-picker__content">
+            <h4 class="quiz-picker__title">${ex.title}</h4>
+            <span class="quiz-picker__meta">${label}</span>
+          </div>
+          <div class="quiz-picker__arrow">→</div>
+        </div>
+      `;
+
+      let listHtml = '';
+
+      if (fillIn.length > 0) {
+        listHtml += `
+          <h4 class="quiz-section-title">Invuloefeningen</h4>
+          <div class="quiz-category__list">
+            ${fillIn.map(ex => renderCard(ex, '✍️', 'Invuloefening')).join('')}
+          </div>
+        `;
+      }
+
+      if (dragDrop.length > 0) {
+        listHtml += `
+          <h4 class="quiz-section-title">Sleepoefeningen</h4>
+          <div class="quiz-category__list">
+            ${dragDrop.map(ex => renderCard(ex, '👆', 'Sleepoefening')).join('')}
+          </div>
+        `;
+      }
+
+      if (sort.length > 0) {
+        listHtml += `
+          <h4 class="quiz-section-title">Sorteeroefeningen</h4>
+          <div class="quiz-category__list">
+            ${sort.map(ex => renderCard(ex, '🔄', 'Sorteeroefening')).join('')}
+          </div>
+        `;
+      }
+
+      if (other.length > 0) {
+        listHtml += `
+          <h4 class="quiz-section-title">Overige</h4>
+          <div class="quiz-category__list">
+            ${other.map(ex => renderCard(ex, '📝', 'Oefening')).join('')}
+          </div>
+        `;
+      }
+
       practiceDisplay.innerHTML = `
         <div class="quiz-category">
           <div class="quiz-category__header" style="display: flex; align-items: center; gap: 16px;">
             <button class="btn ghost btn-back" id="btn-category-back">←</button>
             <h3 style="margin:0;">${category.title}</h3>
           </div>
-          <div class="quiz-category__list">
-            ${category.exercises.map(ex => `
-              <div class="quiz-picker__card" data-exercise-id="${ex.id}">
-                <div class="quiz-picker__content">
-                  <h4 class="quiz-picker__title">${ex.title}</h4>
-                  <span class="quiz-picker__meta">${
-                    ex.type === 'drag-drop' ? 'Sleepoefening' :
-                    ex.type === 'container-sort' ? 'Sorteeroefening' :
-                    ex.type === 'fill-in-blank' ? 'Invuloefening' : 'Oefening'
-                  }</span>
-                </div>
-                <div class="quiz-picker__arrow">→</div>
-              </div>
-            `).join('')}
+          <div class="quiz-category__container">
+            ${listHtml}
           </div>
         </div>
       `;
