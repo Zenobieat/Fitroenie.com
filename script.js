@@ -5618,6 +5618,15 @@ if (migUpper.changed) {
   persistSubjects();
 }
 
+// Practice Session State
+let practiceSession = {
+  active: false,
+  round: 1,
+  currentItemIndex: 0,
+  items: [],
+  exerciseId: null
+};
+
 function migrateCombineLowerSets(subjectsList) {
   let changed = false;
   const updated = subjectsList.map((subj) => {
@@ -6374,6 +6383,107 @@ function renderPractice(subject) {
                   { id: 6, label: "Ginglymus - Scharniergewricht (Hinge joint)" }
                 ]
               }
+            },
+            {
+              id: "ligamenten-wervelkolom",
+              title: "Wervelkolom & Borstkas",
+              type: "fill-in-blank",
+              data: {
+                title: "Wervelkolom & Borstkas",
+                instruction: "Vul de juiste naam in bij elke omschrijving. Gebruik de hint als hulp.",
+                items: [
+                  { id: 1, term: "Ligamentum longitudinale anterius", hint: "Stabiliseert wervelkolom aan voorzijde" },
+                  { id: 2, term: "Ligamentum longitudinale posterius", hint: "Stabiliseert wervelkolom aan achterzijde, binnen wervelkanaal" },
+                  { id: 3, term: "Ligamentum flavum", hint: "Tussen wervelbogen, rijk aan elastine" },
+                  { id: 4, term: "Ligamentum supraspinale", hint: "Verbindt toppen van spinaaluitsteeksels" },
+                  { id: 5, term: "Ligamentum nuchae", hint: "Verbreed deel in de nek" },
+                  { id: 6, term: "Ligamentum interspinale", hint: "Tussen spinaaluitsteeksels" },
+                  { id: 7, term: "Discus intervertebralis", hint: "Schokdemping tussen wervellichamen" },
+                  { id: 8, term: "Anulus fibrosus", hint: "Buitenste ring van tussenwervelschijf" },
+                  { id: 9, term: "Nucleus pulposus", hint: "Gelei-achtige kern van tussenwervelschijf" }
+                ]
+              }
+            },
+            {
+              id: "ligamenten-schouder",
+              title: "Schouder & Elleboog",
+              type: "fill-in-blank",
+              data: {
+                title: "Schouder & Elleboog",
+                instruction: "Vul de juiste naam in bij elke omschrijving. Gebruik de hint als hulp.",
+                items: [
+                  { id: 1, term: "Ligamentum coracohumerale", hint: "Verstevigt schouderkapsel craniaal" },
+                  { id: 2, term: "Ligamentum glenohumerale", hint: "Voorzijde schouderkapsel, Z-vorm" },
+                  { id: 3, term: "Ligamentum coracoacromiale", hint: "Dak boven schoudergewricht" },
+                  { id: 4, term: "Labrum glenoidale", hint: "Kraakbeenring die gewrichtskom verdiept" },
+                  { id: 5, term: "Ligamentum collaterale ulnare", hint: "Mediale stabiliteit elleboog" },
+                  { id: 6, term: "Ligamentum collaterale radiale", hint: "Laterale stabiliteit elleboog" },
+                  { id: 7, term: "Ligamentum anulare radii", hint: "Houdt radiuskop tegen ulna bij draaien" },
+                  { id: 8, term: "Membrana interossea antebrachii", hint: "Verbindt radius en ulna over lengte" },
+                  { id: 9, term: "Chorda obliqua", hint: "Versterking proximale radio-ulnaire verbinding" }
+                ]
+              }
+            },
+            {
+              id: "ligamenten-heup",
+              title: "Heup & Bekken",
+              type: "fill-in-blank",
+              data: {
+                title: "Heup & Bekken",
+                instruction: "Vul de juiste naam in bij elke omschrijving. Gebruik de hint als hulp.",
+                items: [
+                  { id: 1, term: "Ligamentum iliofemorale", hint: "Sterkste band, voorkomt overstrekking heup" },
+                  { id: 2, term: "Ligamentum pubofemorale", hint: "Beperkt abductie heup" },
+                  { id: 3, term: "Ligamentum ischiofemorale", hint: "Beperkt endorotatie, achterzijde heup" },
+                  { id: 4, term: "Ligamentum capitis femoris", hint: "Loopt naar heupkop, bevat bloedvat" },
+                  { id: 5, term: "Labrum acetabulare", hint: "Verdiept heupkom" },
+                  { id: 6, term: "Ligamentum sacroiliacum ventrale", hint: "Voorzijde SI-gewricht" },
+                  { id: 7, term: "Ligamentum sacroiliacum dorsale", hint: "Achterzijde SI-gewricht" },
+                  { id: 8, term: "Ligamentum sacrospinale", hint: "Naar zitbeenstekel, vormt foramen" }
+                ]
+              }
+            },
+            {
+              id: "ligamenten-knie",
+              title: "Knie & Onderbeen",
+              type: "fill-in-blank",
+              data: {
+                title: "Knie & Onderbeen",
+                instruction: "Vul de juiste naam in bij elke omschrijving. Gebruik de hint als hulp.",
+                items: [
+                  { id: 1, term: "Ligamentum cruciatum anterius", hint: "Voorkomt naar voren schuiven tibia" },
+                  { id: 2, term: "Ligamentum cruciatum posterius", hint: "Voorkomt naar achteren schuiven tibia" },
+                  { id: 3, term: "Ligamentum collaterale tibiale", hint: "Mediale band, vergroeid met meniscus" },
+                  { id: 4, term: "Ligamentum collaterale fibulare", hint: "Laterale band, los van meniscus" },
+                  { id: 5, term: "Meniscus medialis", hint: "C-vormig kraakbeen, binnenkant knie" },
+                  { id: 6, term: "Meniscus lateralis", hint: "O-vormig kraakbeen, buitenkant knie" },
+                  { id: 7, term: "Ligamentum patellae", hint: "Voortzetting quadricepspees naar tibia" },
+                  { id: 8, term: "Membrana interossea cruris", hint: "Verbindt tibia en fibula" }
+                ]
+              }
+            },
+            {
+              id: "ligamenten-voet",
+              title: "Voet",
+              type: "fill-in-blank",
+              data: {
+                title: "Voet",
+                instruction: "Vul de juiste naam in bij elke omschrijving. Gebruik de hint als hulp.",
+                items: [
+                  { id: 1, term: "Ligamentum talofibulare anterius", hint: "Vaakst gescheurd bij enkelverzwikking" },
+                  { id: 2, term: "Ligamentum calcaneofibulare", hint: "Verbindt hielbeen en kuitbeen" },
+                  { id: 3, term: "Ligamentum talofibulare posterius", hint: "Achterste buitenenkelband" },
+                  { id: 4, term: "Ligamentum deltoideum", hint: "Sterke waaier aan binnenzijde enkel" },
+                  { id: 5, term: "Ligamentum plantare longum", hint: "Belangrijk voor lengteboog voet" },
+                  { id: 6, term: "Aponeurosis plantaris", hint: "Peesplaat voetzool" },
+                  { id: 7, term: "Ligamentum calcaneonaviculare plantare", hint: "Spring ligament, steunt talus" },
+                  { id: 8, term: "Retinaculum mm. extensorum", hint: "Houdt strekpezen op hun plek" },
+                  { id: 9, term: "Retinaculum mm. flexorum", hint: "Houdt buigpezen op hun plek" },
+                  { id: 10, term: "Retinaculum mm. peroneorum", hint: "Houdt peroneuspezen op hun plek" },
+                  { id: 11, term: "Syndesmosis tibiofibularis", hint: "Verbinding scheen- en kuitbeen boven enkel" },
+                  { id: 12, term: "Ligamentum bifurcatum", hint: "Y-vormig bandje op voetrug" }
+                ]
+              }
             }
           ]
         }
@@ -6788,6 +6898,278 @@ function renderPractice(subject) {
       });
       return;
     }
+
+    if (exercise.type === 'fill-in-blank') {
+      const exerciseData = exercise.data;
+
+      // Initialize session if needed
+      if (!practiceSession.active || practiceSession.exerciseId !== exercise.id) {
+        practiceSession = {
+          active: true,
+          round: 1,
+          currentItemIndex: 0,
+          items: [...exerciseData.items], // Copy items
+          exerciseId: exercise.id,
+          completed: false
+        };
+      }
+
+      // Web Audio API Helper
+      const playSound = (type) => {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        
+        const ctx = new AudioContext();
+        
+        if (type === 'correct') {
+          // Nice "Ding"
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, ctx.currentTime); // A5
+          gain.gain.setValueAtTime(0.1, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+          
+          osc.start();
+          osc.stop(ctx.currentTime + 0.5);
+          
+          // Slight overtone for richness
+          const osc2 = ctx.createOscillator();
+          const gain2 = ctx.createGain();
+          osc2.connect(gain2);
+          gain2.connect(ctx.destination);
+          
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(1760, ctx.currentTime); // A6
+          gain2.gain.setValueAtTime(0.05, ctx.currentTime);
+          gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+          
+          osc2.start();
+          osc2.stop(ctx.currentTime + 0.3);
+          
+        } else if (type === 'incorrect') {
+          // Soft "Thud" / "Bonk" (less irritating)
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          
+          osc.type = 'triangle'; // Softer than sawtooth, but audible
+          osc.frequency.setValueAtTime(150, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.2);
+          
+          gain.gain.setValueAtTime(0.2, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+          
+          osc.start();
+          osc.stop(ctx.currentTime + 0.2);
+          
+        } else if (type === 'complete') {
+            // Confetti sound / Fanfare
+            const now = ctx.currentTime;
+            [440, 554, 659, 880].forEach((freq, i) => {
+                const o = ctx.createOscillator();
+                const g = ctx.createGain();
+                o.connect(g);
+                g.connect(ctx.destination);
+                o.type = 'triangle';
+                o.frequency.value = freq;
+                g.gain.setValueAtTime(0, now + i*0.1);
+                g.gain.linearRampToValueAtTime(0.2, now + i*0.1 + 0.05);
+                g.gain.exponentialRampToValueAtTime(0.01, now + i*0.1 + 0.4);
+                o.start(now + i*0.1);
+                o.stop(now + i*0.1 + 0.4);
+            });
+        }
+      };
+
+      if (practiceSession.completed) {
+        playSound('complete');
+        practiceDisplay.innerHTML = `
+          <div class="practice-container">
+            <div class="practice-header">
+              <button class="btn ghost btn-back" id="btn-practice-back">
+                ← Terug
+              </button>
+              <div>
+                <h3>${exerciseData.title}</h3>
+                <p>Oefening voltooid</p>
+              </div>
+            </div>
+            
+            <div class="practice-result">
+              <div class="result-icon">🎉</div>
+              <h3>Gefeliciteerd!</h3>
+              <p>Je hebt alle drie de rondes succesvol afgerond.</p>
+              <button class="btn-primary" id="btn-restart-practice">Opnieuw Oefenen</button>
+            </div>
+          </div>
+        `;
+        
+        document.getElementById('btn-practice-back').addEventListener('click', () => {
+          activePracticeExercise = null;
+          practiceSession.active = false;
+          renderPractice(subject);
+        });
+
+        document.getElementById('btn-restart-practice').addEventListener('click', () => {
+          practiceSession.active = false; // Reset will trigger init
+          renderPractice(subject);
+        });
+        return;
+      }
+
+      const currentItem = practiceSession.items[practiceSession.currentItemIndex];
+      const roundTitle = 
+        practiceSession.round === 1 ? "Ronde 1: Leren" : 
+        practiceSession.round === 2 ? "Ronde 2: Oefenen" : 
+        "Ronde 3: Meesterschap";
+      
+      const roundInstruction = 
+        practiceSession.round === 1 ? "Bekijk de hint en de naam." : 
+        practiceSession.round === 2 ? "Vul de naam aan (eerste deel is gegeven)." : 
+        "Vul de volledige naam in.";
+
+      let contentHtml = '';
+      const firstWord = currentItem.term.split(' ')[0] + ' ';
+
+      if (practiceSession.round === 1) {
+        contentHtml = `
+          <div class="fill-blank-card">
+            <div class="fill-blank-hint-large">
+              <span class="hint-icon">💡</span>
+              <span>${currentItem.hint}</span>
+            </div>
+            <div class="fill-blank-answer-reveal">
+              ${currentItem.term}
+            </div>
+            <button class="btn-check-large" id="btn-next-item">Volgende</button>
+          </div>
+        `;
+      } else if (practiceSession.round === 2) {
+        contentHtml = `
+          <div class="fill-blank-card">
+            <div class="fill-blank-hint-large">
+              <span class="hint-icon">💡</span>
+              <span>${currentItem.hint}</span>
+            </div>
+            <div class="fill-blank-input-wrapper large">
+              <input type="text" class="fill-blank-input" id="practice-input" value="${firstWord}" autocomplete="off">
+              <div class="fill-blank-feedback" id="practice-feedback"></div>
+            </div>
+            <button class="btn-check-large" id="btn-check-item">Controleren</button>
+          </div>
+        `;
+      } else {
+        contentHtml = `
+          <div class="fill-blank-card">
+            <div class="fill-blank-hint-large">
+              <span class="hint-icon">💡</span>
+              <span>${currentItem.hint}</span>
+            </div>
+            <div class="fill-blank-input-wrapper large">
+              <input type="text" class="fill-blank-input" id="practice-input" placeholder="Typ de volledige naam..." autocomplete="off">
+              <div class="fill-blank-feedback" id="practice-feedback"></div>
+            </div>
+            <button class="btn-check-large" id="btn-check-item">Controleren</button>
+          </div>
+        `;
+      }
+
+      practiceDisplay.innerHTML = `
+        <div class="practice-container">
+          <div class="practice-header">
+            <button class="btn ghost btn-back" id="btn-practice-back">
+              ← Stop
+            </button>
+            <div>
+              <h3>${exerciseData.title}</h3>
+              <p>${roundTitle} (${practiceSession.currentItemIndex + 1}/${practiceSession.items.length})</p>
+            </div>
+          </div>
+          <p class="practice-instruction">${roundInstruction}</p>
+          
+          ${contentHtml}
+        </div>
+      `;
+
+      // Back Button
+      document.getElementById('btn-practice-back').addEventListener('click', () => {
+        activePracticeExercise = null;
+        practiceSession.active = false;
+        renderPractice(subject);
+      });
+
+      // Actions
+      if (practiceSession.round === 1) {
+        document.getElementById('btn-next-item').addEventListener('click', () => {
+          nextItem();
+        });
+      } else {
+        const input = document.getElementById('practice-input');
+        const checkBtn = document.getElementById('btn-check-item');
+        const feedback = document.getElementById('practice-feedback');
+
+        // Focus input
+        requestAnimationFrame(() => {
+           input.focus();
+           // Move cursor to end if value exists
+           const val = input.value;
+           input.value = '';
+           input.value = val;
+        });
+
+        const checkAnswer = () => {
+          if (checkBtn.textContent === 'Volgende') {
+            nextItem();
+            return;
+          }
+
+          const userVal = input.value.trim().toLowerCase();
+          const correctVal = currentItem.term.toLowerCase();
+
+          if (userVal === correctVal) {
+            playSound('correct');
+            input.classList.add('correct');
+            feedback.textContent = 'Correct!';
+            feedback.style.color = 'var(--success)';
+            checkBtn.textContent = 'Volgende';
+            checkBtn.focus();
+          } else {
+            playSound('incorrect');
+            input.classList.add('incorrect');
+            feedback.textContent = `Niet correct. Het was: ${currentItem.term}`;
+            feedback.style.color = 'var(--error)';
+            checkBtn.textContent = 'Volgende';
+            
+            // Push incorrect item to end of list for retry
+            practiceSession.items.push(currentItem);
+          }
+        };
+
+        checkBtn.addEventListener('click', checkAnswer);
+        input.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') checkAnswer();
+        });
+      }
+
+      function nextItem() {
+        practiceSession.currentItemIndex++;
+        if (practiceSession.currentItemIndex >= practiceSession.items.length) {
+          practiceSession.currentItemIndex = 0;
+          practiceSession.round++;
+          if (practiceSession.round > 3) {
+            practiceSession.completed = true;
+          }
+        }
+        renderPractice(subject);
+      }
+      
+      return;
+    }
   }
   }
 
@@ -6807,7 +7189,11 @@ function renderPractice(subject) {
               <div class="quiz-picker__card" data-exercise-id="${ex.id}">
                 <div class="quiz-picker__content">
                   <h4 class="quiz-picker__title">${ex.title}</h4>
-                  <span class="quiz-picker__meta">Sleepoefening</span>
+                  <span class="quiz-picker__meta">${
+                    ex.type === 'drag-drop' ? 'Sleepoefening' :
+                    ex.type === 'container-sort' ? 'Sorteeroefening' :
+                    ex.type === 'fill-in-blank' ? 'Invuloefening' : 'Oefening'
+                  }</span>
                 </div>
                 <div class="quiz-picker__arrow">→</div>
               </div>
