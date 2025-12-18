@@ -19,7 +19,7 @@ const flashcardsPlayPanel = document.getElementById('flashcards-play-panel');
 const flashcardsPlay = document.getElementById('flashcards-play');
 const quizRunner = document.getElementById('quiz-runner');
 const quizResults = document.getElementById('quiz-results');
-const summaryDisplay = document.getElementById('summary-display');
+const practiceDisplay = document.getElementById('practice-display');
 const sectionTabs = document.getElementById('section-tabs');
 const panels = document.querySelectorAll('[data-panel]');
 const subjectSidebar = document.getElementById('subject-sidebar');
@@ -138,6 +138,8 @@ let lastFocusedElement = null;
 let lastQuestionDelta = 0;
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let activeFlashcardsCategory = null;
+let activePracticeCategory = null;
+let activePracticeExercise = null;
 
 const STORAGE_KEY = 'fitroenie-anatomie';
 const PROGRESS_NS = 'fitroenie-progress';
@@ -6272,12 +6274,260 @@ function buildProfileResults() {
   return list;
 }
 
-function renderSummary(subject) {
+function renderPractice(subject) {
   if (!subject) {
-    summaryDisplay.textContent = 'Kies eerst een vak via “Vakken”. In Samenvattingen lees je per vak de kernpunten. Selecteer hierboven een vak en klik daarna op Samenvattingen.';
+    practiceDisplay.innerHTML = '<p class="caption">Kies eerst een vak via “Vakken”. Selecteer hierboven een vak en klik daarna op Oefenen.</p>';
     return;
   }
-  summaryDisplay.textContent = subject.summary || 'Nog geen samenvatting beschikbaar.';
+
+  // Data Structure for Practice Exercises
+  const practiceContent = {
+    "Anatomie": {
+      categories: [
+        {
+          id: "arthrologie",
+          title: "Arthrologie",
+          exercises: [
+            {
+              id: "knie-oefenen",
+              title: "Knie oefenen",
+              type: "drag-drop",
+              data: {
+                title: "Knie Anatomie",
+                image: "Oefenen/Knie.png",
+                items: [
+                  { id: 1, label: "Meniscus lateralis" },
+                  { id: 2, label: "Ligamentum collaterale fibulare" },
+                  { id: 3, label: "Ligamentum cruciatum anterius" },
+                  { id: 4, label: "Ligamentum cruciatum posterius" },
+                  { id: 5, label: "Meniscus medialis" },
+                  { id: 6, label: "Ligamentum collaterale tibiale" },
+                  { id: 7, label: "Femur (Os femoris)" },
+                  { id: 8, label: "Musculus quadriceps femoris" }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  };
+
+  const subjectPractice = practiceContent[subject.name];
+
+  if (!subjectPractice) {
+    practiceDisplay.innerHTML = `
+      <div class="practice-content">
+        <p class="lede">Oefenmodule voor ${subject.name}</p>
+        <p class="caption">Nog geen oefeningen beschikbaar voor dit vak.</p>
+      </div>
+    `;
+    return;
+  }
+
+  // Level 3: Exercise View (Drag & Drop)
+  if (activePracticeExercise) {
+    const category = subjectPractice.categories.find(c => c.id === activePracticeCategory);
+    const exercise = category ? category.exercises.find(e => e.id === activePracticeExercise) : null;
+
+    if (exercise && exercise.type === 'drag-drop') {
+      const exerciseData = exercise.data;
+      
+      practiceDisplay.innerHTML = `
+        <div class="practice-container">
+          <div class="practice-header" style="position: relative;">
+            <button class="btn-back" id="btn-practice-back" style="position: absolute; left: 0; top: 0;">
+              ← Terug
+            </button>
+            <h3>${exerciseData.title}</h3>
+            <p>Sleep de namen naar de juiste nummers.</p>
+          </div>
+          
+          <div class="practice-layout">
+            <div class="practice-visual">
+              <div class="practice-image-container">
+                <img src="${exerciseData.image}" alt="Anatomie Oefening" class="practice-image">
+              </div>
+            </div>
+            
+            <div class="practice-interaction">
+              <div class="practice-zones-list">
+                ${exerciseData.items.map(item => `
+                  <div class="drop-zone-row">
+                    <div class="zone-number">${item.id}</div>
+                    <div class="drop-zone" data-correct-id="${item.id}"></div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          <div class="draggable-pool">
+            <div class="draggable-list" id="draggable-source">
+              ${exerciseData.items
+                .sort(() => Math.random() - 0.5)
+                .map(item => `
+                  <div class="draggable-item" draggable="true" data-id="${item.id}">
+                    ${item.label}
+                  </div>
+                `).join('')}
+            </div>
+          </div>
+
+          <div class="practice-feedback" id="practice-feedback"></div>
+
+          <div class="practice-actions">
+            <button class="btn-reset" id="btn-reset-practice">Opnieuw</button>
+            <button class="btn-check" id="btn-check-practice">Controleren</button>
+          </div>
+        </div>
+      `;
+
+      // Back Button Logic
+      document.getElementById('btn-practice-back').addEventListener('click', () => {
+        activePracticeExercise = null;
+        renderPractice(subject);
+      });
+
+      // (Drag and Drop Logic remains the same, just wrapped)
+      const draggables = practiceDisplay.querySelectorAll('.draggable-item');
+      const dropZones = practiceDisplay.querySelectorAll('.drop-zone');
+      const sourceContainer = practiceDisplay.querySelector('#draggable-source');
+      let draggedItem = null;
+
+      draggables.forEach(draggable => {
+        draggable.addEventListener('dragstart', () => {
+          draggedItem = draggable;
+          draggable.classList.add('dragging');
+        });
+        draggable.addEventListener('dragend', () => {
+          draggable.classList.remove('dragging');
+          draggedItem = null;
+        });
+      });
+
+      function setupDropZone(zone, isSource = false) {
+        zone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          if (!isSource) zone.classList.add('drag-over');
+        });
+        zone.addEventListener('dragleave', () => {
+          if (!isSource) zone.classList.remove('drag-over');
+        });
+        zone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          if (!isSource) zone.classList.remove('drag-over');
+          if (draggedItem) {
+            if (!isSource && zone.children.length > 0) {
+              const existingItem = zone.children[0];
+              sourceContainer.appendChild(existingItem);
+            }
+            zone.appendChild(draggedItem);
+          }
+        });
+      }
+
+      dropZones.forEach(zone => setupDropZone(zone));
+      setupDropZone(sourceContainer, true);
+
+      document.getElementById('btn-check-practice').addEventListener('click', () => {
+        let correctCount = 0;
+        dropZones.forEach(zone => {
+          const item = zone.querySelector('.draggable-item');
+          const correctId = zone.dataset.correctId;
+          zone.classList.remove('correct', 'incorrect');
+          if (item) {
+            if (item.dataset.id === correctId) {
+              zone.classList.add('correct');
+              correctCount++;
+            } else {
+              zone.classList.add('incorrect');
+            }
+          }
+        });
+        const feedback = document.getElementById('practice-feedback');
+        if (correctCount === exerciseData.items.length) {
+          feedback.textContent = "Geweldig! Alles is correct.";
+          feedback.style.color = "var(--success)";
+        } else {
+          feedback.textContent = `Je hebt ${correctCount} van de ${exerciseData.items.length} goed.`;
+          feedback.style.color = "var(--text)";
+        }
+      });
+
+      document.getElementById('btn-reset-practice').addEventListener('click', () => {
+        renderPractice(subject);
+      });
+      return;
+    }
+  }
+
+  // Level 2: Exercise List (Category Selected)
+  if (activePracticeCategory) {
+    const category = subjectPractice.categories.find(c => c.id === activePracticeCategory);
+    
+    if (category) {
+      practiceDisplay.innerHTML = `
+        <div class="quiz-category">
+          <div class="quiz-category__header" style="display: flex; align-items: center; gap: 10px;">
+            <button class="btn-back" id="btn-category-back">←</button>
+            <h3 style="margin:0;">${category.title}</h3>
+          </div>
+          <div class="quiz-category__list">
+            ${category.exercises.map(ex => `
+              <div class="quiz-picker__card" data-exercise-id="${ex.id}">
+                <div class="quiz-picker__content">
+                  <h4 class="quiz-picker__title">${ex.title}</h4>
+                  <span class="quiz-picker__meta">Sleepoefening</span>
+                </div>
+                <div class="quiz-picker__arrow">→</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('btn-category-back').addEventListener('click', () => {
+        activePracticeCategory = null;
+        renderPractice(subject);
+      });
+
+      practiceDisplay.querySelectorAll('.quiz-picker__card').forEach(card => {
+        card.addEventListener('click', () => {
+          activePracticeExercise = card.dataset.exerciseId;
+          renderPractice(subject);
+        });
+      });
+      return;
+    }
+  }
+
+  // Level 1: Category List (No Category Selected)
+  practiceDisplay.innerHTML = `
+    <div class="quiz-category">
+      <div class="quiz-category__header">
+        <h3 style="margin:0;">Onderwerpen</h3>
+      </div>
+      <div class="quiz-category__list">
+        ${subjectPractice.categories.map(cat => `
+          <div class="quiz-picker__card" data-category-id="${cat.id}">
+            <div class="quiz-picker__content">
+              <h4 class="quiz-picker__title">${cat.title}</h4>
+              <span class="quiz-picker__meta">${cat.exercises.length} oefeningen</span>
+            </div>
+            <div class="quiz-picker__arrow">→</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  practiceDisplay.querySelectorAll('.quiz-picker__card').forEach(card => {
+    card.addEventListener('click', () => {
+      activePracticeCategory = card.dataset.categoryId;
+      renderPractice(subject);
+    });
+  });
 }
 
 function renderQuizPicker(subject) {
@@ -6336,64 +6586,42 @@ function renderQuizPicker(subject) {
 
   const createSetCard = (set, setIndex) => {
     const state = getSetProgress(subject.name, set.title, set.questions);
-    const status = state.completed ? 'Voltooid' : state.answered ? 'Bezig' : 'Niet gestart';
     const setHeading = formatSetTitle(set.title);
-    const percent = set.questions.length ? Math.round((state.correct / set.questions.length) * 100) : 0;
+    
+    // Status text logic
+    let statusText = 'Start quiz';
+    if (state.completed) statusText = 'Voltooid';
+    else if (state.answered) statusText = 'Bezig';
 
     const card = document.createElement('article');
     card.className = 'quiz-picker__card';
+    
+    // New Compact HTML Structure
     card.innerHTML = `
-      <header class="quiz-picker__header">
-        <div>
-          <p class="eyebrow">Set ${setIndex + 1}</p>
-          <h3>${setHeading}</h3>
-          ${set.description ? `<p class="caption" style="margin-top: 0.25rem; opacity: 0.8;">${set.description}</p>` : ''}
-        </div>
-        <div class="chip">${state.completed ? `${state.correct}/${set.questions.length} punten · ${percent}%` : `${state.answered}/${set.questions.length} beantwoord`}</div>
-      </header>
-      <p class="caption">${status} · ${set.questions.length} vragen${state.completed ? ` · ${state.correct}/${set.questions.length} punten (${percent}%)` : ''}</p>
+      <div class="quiz-picker__content">
+        <h3 class="quiz-picker__title">${setHeading}</h3>
+        <span class="quiz-picker__meta">${statusText} · ${set.questions.length} vragen</span>
+      </div>
+      <div class="quiz-picker__status">
+        ${state.completed ? `<span class="quiz-picker__score">${state.correct}/${set.questions.length}</span>` : ''}
+        <svg class="quiz-picker__arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </div>
     `;
 
-    const actions = document.createElement('div');
-    actions.className = 'quiz-picker__actions';
-
-    const primaryBtn = document.createElement('button');
-    primaryBtn.type = 'button';
-    primaryBtn.className = 'btn';
-    primaryBtn.textContent = state.completed ? 'Bekijk score' : state.answered ? 'Ga verder' : 'Start quiz';
-    primaryBtn.addEventListener('click', () => startQuiz(set.title));
-
-    const resumePrevBtn = document.createElement('button');
-    resumePrevBtn.type = 'button';
-    resumePrevBtn.className = 'btn ghost';
-    resumePrevBtn.textContent = 'Hervatten';
-    resumePrevBtn.addEventListener('click', () => {
-      restoreLastAttempt(subject.name, set.title);
-      startQuiz(set.title);
+    // Direct Click Action
+    card.addEventListener('click', () => {
+      card.classList.add('is-opening');
+      setTimeout(() => {
+        card.classList.remove('is-opening');
+        if (state.answered && !state.completed) {
+            restoreLastAttempt(subject.name, set.title);
+        }
+        startQuiz(set.title);
+      }, 150);
     });
 
-    const restartBtn = document.createElement('button');
-    restartBtn.type = 'button';
-    restartBtn.className = 'btn ghost';
-    restartBtn.textContent = 'Herstart';
-    restartBtn.addEventListener('click', () => {
-      resetSetProgress(subject.name, set.title);
-      if (activeQuizSetTitle === set.title) activeQuizQuestionIndex = 0;
-      render();
-    });
-
-    const hasArchive = !!progress[subject.name]?.[set.title]?.lastAttempt;
-    if (state.completed) {
-      actions.append(primaryBtn, restartBtn);
-      if (hasArchive) actions.append(resumePrevBtn);
-    } else if (state.answered) {
-      actions.append(primaryBtn, restartBtn);
-      if (hasArchive) actions.append(resumePrevBtn);
-    } else {
-      actions.append(primaryBtn);
-      if (hasArchive) actions.append(resumePrevBtn);
-    }
-    card.appendChild(actions);
     return card;
   };
 
@@ -6433,26 +6661,20 @@ function renderQuizPicker(subject) {
       const card = document.createElement('article');
       card.className = 'quiz-picker__card';
       card.innerHTML = `
-        <header class="quiz-picker__header">
-          <div>
-            <p class="eyebrow">Vak</p>
-            <h3>${dom.title}</h3>
-          </div>
-          <div class="chip">${totalSets} sets</div>
-        </header>
-        <p class="caption">${dom.description || 'Open om te starten.'}</p>
+        <div class="quiz-picker__content">
+            <h3 class="quiz-picker__title">${dom.title}</h3>
+            <span class="quiz-picker__meta">${totalSets} sets beschikbaar</span>
+        </div>
+        <div class="quiz-picker__status">
+            <svg class="quiz-picker__arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </div>
       `;
 
-      const actions = document.createElement('div');
-      actions.className = 'quiz-picker__actions';
-
-      const openBtn = document.createElement('button');
-      openBtn.type = 'button';
-      openBtn.className = 'btn';
-      openBtn.textContent = 'Open';
-      openBtn.addEventListener('click', () => {
+      card.addEventListener('click', () => {
         card.classList.add('is-opening');
-        setTimeout(() => card.classList.remove('is-opening'), 240);
+        setTimeout(() => card.classList.remove('is-opening'), 150);
         animatePicker(() => {
           activeExamDomain = dom.id;
           activeOsteologySection = null;
@@ -6461,9 +6683,6 @@ function renderQuizPicker(subject) {
           render();
         });
       });
-
-      actions.append(openBtn);
-      card.appendChild(actions);
       list.appendChild(card);
     });
 
@@ -6472,6 +6691,7 @@ function renderQuizPicker(subject) {
     return;
   }
 
+  // Handle Osteologie sub-sections selection
   if (domain.id === 'osteologie' && !activeOsteologySection) {
     const section = document.createElement('section');
     section.className = 'quiz-category';
@@ -6495,26 +6715,20 @@ function renderQuizPicker(subject) {
       const card = document.createElement('article');
       card.className = 'quiz-picker__card';
       card.innerHTML = `
-        <header class="quiz-picker__header">
-          <div>
-            <p class="eyebrow">Onderdeel</p>
-            <h3>${sec.title}</h3>
-          </div>
-          <div class="chip">${totalSets} sets</div>
-        </header>
-        <p class="caption">${domain.description || ''}</p>
+        <div class="quiz-picker__content">
+            <h3 class="quiz-picker__title">${sec.title}</h3>
+            <span class="quiz-picker__meta">${totalSets} sets</span>
+        </div>
+        <div class="quiz-picker__status">
+            <svg class="quiz-picker__arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </div>
       `;
 
-      const actions = document.createElement('div');
-      actions.className = 'quiz-picker__actions';
-
-      const openBtn = document.createElement('button');
-      openBtn.type = 'button';
-      openBtn.className = 'btn';
-      openBtn.textContent = 'Open';
-      openBtn.addEventListener('click', () => {
+      card.addEventListener('click', () => {
         card.classList.add('is-opening');
-        setTimeout(() => card.classList.remove('is-opening'), 240);
+        setTimeout(() => card.classList.remove('is-opening'), 150);
         animatePicker(() => {
           activeOsteologySection = sec.id;
           activeQuizSetTitle = null;
@@ -6522,9 +6736,6 @@ function renderQuizPicker(subject) {
           render();
         });
       });
-
-      actions.append(openBtn);
-      card.appendChild(actions);
       list.appendChild(card);
     });
 
@@ -6554,20 +6765,23 @@ function renderQuizPicker(subject) {
   sections.forEach((sec, catIndex) => {
     const sectionEl = document.createElement('section');
     sectionEl.className = 'quiz-category';
+    
     sectionEl.innerHTML = `
       <header class="quiz-category__header">
         <div>
-          <p class="eyebrow">${catIndex + 1}. ${domain.title}</p>
-          <h3>${sec.title}</h3>
-          ${sec.description ? `<p class="caption" style="margin-top: 0.25rem; opacity: 0.8;">${sec.description}</p>` : ''}
+           <p class="eyebrow">${catIndex + 1}. ${domain.title}</p>
+           <h3>${sec.title}</h3>
         </div>
         <div class="quiz-picker__actions">
-          ${domain.id === 'osteologie'
+           ${domain.id === 'osteologie'
             ? '<button class="btn ghost" type="button" id="back-to-osteologie">← Terug</button>'
             : '<button class="btn ghost" type="button" id="back-to-domains-plain">← Andere vakken</button>'}
         </div>
       </header>
     `;
+
+    const content = document.createElement('div');
+    content.className = 'quiz-category__content';
 
     const list = document.createElement('div');
     list.className = 'quiz-category__list';
@@ -6580,14 +6794,22 @@ function renderQuizPicker(subject) {
         list.appendChild(createSetCard(set, setIndex));
       });
     }
+    
+    content.appendChild(list);
+    sectionEl.appendChild(content);
 
     const backOsteo = sectionEl.querySelector('#back-to-osteologie');
-    backOsteo?.addEventListener('click', resetToOsteologySections);
+    backOsteo?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        resetToOsteologySections();
+    });
 
     const backDomainsPlain = sectionEl.querySelector('#back-to-domains-plain');
-    backDomainsPlain?.addEventListener('click', resetToDomains);
+    backDomainsPlain?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        resetToDomains();
+    });
 
-    sectionEl.appendChild(list);
     quizPicker.appendChild(sectionEl);
   });
 }
@@ -7115,7 +7337,7 @@ function render() {
     if (fcPanel) fcPanel.hidden = true;
     if (fcPlay) fcPlay.hidden = true;
   }
-  renderSummary(subject);
+  renderPractice(subject);
   renderQuizPicker(subject);
   renderFlashcardsPanel(subject);
   renderFlashcardsPlay(subject);
@@ -7465,8 +7687,8 @@ function renderHomeCatalog() {
     const sumBtn = document.createElement('button');
     sumBtn.className = 'btn ghost';
     sumBtn.type = 'button';
-    sumBtn.textContent = 'Samenvattingen';
-    sumBtn.addEventListener('click', () => handleSubjectNavigation(s.name, 'summary-panel'));
+    sumBtn.textContent = 'Oefenen';
+    sumBtn.addEventListener('click', () => handleSubjectNavigation(s.name, 'practice-panel'));
     const flashBtn = document.createElement('button');
     flashBtn.className = 'btn ghost';
     flashBtn.type = 'button';

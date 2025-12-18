@@ -25,7 +25,7 @@
         <div class="nav__pillbar" role="list">
           <button class="pill is-active" data-view-target="home" role="listitem" type="button">Start</button>
           <button class="pill" data-view-target="anatomie" data-panel-target="quiz-panel" role="listitem" type="button">Examens</button>
-          <button class="pill" data-view-target="anatomie" data-panel-target="summary-panel" role="listitem" type="button">Samenvattingen</button>
+          <button class="pill" data-view-target="anatomie" data-panel-target="practice-panel" role="listitem" type="button">Oefenen</button>
           <button class="pill" data-view-target="profile" role="listitem" type="button">Profiel</button>
         </div>
       </nav>
@@ -59,7 +59,7 @@
             <div class="searchbar">
               <input id="subject-search" type="text" placeholder="Zoek een vak of onderdeel…" aria-label="Zoek vak" />
               <button class="btn ghost" type="button" data-view-target="anatomie" data-panel-target="quiz-panel">Examens</button>
-              <button class="btn ghost" type="button" data-view-target="anatomie" data-panel-target="summary-panel">Samenvattingen</button>
+              <button class="btn ghost" type="button" data-view-target="anatomie" data-panel-target="practice-panel">Oefenen</button>
               <button class="btn ghost" type="button" data-panel-target="flashcards-panel" data-subject-name="Individuele Fitness">Flashcards</button>
             </div>
           </div>
@@ -88,17 +88,17 @@
           </div>
           <div class="tabbar segmented" id="section-tabs" aria-label="Anatomie secties">
             <button class="tab active" type="button" data-panel-target="quiz-panel">Examens</button>
-            <button class="tab" type="button" data-panel-target="summary-panel">Samenvattingen</button>
+            <button class="tab" type="button" data-panel-target="practice-panel">Oefenen</button>
             <button class="tab" type="button" data-panel-target="flashcards-panel">Flashcards</button>
           </div>
         </div>
 
         <div class="content-area subject-layout">
           <aside class="subject-sidebar" id="subject-sidebar" aria-label="Vaknavigatie"></aside>
-          <article class="summary" id="summary-panel" data-panel="summary-panel" hidden>
-            <h3>Samenvattingen</h3>
-            <p class="lede">De samenvattingen volgen; je kunt hier straks de kernpunten van Anatomie nalezen.</p>
-            <div id="summary-display">Nog geen samenvatting beschikbaar.</div>
+          <article class="summary" id="practice-panel" data-panel="practice-panel" hidden>
+            <h3>Oefenen</h3>
+            <p class="lede">Hier komen interactieve oefeningen om je kennis te testen.</p>
+            <div id="practice-display">Nog geen oefeningen beschikbaar.</div>
           </article>
 
           <div id="quiz-panel" data-panel="quiz-panel">

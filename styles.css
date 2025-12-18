@@ -1306,3 +1306,308 @@ body.modal-open { overflow: hidden; }
 .flashcard__front { background: linear-gradient(180deg, #ffffff, #f8fbff); transform: rotateY(0deg); display: grid; place-items: center; text-align: center; }
 .flashcard__back { background: linear-gradient(180deg, #f6fbf7, #eef8f1); transform: rotateY(180deg); overflow: auto; text-align: left; display: block; padding: 44px 32px 36px; }
 .flashcard__content { width: 100%; margin: 0; padding: 24px; text-align: left; }
+
+/* Compact Quiz Picker Styles - Added for Simplicity */
+
+.quiz-category {
+  margin-bottom: 24px;
+}
+
+.quiz-category__header {
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+/* Force grid layout always, disable any previous collapse hiding */
+.quiz-category__list {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+  gap: 10px;
+}
+
+.quiz-picker__card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+  position: relative;
+  overflow: hidden;
+  min-height: 70px;
+  flex-direction: row; 
+}
+
+/* Hide the old blob */
+.quiz-picker__card::before {
+  display: none !important;
+}
+
+.quiz-picker__card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+  border-color: var(--accent);
+}
+
+.quiz-picker__card:active {
+  transform: scale(0.99);
+}
+
+/* Content Layout */
+.quiz-picker__content {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+
+.quiz-picker__title {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.quiz-picker__meta {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Status Indicators */
+.quiz-picker__status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 12px;
+}
+
+.quiz-picker__score {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  background: rgba(43, 182, 115, 0.08);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.quiz-picker__arrow {
+  color: var(--border-strong);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.quiz-picker__card:hover .quiz-picker__arrow {
+  color: var(--accent);
+  transform: translateX(2px);
+}
+
+/* Animation for opening */
+.quiz-picker__card.is-opening {
+  transform: scale(0.96);
+  opacity: 0.8;
+}
+
+/* Hide old toggle elements just in case */
+.quiz-category__toggle {
+  display: none !important;
+}
+
+.quiz-category.is-collapsed .quiz-category__list {
+  display: grid !important;
+}
+
+/* Practice / Drag and Drop Styles */
+.practice-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.practice-header {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.practice-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+
+@media (min-width: 900px) {
+  .practice-layout {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+.practice-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.practice-image-container {
+  position: relative;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.practice-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.practice-zones-list {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+}
+
+.drop-zone-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.zone-number {
+  background: var(--accent);
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.drop-zone {
+  flex: 1;
+  min-height: 48px;
+  background: #f4f6f5;
+  border: 2px dashed var(--border-strong);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  transition: all 0.2s ease;
+}
+
+.drop-zone.drag-over {
+  background: rgba(43, 182, 115, 0.1);
+  border-color: var(--accent);
+}
+
+.drop-zone.filled {
+  border-style: solid;
+  background: #ffffff;
+  border-color: var(--border);
+}
+
+.drop-zone.correct {
+  border-color: var(--success);
+  background: rgba(46, 204, 113, 0.1);
+}
+
+.drop-zone.incorrect {
+  border-color: var(--error);
+  background: rgba(231, 76, 60, 0.1);
+}
+
+.draggable-pool {
+  background: #f9fdf9;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.draggable-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 50px;
+}
+
+.draggable-item {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: grab;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  user-select: none;
+  transition: transform 0.1s;
+}
+
+.draggable-item:active {
+  cursor: grabbing;
+}
+
+.draggable-item.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+}
+
+.practice-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.btn-check {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-check:hover {
+  background: var(--accent-hover);
+}
+
+.btn-reset {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-reset:hover {
+  background: #f4f4f4;
+}
+
+.practice-feedback {
+  text-align: center;
+  margin-top: 16px;
+  font-weight: bold;
+  min-height: 24px;
+}
+
