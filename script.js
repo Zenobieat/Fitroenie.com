@@ -6404,12 +6404,14 @@ function renderPractice(subject) {
         
         practiceDisplay.innerHTML = `
           <div class="practice-container">
-            <div class="practice-header" style="position: relative;">
-              <button class="btn-back" id="btn-practice-back" style="position: absolute; left: 0; top: 0;">
+            <div class="practice-header">
+              <button class="btn ghost btn-back" id="btn-practice-back">
                 ← Terug
               </button>
-              <h3>${exerciseData.title}</h3>
-              <p>${exerciseData.instruction}</p>
+              <div>
+                <h3>${exerciseData.title}</h3>
+                <p>${exerciseData.instruction}</p>
+              </div>
             </div>
             
             <div class="sort-grid">
@@ -6599,12 +6601,14 @@ function renderPractice(subject) {
       
       practiceDisplay.innerHTML = `
         <div class="practice-container">
-          <div class="practice-header" style="position: relative;">
-            <button class="btn-back" id="btn-practice-back" style="position: absolute; left: 0; top: 0;">
+          <div class="practice-header">
+            <button class="btn ghost btn-back" id="btn-practice-back">
               ← Terug
             </button>
-            <h3>${exerciseData.title}</h3>
-            <p>Sleep de namen naar de juiste nummers.</p>
+            <div>
+              <h3>${exerciseData.title}</h3>
+              <p>Sleep de namen naar de juiste nummers.</p>
+            </div>
           </div>
           
           <div class="practice-layout">
@@ -6794,8 +6798,8 @@ function renderPractice(subject) {
     if (category) {
       practiceDisplay.innerHTML = `
         <div class="quiz-category">
-          <div class="quiz-category__header" style="display: flex; align-items: center; gap: 10px;">
-            <button class="btn-back" id="btn-category-back">←</button>
+          <div class="quiz-category__header" style="display: flex; align-items: center; gap: 16px;">
+            <button class="btn ghost btn-back" id="btn-category-back">←</button>
             <h3 style="margin:0;">${category.title}</h3>
           </div>
           <div class="quiz-category__list">
@@ -7145,7 +7149,13 @@ function renderSubjectSidebar(subject) {
     subjectSidebar.innerHTML = '<p class="caption">Kies een vak om te verkennen.</p>';
     return;
   }
-  const domains = subject.examDomains || [];
+  let domains = subject.examDomains || [];
+
+  // Filter for practice mode
+  if (activePanel === 'practice-panel') {
+    domains = domains.filter(d => d.id === 'arthrologie');
+  }
+
   const container = document.createElement('div');
   const title = document.createElement('h4');
   title.textContent = 'Onderdelen';
