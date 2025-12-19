@@ -9592,155 +9592,117 @@ function countCards(node) {
   return own + subs.reduce((acc, s) => acc + countCards(s), 0);
 }
 
-function renderFlashcardsPanel(subject) {
+function renderFlashcardsPanel(subject, parentCategory = null) {
   if (!flashcardsPanel || !flashcardsDisplay) return;
   if (activePanel !== 'flashcards-panel') { flashcardsPanel.hidden = true; return; }
   flashcardsPanel.hidden = false;
   flashcardsDisplay.innerHTML = '';
-  const categories = getFlashcardCategories(subject);
-  const ordered = [...categories].sort((a, b) => {
-    if (a.id === 'praktijk' && b.id !== 'praktijk') return -1;
-    if (b.id === 'praktijk' && a.id !== 'praktijk') return 1;
-    return 0;
-  });
-  const section = document.createElement('section');
-  section.className = 'quiz-category';
-  section.innerHTML = `
-    <header class="quiz-category__header">
-      <div>
-        <p class="eyebrow">Flashcards</p>
-        <h3>Kies een hoofdcategorie</h3>
-      </div>
-    </header>
-  `;
-  const list = document.createElement('div');
-  list.className = 'quiz-category__list';
-  ordered.forEach((cat) => {
-    const card = document.createElement('article');
-    card.className = 'quiz-picker__card';
-    card.dataset.id = cat.id || '';
-    if (cat.id === 'praktijk') card.classList.add('is-praktijk');
-    const total = countCards(cat);
-    card.innerHTML = `
-      <header class="quiz-picker__header">
-        <div>
-          <p class="eyebrow">Categorie</p>
-          <h3>${cat.title}</h3>
-        </div>
-        <div class="chip">${total} kaarten</div>
-      </header>
-      <p class="caption">Open om te starten.</p>
-    `;
-    const actions = document.createElement('div');
-    actions.className = 'quiz-picker__actions';
-    const openBtn = document.createElement('button');
-    openBtn.type = 'button';
-    openBtn.className = 'btn';
-    openBtn.textContent = 'Open';
-    openBtn.addEventListener('click', () => {
-      if (cat.subcategories?.length) {
-        const listEl = card.parentElement; // grid container
-        const existing = document.getElementById(`subpanel-${cat.id}`);
-        if (existing) { existing.hidden = !existing.hidden; existing.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
-        const subPanel = document.createElement('div');
-        subPanel.id = `subpanel-${cat.id}`;
-        subPanel.className = 'quiz-picker__subpanel';
-        const subHeader = document.createElement('p');
-        subHeader.className = 'quiz-picker__subheader caption';
-        subHeader.textContent = 'Subcategorieën';
-        const subList = document.createElement('div');
-        subList.className = 'quiz-picker__sublist';
-        cat.subcategories.forEach((sub) => {
-          const subCard = document.createElement('article');
-          subCard.className = 'quiz-picker__card';
-          const count = countCards(sub);
-          subCard.innerHTML = `
-            <header class="quiz-picker__header">
-              <div>
-                <p class="eyebrow">Subcategorie</p>
-                <h3>${sub.title}</h3>
-              </div>
-              <div class="chip">${count} kaarten</div>
-            </header>
-            <p class="caption">Open om deze kaarten te bekijken.</p>
-          `;
-          const subActions = document.createElement('div');
-          subActions.className = 'quiz-picker__actions';
-          const subOpen = document.createElement('button');
-          subOpen.type = 'button';
-          subOpen.className = 'btn';
-          subOpen.textContent = 'Open';
-          subOpen.addEventListener('click', () => {
-            if (sub.subcategories?.length) {
-              // Toon een nested subpanel met de leaf-subcategorieën
-              const innerPanel = document.createElement('div');
-              innerPanel.className = 'quiz-picker__subpanel';
-              const innerHeader = document.createElement('p');
-              innerHeader.className = 'quiz-picker__subheader caption';
-              innerHeader.textContent = 'Subcategorieën';
-              const innerList = document.createElement('div');
-              innerList.className = 'quiz-picker__sublist';
-              sub.subcategories.forEach((leaf) => {
-                const leafCard = document.createElement('article');
-                leafCard.className = 'quiz-picker__card';
-                const leafCount = countCards(leaf);
-                leafCard.innerHTML = `
-                  <header class="quiz-picker__header">
-                    <div>
-                      <p class="eyebrow">Subcategorie</p>
-                      <h3>${leaf.title}</h3>
-                    </div>
-                    <div class="chip">${leafCount} kaarten</div>
-                  </header>
-                  <p class="caption">Open om te starten.</p>
-                `;
-                const leafActions = document.createElement('div');
-                leafActions.className = 'quiz-picker__actions';
-                const leafOpen = document.createElement('button');
-                leafOpen.type = 'button';
-                leafOpen.className = 'btn';
-                leafOpen.textContent = 'Open';
-                leafOpen.addEventListener('click', () => {
-                  activeFlashcardsCategory = { id: leaf.id, title: leaf.title, cards: leaf.cards || [] };
-                  setActivePanel('flashcards-play-panel');
-                  render();
-                });
-                leafActions.appendChild(leafOpen);
-                leafCard.appendChild(leafActions);
-                innerList.appendChild(leafCard);
-              });
-              innerPanel.append(innerHeader, innerList);
-              // Voeg direct na deze subCard toe
-              const parentList = subCard.parentElement;
-              if (parentList) {
-                parentList.insertBefore(innerPanel, subCard.nextSibling);
-                innerPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }
-            } else {
-              activeFlashcardsCategory = { id: sub.id, title: sub.title, cards: sub.cards || [] };
-              setActivePanel('flashcards-play-panel');
-              render();
-            }
-          });
-          subActions.appendChild(subOpen);
-          subCard.appendChild(subActions);
-          subList.appendChild(subCard);
-        });
-        subPanel.append(subHeader, subList);
-        listEl.insertBefore(subPanel, card.nextSibling);
-        subPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } else {
-        activeFlashcardsCategory = cat;
-        setActivePanel('flashcards-play-panel');
-        render();
-      }
+
+  // Determine items to show
+  let items = [];
+  if (parentCategory) {
+    items = parentCategory.subcategories || [];
+  } else {
+    const categories = getFlashcardCategories(subject);
+    items = [...categories].sort((a, b) => {
+      if (a.id === 'praktijk' && b.id !== 'praktijk') return -1;
+      if (b.id === 'praktijk' && a.id !== 'praktijk') return 1;
+      return 0;
     });
-    actions.appendChild(openBtn);
-    card.appendChild(actions);
-    list.appendChild(card);
-  });
-  section.appendChild(list);
-  flashcardsDisplay.appendChild(section);
+  }
+
+  // Helper to find parent for "Back" button
+  const findParent = (list, targetId) => {
+    for (const item of list) {
+       if (item.subcategories) {
+         if (item.subcategories.some(sub => sub.id === targetId)) return item;
+         const found = findParent(item.subcategories, targetId);
+         if (found) return found;
+       }
+    }
+    return null;
+  };
+
+  // Header Section
+  const headerGroup = document.createElement('div');
+  headerGroup.style.marginBottom = '24px';
+
+  if (parentCategory) {
+    const backBtn = document.createElement('button');
+    backBtn.type = 'button';
+    backBtn.className = 'btn ghost'; 
+    backBtn.textContent = '← Terug';
+    backBtn.style.marginBottom = '12px';
+    backBtn.addEventListener('click', () => {
+      const allCats = getFlashcardCategories(subject);
+      const parent = findParent(allCats, parentCategory.id);
+      renderFlashcardsPanel(subject, parent);
+    });
+    headerGroup.appendChild(backBtn);
+
+    const titleDiv = document.createElement('div');
+    titleDiv.innerHTML = `
+      <p class="eyebrow">Categorie</p>
+      <h3>${parentCategory.title}</h3>
+    `;
+    headerGroup.appendChild(titleDiv);
+  } else {
+    headerGroup.innerHTML = `
+      <header class="quiz-category__header">
+        <div>
+          <p class="eyebrow">Flashcards</p>
+          <h3>Kies een onderwerp</h3>
+        </div>
+      </header>
+    `;
+  }
+  flashcardsDisplay.appendChild(headerGroup);
+
+  // Grid List
+  const list = document.createElement('div');
+  list.className = 'quiz-category__list'; // Keeps the grid layout
+
+  if (items.length === 0) {
+      list.innerHTML = `<p class="caption">Geen subcategorieën gevonden.</p>`;
+  } else {
+      items.forEach((cat) => {
+        const card = document.createElement('article');
+        card.className = 'quiz-picker__card';
+        if (cat.id === 'praktijk') card.classList.add('is-praktijk');
+        
+        const total = countCards(cat);
+        const isLeaf = !cat.subcategories || cat.subcategories.length === 0;
+
+        // Use a cleaner HTML structure
+        card.innerHTML = `
+          <div class="quiz-picker__content">
+            <header class="quiz-picker__header" style="margin-bottom: 4px;">
+               <h3 style="margin: 0;">${cat.title}</h3>
+            </header>
+            <p class="caption">${isLeaf ? 'Start set' : 'Bekijk opties'}</p>
+          </div>
+          <div class="quiz-picker__actions">
+             <div class="chip">${total}</div>
+          </div>
+        `;
+        
+        // Make the card clickable
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', () => {
+            if (isLeaf) {
+                activeFlashcardsCategory = { id: cat.id, title: cat.title, cards: cat.cards || [] };
+                setActivePanel('flashcards-play-panel');
+                render();
+            } else {
+                renderFlashcardsPanel(subject, cat);
+            }
+        });
+
+        list.appendChild(card);
+      });
+  }
+  
+  flashcardsDisplay.appendChild(list);
 }
 
 function renderFlashcardsList(cards) {
