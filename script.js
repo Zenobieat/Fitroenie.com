@@ -6412,15 +6412,15 @@ function renderPractice(subject) {
                 title: "Schouder & Elleboog",
                 instruction: "Vul de juiste naam in bij elke omschrijving. Gebruik de hint als hulp.",
                 items: [
-                  { id: 1, term: "Ligamentum coracohumerale", hint: "Verstevigt schouderkapsel craniaal" },
-                  { id: 2, term: "Ligamentum glenohumerale", hint: "Voorzijde schouderkapsel, Z-vorm" },
-                  { id: 3, term: "Ligamentum coracoacromiale", hint: "Dak boven schoudergewricht" },
-                  { id: 4, term: "Labrum glenoidale", hint: "Kraakbeenring die gewrichtskom verdiept" },
-                  { id: 5, term: "Ligamentum collaterale ulnare", hint: "Mediale stabiliteit elleboog" },
-                  { id: 6, term: "Ligamentum collaterale radiale", hint: "Laterale stabiliteit elleboog" },
-                  { id: 7, term: "Ligamentum anulare radii", hint: "Houdt radiuskop tegen ulna bij draaien" },
-                  { id: 8, term: "Membrana interossea antebrachii", hint: "Verbindt radius en ulna over lengte" },
-                  { id: 9, term: "Chorda obliqua", hint: "Versterking proximale radio-ulnaire verbinding" }
+                  { id: 1, term: "Ligamentum coraco-acromiale", hint: "Remt de abductie en anteversie van de schouder." },
+                  { id: 2, term: "Ligamentum glenohumeralia", hint: "Drie banden (sup, med, inf) die de voorzijde van het kapsel stabiliseren." },
+                  { id: 3, term: "Recessus axillaris", hint: "Hulp-plooi in de oksel voor grotere bewegingsvrijheid." },
+                  { id: 4, term: "Vagina tendinis intertubercularis", hint: "De peesschede waar de lange bicepspees doorheen loopt." },
+                  { id: 5, term: "Bursa synovialis", hint: "Zorgt voor vermindering van wrijving tussen structuren." },
+                  { id: 6, term: "Ligamentum coracoclaviculare", hint: "Verbinding tussen ravenbekuitsteeksel en clavicula (bevat conoideum/trapezoideum)." },
+                  { id: 7, term: "Ligamentum anulare radii", hint: "Lusvormige band die de draaiing van de radiuskop geleidt." },
+                  { id: 8, term: "Ligamentum collaterale ulnare", hint: "Zorgt voor stabiliteit aan de binnenzijde van de elleboog." },
+                  { id: 9, term: "Ligamentum collaterale radiale", hint: "Zorgt voor stabiliteit aan de buitenzijde van de elleboog." }
                 ]
               }
             },
