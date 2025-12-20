@@ -213,6 +213,7 @@ function pickAnswered(pick) {
 
 function computePickCorrect(question, pick) {
   if (!question || !pick) return false;
+  if (pick.forceCorrect) return true;
   if (typeof pick.choice === 'number' && typeof question.answerIndex === 'number') {
     return pick.choice === question.answerIndex;
   }
@@ -4088,6 +4089,59 @@ function createDefaultSubjects() {
 
 
 
+  const les2BasisMC = [
+    {
+      question: 'Welke van de volgende is GEEN voorbeeld van een ABV-basisbeweging?',
+      options: ['Stappen', 'Kruipen', 'Stilzitten', 'Klimmen'],
+      answerIndex: 2
+    },
+    {
+      question: 'Waarom moet een instructie bij jonge kinderen kort zijn?',
+      options: ['Zodat de leerkracht meer rust heeft', 'Omdat hun concentratieboog kort is en ze snel willen bewegen', 'Omdat ze anders te slim worden', 'Omdat de bel gaat'],
+      answerIndex: 1
+    },
+    {
+      question: 'Waarom mag je bij jonge kinderen (< 8 jaar) een beweging vaak NIET in spiegelbeeld voordoen?',
+      options: ['Ze vinden dat grappig', 'Ze hebben nog moeite met de links-rechts omkering en kopiëren letterlijk', 'Het is te moeilijk voor de leerkracht', 'Ze zien het verschil niet'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wat is een kenmerk van een "uitdagende beweegsituatie"?',
+      options: ['Het is altijd competitief', 'Het prikkelt kinderen om grenzen te verleggen en motiveert', 'Het is altijd heel makkelijk', 'Het vereist duur materiaal'],
+      answerIndex: 1
+    },
+    {
+      question: 'Waarom is het goed om kinderen zelf oplossingen te laten bedenken voor bewegingsproblemen?',
+      options: ['Dan hoeft de leerkracht niets te doen', 'Het stimuleert creativiteit en motorisch inzicht', 'Het duurt langer', 'Het is grappig om te zien'],
+      answerIndex: 1
+    },
+    {
+      question: 'Hoe zorg je ervoor dat leerlingen aandachtig blijven tijdens een uitleg?',
+      options: ['Heel stil praten', 'Ze met de rug naar de zon/afleiding zetten', 'Heel lang praten', 'Ze laten rondlopen'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wat is het doel van visuele wenken (focuspunten) tijdens een demonstratie?',
+      options: ['De aandacht afleiden', 'De kern van de beweging accentueren voor beter begrip', 'Het kind laten lachen', 'De beweging moeilijker maken'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wat bedoelt men met "toon en verwoord het kernidee"?',
+      options: ['Vertel een lang verhaal', 'Laat de beweging zien en benoem kort de essentie', 'Doe de beweging zonder woorden', 'Laat een video zien'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wanneer start je best met je instructie?',
+      options: ['Als de meeste kinderen luisteren', 'Als het stil is en iedereen aandacht heeft', 'Terwijl ze nog bezig zijn', 'Als de bel gaat'],
+      answerIndex: 1
+    },
+    {
+      question: 'Wanneer is het nuttig om een leerling de demonstratie te laten doen?',
+      options: ['Als de leerkracht moe is', 'Om betrokkenheid te verhogen en als de leerling het goed kan', 'Als straf', 'Nooit'],
+      answerIndex: 1
+    }
+  ];
+
   const les2Open = [
     { type: 'open', question: 'Geef twee voorbeelden van ABV-basisbewegingen.', answerKeywords: ['stappen','lopen','sluipen','kruipen','klauteren','klimmen','balanceren','springen','landen','zwaaien','roteren','omgekeerde','houdingen','rollen','werpen','vangen','slaan','trappen','dribbelen','heffen','dragen','trekken','duwen'] },
     { type: 'open', question: 'Wat is het doel van uitdagende beweegsituaties?', answerKeywords: ['plezier','prikkelen','grenzen','verleggen','motivatie','uitdaging','inkleding','fantasiewereld','leuker','ervaring','actief'] },
@@ -4101,7 +4155,7 @@ function createDefaultSubjects() {
     { type: 'open', question: 'Waarom moet je wachten tot ALLE leerlingen luisteren voor je instructie start?', answerKeywords: ['informatieoverdracht','iedereen','veiligheid','efficiëntie','geen','herhaling','voorkomen','fouten','concentratie','duidelijkheid'] }
   ];
 
-  const les2Set = { title: 'Basisonderwijs – Les 2 (20 vragen)', questions: [...les2MC, ...les2Open] };
+  const les2Set = { title: 'Basisonderwijs – Les 2 (20 vragen)', questions: [...les2BasisMC, ...les2Open] };
 
   const les3MC = [
     { question: 'Wat is een kenmerk van een homogene groep?', options: ['Grote verschillen tussen leerlingen','Leerlingen met gelijkaardige kenmerken','Willekeurige indeling','Altijd heterogene niveaus'], answerIndex: 1 },
@@ -7898,15 +7952,41 @@ function renderQuizResults(subject) {
       ? (question.answerText || (question.answerKeywords ? question.answerKeywords.join(' ') : ''))
       : question.options[question.answerIndex];
 
-    container.innerHTML = `
+    let headerHtml = `
       <header class="quiz-results__item-header">
         <p class="eyebrow">Vraag ${idx + 1}</p>
-        <span class="chip ${correctness}">${correctness === 'correct' ? 'Juist' : 'Fout'}</span>
+        <div style="display:flex; align-items:center;">
+          <span class="chip ${correctness}">${correctness === 'correct' ? 'Juist' : 'Fout'}</span>
+    `;
+
+    // Add 'Juist' button for incorrect open answers
+    if (!isCorrect && isOpenQuestion(question)) {
+      headerHtml += `
+          <button class="feedback-menu-btn" data-index="${idx}">Juist</button>
+      `;
+    }
+
+    headerHtml += `
+        </div>
       </header>
+    `;
+
+    container.innerHTML = `
+      ${headerHtml}
       <h4>${question.question}</h4>
       <p class="caption"><strong>Jouw antwoord:</strong> ${userText}</p>
       <p class="caption"><strong>Correct:</strong> ${correctText}</p>
-  `;
+      ${userAnswer?.forceCorrect ? `<p class="caption" style="color:var(--accent); margin-top:4px;"><em>Gemarkeerd als juist: ${userAnswer.forceCorrectReason || 'Handmatig goedgekeurd'}</em></p>` : ''}
+    `;
+
+    // Event listener for the "Juist" button
+    const feedbackBtn = container.querySelector('.feedback-menu-btn');
+    if (feedbackBtn) {
+      feedbackBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openFeedbackModal(idx);
+      });
+    }
 
     quizResultsList.appendChild(container);
   });
@@ -9886,4 +9966,106 @@ function renderFlashcardsPlay(subject) {
   prevBtn.addEventListener('click', () => { if (index > 0) { index -= 1; update(); } });
   nextBtn.addEventListener('click', () => { if (index < count - 1) { index += 1; update(); } });
   update();
+}
+
+/* Feedback Modal Logic */
+let activeFeedbackIndex = null;
+const feedbackModal = document.getElementById('feedback-modal');
+const feedbackOptions = document.getElementById('feedback-options');
+const feedbackOtherContainer = document.getElementById('feedback-other-container');
+const feedbackOtherInput = document.getElementById('feedback-other-input');
+const feedbackCancelBtn = document.getElementById('feedback-cancel');
+const feedbackSubmitBtn = document.getElementById('feedback-submit');
+let selectedFeedbackReason = null;
+
+function openFeedbackModal(idx) {
+  activeFeedbackIndex = idx;
+  selectedFeedbackReason = null;
+  if (feedbackOtherInput) feedbackOtherInput.value = '';
+  if (feedbackOtherContainer) feedbackOtherContainer.hidden = true;
+  if (feedbackModal) feedbackModal.hidden = false;
+  
+  // Reset selected state of options
+  if (feedbackOptions) {
+    const options = feedbackOptions.querySelectorAll('.feedback-option');
+    options.forEach(opt => opt.classList.remove('selected'));
+  }
+}
+
+function closeFeedbackModal() {
+  if (feedbackModal) feedbackModal.hidden = true;
+  activeFeedbackIndex = null;
+  selectedFeedbackReason = null;
+}
+
+if (feedbackOptions) {
+  feedbackOptions.addEventListener('click', (e) => {
+    if (e.target.classList.contains('feedback-option')) {
+      const value = e.target.dataset.value;
+      
+      // Update UI
+      const options = feedbackOptions.querySelectorAll('.feedback-option');
+      options.forEach(opt => opt.classList.remove('selected'));
+      e.target.classList.add('selected');
+      
+      if (value === 'other') {
+        if (feedbackOtherContainer) feedbackOtherContainer.hidden = false;
+        selectedFeedbackReason = 'other';
+        if (feedbackOtherInput) feedbackOtherInput.focus();
+      } else {
+        if (feedbackOtherContainer) feedbackOtherContainer.hidden = true;
+        selectedFeedbackReason = e.target.textContent;
+      }
+    }
+  });
+}
+
+if (feedbackCancelBtn) {
+  feedbackCancelBtn.addEventListener('click', closeFeedbackModal);
+}
+
+if (feedbackSubmitBtn) {
+  feedbackSubmitBtn.addEventListener('click', () => {
+    if (!selectedFeedbackReason) return;
+    
+    let finalReason = selectedFeedbackReason;
+    if (selectedFeedbackReason === 'other') {
+      const otherText = feedbackOtherInput ? feedbackOtherInput.value.trim() : '';
+      if (!otherText) {
+        alert('Vul een reden in.');
+        return;
+      }
+      finalReason = otherText;
+    }
+    
+    submitFeedback(activeFeedbackIndex, finalReason);
+    closeFeedbackModal();
+  });
+}
+
+function submitFeedback(idx, reason) {
+  const subject = getActiveSubject();
+  const set = getActiveSet(subject);
+  if (!subject || !set) return;
+  
+  const state = getSetProgress(subject.name, set.title, set.questions);
+  if (!state || !state.answers) return;
+  
+  // Update the answer
+  if (state.answers[idx]) {
+    state.answers[idx].forceCorrect = true;
+    state.answers[idx].forceCorrectReason = reason;
+  } else {
+    // Should not happen for an answered question, but safe fallback
+    state.answers[idx] = { forceCorrect: true, forceCorrectReason: reason };
+  }
+  
+  // Recalculate score
+  computeSetCounts(set, state);
+  
+  // Persist
+  persistProgress();
+  
+  // Re-render
+  renderQuizResults(subject);
 }

@@ -282,6 +282,25 @@
     </form>
   </section>
 
+  <div id="feedback-modal" class="feedback-modal" hidden>
+    <div class="feedback-modal__content">
+      <h3 class="feedback-modal__title">Waarom is dit antwoord juist?</h3>
+      <div class="feedback-options" id="feedback-options">
+        <button class="feedback-option" data-value="correct">Dit antwoord is toch juist</button>
+        <button class="feedback-option" data-value="typo">Schrijffout</button>
+        <button class="feedback-option" data-value="double">Dubbele betekenis</button>
+        <button class="feedback-option" data-value="other">Ander...</button>
+      </div>
+      <div class="feedback-input-group" id="feedback-other-container" hidden>
+        <label for="feedback-other-input" class="caption">Reden:</label>
+        <input type="text" id="feedback-other-input" class="feedback-input" placeholder="Typ hier je reden...">
+      </div>
+      <div class="feedback-actions">
+        <button class="btn ghost" id="feedback-cancel">Annuleren</button>
+        <button class="btn primary" id="feedback-submit">Bevestigen</button>
+      </div>
+    </div>
+  </div>
   <script>
     window.FITROENIE_FIREBASE_CONFIG = {
       apiKey: "AIzaSyCYAs99vDWlr_CD2XJwtQG1Yg_UrUqw1cs",
