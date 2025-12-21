@@ -8044,6 +8044,66 @@ function renderProfile() {
   }
 
   const results = buildProfileResults();
+
+  // Insert Difficult Flashcards Section
+  const existingDiff = document.getElementById('profile-diff-card');
+  if (existingDiff) existingDiff.remove();
+
+  const flashSubject = subjects.find(s => s.name === 'Individuele Fitness');
+  let difficultCount = 0;
+  if (flashSubject) {
+      const cats = getFlashcardCategories(flashSubject);
+      const diffCat = cats.find(c => c.id === 'difficult');
+      if (diffCat) difficultCount = diffCat.cards.length;
+  }
+
+  if (loggedIn && difficultCount > 0) {
+      const diffCard = document.createElement('article');
+      diffCard.id = 'profile-diff-card';
+      diffCard.className = 'profile-card profile-card--wide';
+      diffCard.style.marginBottom = '16px';
+      diffCard.innerHTML = `
+        <header class="profile-card__header">
+          <div>
+            <p class="eyebrow">Mijn flashcards</p>
+            <h3>Mijn moeilijke flashcards</h3>
+          </div>
+          <span class="chip" style="background:rgba(220,50,50,0.16); color:#b71c1c;">${difficultCount} moeilijke flashcards</span>
+        </header>
+        <div class="profile-quiz-list">
+          <div class="collapse open">
+             <div class="collapse__body">
+                <div class="collapse__row">
+                   <div>
+                     <strong>Praktische Examen & Meer</strong>
+                     <p class="caption">Je hebt ${difficultCount} kaarten gemarkeerd als 'nog niet gekend'.</p>
+                   </div>
+                   <button class="btn ghost" type="button" id="profile-diff-open">Oefenen</button>
+                </div>
+             </div>
+          </div>
+        </div>
+      `;
+      if (resultsCard && resultsCard.parentNode) {
+          resultsCard.parentNode.insertBefore(diffCard, resultsCard);
+      }
+      
+      const openBtn = diffCard.querySelector('#profile-diff-open');
+      if (openBtn) {
+        openBtn.addEventListener('click', () => {
+            activeSubject = 'Individuele Fitness'; 
+            activePanel = 'flashcards-play-panel'; 
+            setActiveView('anatomie'); 
+            const fs = subjects.find(s => s.name === 'Individuele Fitness');
+            const cats = getFlashcardCategories(fs);
+            const diffCat = cats.find(c => c.id === 'difficult');
+            if (diffCat) {
+                activeFlashcardsCategory = diffCat;
+                render();
+            }
+        });
+      }
+  }
   profileQuizList.innerHTML = '';
   if (!loggedIn) {
     profileQuizList.innerHTML = '';
@@ -9535,12 +9595,13 @@ function getFlashcardCategories(subject) {
   }));
 
   const praktijkBodyweightStrengthData = [
-    { titel: 'Push-up', spieren: 'Pectoralis major, triceps.', positie: '- Plankhouding, handen breed.', uitvoering: '- Zakken tot borst vlakbij grond.<br>- Ellebogen 45 graden.', fouten: '- Holle rug.<br>- Ellebogen te breed (T-vorm).' },
-    { titel: 'Lunge (Bodyweight)', spieren: 'Quadriceps, hamstrings, gluteus.', positie: '- Rechtop staan.', uitvoering: '- Grote uitvalspas.<br>- Knieën naar 90 graden.', fouten: '- Knie voorbij tenen.<br>- Romp naar voren.' },
-    { titel: 'Squat (Bodyweight)', spieren: 'Quadriceps, hamstrings, gluteus.', positie: '- Voeten schouderbreedte.', uitvoering: '- Zak door knieën (billen naar achter).<br>- Rug recht.', fouten: '- Bolle rug.<br>- Knieën naar binnen.<br>- Hielen los.' }
+    { titel: 'Push-up', image: 'Individuele Fitness/Praktische Examen/Core Stability/PushUp.png', spieren: 'Pectoralis major, triceps.', positie: '- Plankhouding, handen breed.', uitvoering: '- Zakken tot borst vlakbij grond.<br>- Ellebogen 45 graden.', fouten: '- Holle rug.<br>- Ellebogen te breed (T-vorm).' },
+    { titel: 'Lunge (Bodyweight)', image: 'Individuele Fitness/Praktische Examen/Core Stability/BodyweightFrontLunge.png', spieren: 'Quadriceps, hamstrings, gluteus.', positie: '- Rechtop staan.', uitvoering: '- Grote uitvalspas.<br>- Knieën naar 90 graden.', fouten: '- Knie voorbij tenen.<br>- Romp naar voren.' },
+    { titel: 'Squat (Bodyweight)', image: 'Individuele Fitness/Praktische Examen/Core Stability/BodyWeightSquat.png', spieren: 'Quadriceps, hamstrings, gluteus.', positie: '- Voeten schouderbreedte.', uitvoering: '- Zak door knieën (billen naar achter).<br>- Rug recht.', fouten: '- Bolle rug.<br>- Knieën naar binnen.<br>- Hielen los.' }
   ];
   const praktijkBodyweightStrengthCards = praktijkBodyweightStrengthData.map((d) => ({
     frontTitle: stripCites(d.titel),
+    frontImage: d.image,
     back: `
       <strong>Spieren:</strong> ${stripCites(d.spieren)}<br><br>
       <strong>Positie:</strong>
@@ -9634,7 +9695,7 @@ function getFlashcardCategories(subject) {
   
 
   
-  return [
+  const categories = [
     { id: 'stretching', title: 'Stretching', cards: testStretch.map((c) => ({ frontTitle: c.question, back: c.answer })) },
     { id: 'kracht', title: 'Krachttraining', subcategories: [
       { id: 'kracht-body', title: 'Free weights', cards: freeWeightsCards },
@@ -9652,6 +9713,36 @@ function getFlashcardCategories(subject) {
       { id: 'praktijk-cardio', title: 'Cardio', cards: praktijkCardioCards }
     ]}
   ];
+
+  const difficultCards = [];
+  const status = userPrefs.flashcardStatus || {};
+  
+  const traverse = (list) => {
+    list.forEach(item => {
+      if (item.cards) {
+        item.cards.forEach(c => {
+           const key = c.frontTitle || c.question;
+           if (key && status[key] === 'unknown') {
+             if (!difficultCards.some(dc => (dc.frontTitle || dc.question) === key)) {
+                difficultCards.push(c);
+             }
+           }
+        });
+      }
+      if (item.subcategories) traverse(item.subcategories);
+    });
+  };
+  traverse(categories);
+
+  if (difficultCards.length > 0) {
+    categories.unshift({
+      id: 'difficult',
+      title: 'Moeilijke Flashcards',
+      cards: difficultCards
+    });
+  }
+
+  return categories;
 }
 
 function findFlashcardNode(subject, id) {
@@ -9754,6 +9845,7 @@ function renderFlashcardsPanel(subject, parentCategory = null) {
         const card = document.createElement('article');
         card.className = 'quiz-picker__card';
         if (cat.id === 'praktijk') card.classList.add('is-praktijk');
+        if (cat.id === 'difficult') card.classList.add('is-difficult');
         
         const total = countCards(cat);
         const isLeaf = !cat.subcategories || cat.subcategories.length === 0;
@@ -9807,8 +9899,8 @@ function renderFlashcardsList(cards) {
     inner.className = 'flashcard__inner';
     const front = document.createElement('div');
     front.className = 'flashcard__face flashcard__front';
-    const imgHtml = c.frontImage ? `<img src="${c.frontImage}" alt="${c.frontTitle || ''}" style="max-width:100%; max-height:150px; margin-bottom:12px; border-radius:4px;">` : '';
-    front.innerHTML = `<div>${imgHtml}<strong>${c.frontTitle || c.question || ''}</strong></div>`;
+    const imgHtml = c.frontImage ? `<img src="${c.frontImage}" alt="${c.frontTitle || ''}" style="max-width:100%; max-height:150px; border-radius:4px; object-fit:contain;">` : '';
+    front.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; width:100%; gap:12px;">${imgHtml}<strong>${c.frontTitle || c.question || ''}</strong></div>`;
     const back = document.createElement('div');
     back.className = 'flashcard__face flashcard__back';
     const html = c.back || c.backHtml || c.answer || '';
@@ -9856,27 +9948,34 @@ function renderStretchingCategory(cat) {
 }
 function renderFlashcardsPlay(subject) {
   if (!flashcardsPlayPanel) return;
-  if (activePanel !== 'flashcards-play-panel') { flashcardsPlayPanel.hidden = true; return; }
+  if (activePanel !== 'flashcards-play-panel') { flashcardsPlayPanel.hidden = true; flashcardsPlayPanel.classList.remove('is-flashcard-mode'); return; }
   flashcardsPlayPanel.hidden = false;
+  flashcardsPlayPanel.classList.add('is-flashcard-mode');
   const cat = activeFlashcardsCategory || (getFlashcardCategories(subject).find((c) => c.id === 'stretching')) || null;
   const cards = cat?.cards || [];
   flashcardsPlayPanel.innerHTML = '';
   const header = document.createElement('div');
   header.className = 'panel__header';
-  const left = document.createElement('div');
+  header.style.justifyContent = 'flex-start';
+  header.style.alignItems = 'flex-start';
+  header.style.gap = '16px';
+  
   const backBtn = document.createElement('button');
   backBtn.className = 'btn ghost';
   backBtn.type = 'button';
   backBtn.textContent = '← Terug';
+  backBtn.style.marginTop = '4px'; // Align visually with the top text
   backBtn.addEventListener('click', () => { setActivePanel('flashcards-panel'); });
-  left.appendChild(backBtn);
-  const right = document.createElement('div');
-  right.innerHTML = `
+  
+  const titleBlock = document.createElement('div');
+  titleBlock.innerHTML = `
     <p class="eyebrow">Flashcards</p>
     <h2>${cat ? cat.title : 'Oefenen'}</h2>
     <p class="caption">Klik op de kaart om te draaien. Navigeer met de pijlen.</p>
   `;
-  header.append(left, right);
+  
+  header.appendChild(backBtn);
+  header.appendChild(titleBlock);
   if (!cards.length) {
     const node = (cat && cat.id) ? findFlashcardNode(subject, cat.id) : null;
     const subs = node?.subcategories || [];
@@ -9946,32 +10045,112 @@ function renderFlashcardsPlay(subject) {
   big.addEventListener('click', () => { big.classList.toggle('is-flipped'); });
   const nav = document.createElement('div');
   nav.className = 'quiz-runner__nav';
+
+  const unknownBtn = document.createElement('button');
+  unknownBtn.type = 'button';
+  unknownBtn.className = 'btn ghost';
+  unknownBtn.style.color = '#d32f2f';
+  unknownBtn.style.borderColor = '#ef9a9a';
+  unknownBtn.style.backgroundColor = '#ffebee';
+  unknownBtn.style.fontSize = '20px';
+  unknownBtn.style.padding = '0 12px';
+  unknownBtn.textContent = '👎';
+
+  const knownBtn = document.createElement('button');
+  knownBtn.type = 'button';
+  knownBtn.className = 'btn ghost';
+  knownBtn.style.color = '#388e3c';
+  knownBtn.style.borderColor = '#a5d6a7';
+  knownBtn.style.backgroundColor = '#e8f5e9';
+  knownBtn.style.fontSize = '20px';
+  knownBtn.style.padding = '0 12px';
+  knownBtn.textContent = '👍';
+
+  const spacer = document.createElement('div');
+  spacer.style.flex = '1';
+
   const prevBtn = document.createElement('button');
   prevBtn.type = 'button'; prevBtn.className = 'btn'; prevBtn.textContent = '<';
+  
   const nextBtn = document.createElement('button');
   nextBtn.type = 'button'; nextBtn.className = 'btn'; nextBtn.textContent = '>';
-  nav.append(prevBtn, nextBtn);
+  
+  nav.append(unknownBtn, knownBtn, spacer, prevBtn, nextBtn);
+  
+  let index = 0; 
+  
+  const handleNav = () => {
+     if (index >= cards.length) index = cards.length - 1;
+     if (index < 0) index = 0;
+     update();
+  };
+
+  unknownBtn.addEventListener('click', () => {
+    const current = cards[index];
+    if (current) {
+        const key = current.frontTitle || current.question;
+        if (key) {
+            userPrefs.flashcardStatus = userPrefs.flashcardStatus || {};
+            userPrefs.flashcardStatus[key] = 'unknown';
+            persistUserPrefs();
+        }
+    }
+    // If we are in 'difficult' mode, 'unknown' just keeps it there. Move to next.
+    if (index < cards.length - 1) { index += 1; update(); }
+  });
+
+  knownBtn.addEventListener('click', () => {
+    const current = cards[index];
+    if (current) {
+        const key = current.frontTitle || current.question;
+        if (key) {
+            userPrefs.flashcardStatus = userPrefs.flashcardStatus || {};
+            userPrefs.flashcardStatus[key] = 'known';
+            persistUserPrefs();
+        }
+    }
+    
+    // If in difficult mode, remove the card immediately
+    if (activeFlashcardsCategory && activeFlashcardsCategory.id === 'difficult') {
+        cards.splice(index, 1);
+        // If empty, go back
+        if (cards.length === 0) {
+            setActivePanel('flashcards-panel');
+            render(); // Refresh main list
+            return;
+        }
+        // Adjust index if needed (if we removed the last one)
+        if (index >= cards.length) {
+            index = Math.max(0, cards.length - 1);
+        }
+        update();
+    } else {
+        if (index < cards.length - 1) { index += 1; update(); }
+    }
+  });
+
   practiceCard.append(practiceStep, big);
   runner.append(practiceCard, nav);
   flashcardsPlayPanel.append(header, runner);
-  let index = 0; const count = cards.length;
+  
   function update() {
     big.classList.remove('is-flipped');
+    if (!cards.length) return;
     const current = cards[index] || {};
-    const imgHtml = current.frontImage ? `<img src="${current.frontImage}" alt="${current.frontTitle || ''}" style="max-width:100%; max-height:300px; margin-bottom:16px; border-radius:8px;">` : '';
-    bigFront.innerHTML = `<div>${imgHtml}<strong>${current.frontTitle || current.question || 'Kaart'}</strong></div>`;
+    const imgHtml = current.frontImage ? `<img src="${current.frontImage}" alt="${current.frontTitle || ''}" style="max-width:100%; max-height:300px; border-radius:8px; object-fit:contain;">` : '';
+    bigFront.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; width:100%; gap:16px;">${imgHtml}<strong>${current.frontTitle || current.question || 'Kaart'}</strong></div>`;
     const html = current.back || current.backHtml || current.answer || '';
     bigBack.innerHTML = `<div class="flashcard__content">${html}</div>`;
-    practiceStep.textContent = `Kaart ${index + 1} van ${count}`;
+    practiceStep.textContent = `Kaart ${index + 1} van ${cards.length}`;
     prevBtn.disabled = index === 0;
-    nextBtn.disabled = index >= count - 1;
+    nextBtn.disabled = index >= cards.length - 1;
     requestAnimationFrame(() => {
       const h = Math.max(bigFront.scrollHeight, bigBack.scrollHeight);
       big.style.height = `${h}px`;
     });
   }
   prevBtn.addEventListener('click', () => { if (index > 0) { index -= 1; update(); } });
-  nextBtn.addEventListener('click', () => { if (index < count - 1) { index += 1; update(); } });
+  nextBtn.addEventListener('click', () => { if (index < cards.length - 1) { index += 1; update(); } });
   update();
 }
 
