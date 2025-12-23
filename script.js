@@ -6372,6 +6372,28 @@ function renderPractice(subject) {
               }
             },
             {
+              id: "knie-ligamenten-sleep",
+              title: "Knie Ligamenten",
+              type: "drag-drop",
+              data: {
+                title: "Knie Ligamenten Anatomie",
+                image: "Oefenen/KnieLigamenten.png",
+                items: [
+                  { id: "A", label: "Lig. cruciatum posterius" },
+                  { id: "B", label: "Lig. collaterale mediale / tibiale" },
+                  { id: "C", label: "Meniscus medialis" },
+                  { id: "D", label: "Lig. transversum genus" },
+                  { id: "E", label: "Insertio meniscus medialis" },
+                  { id: "F", label: "Tibia" },
+                  { id: "G", label: "Fibula" },
+                  { id: "H", label: "Lig. cruciatum anterius" },
+                  { id: "I", label: "Lig. collaterale laterale / fibulare" },
+                  { id: "J", label: "Meniscus lateralis" },
+                  { id: "K", label: "Femur" }
+                ]
+              }
+            },
+            {
               id: "soorten-gewrichten",
               title: "Soorten gewrichten",
               type: "container-sort",
