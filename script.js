@@ -9732,6 +9732,14 @@ function getFlashcardCategories(subject) {
   
 
   
+  const allPraktijkCards = [
+    ...praktijkStretchCards,
+    ...praktijkFreeWeightsCards,
+    ...praktijkMachinesStrengthCards,
+    ...praktijkCoreCards,
+    ...praktijkCardioCards
+  ];
+
   const categories = [
     { id: 'stretching', title: 'Stretching', cards: testStretch.map((c) => ({ frontTitle: c.question, back: c.answer })) },
     { id: 'kracht', title: 'Krachttraining', subcategories: [
@@ -9741,6 +9749,7 @@ function getFlashcardCategories(subject) {
     { id: 'core', title: 'Corestability', cards: coreCards },
     { id: 'cardio', title: 'Cardio', cards: cardioCards },
     { id: 'praktijk', title: 'Praktisch examen', subcategories: [
+      { id: 'praktijk-shuffle', title: 'Shuffle', cards: allPraktijkCards },
       { id: 'praktijk-stretch', title: 'Stretching', cards: praktijkStretchCards },
       { id: 'praktijk-kracht', title: 'Krachttraining', subcategories: [
         { id: 'praktijk-kracht-free', title: 'Free weights', cards: praktijkFreeWeightsCards },
@@ -9803,6 +9812,99 @@ function countCards(node) {
   const own = (node.cards || []).length;
   const subs = node.subcategories || [];
   return own + subs.reduce((acc, s) => acc + countCards(s), 0);
+}
+
+function renderShuffleView(subject, cat) {
+  if (!flashcardsDisplay) return;
+  flashcardsDisplay.innerHTML = '';
+
+  const headerGroup = document.createElement('div');
+  headerGroup.style.marginBottom = '24px';
+
+  const backBtn = document.createElement('button');
+  backBtn.type = 'button';
+  backBtn.className = 'btn ghost';
+  backBtn.textContent = '← Terug';
+  backBtn.style.marginBottom = '12px';
+  backBtn.addEventListener('click', () => {
+    const allCats = getFlashcardCategories(subject);
+    const findParent = (list, targetId) => {
+        for (const item of list) {
+            if (item.subcategories) {
+                if (item.subcategories.some(sub => sub.id === targetId)) return item;
+                const found = findParent(item.subcategories, targetId);
+                if (found) return found;
+            }
+        }
+        return null;
+    };
+    const parent = findParent(allCats, cat.id);
+    renderFlashcardsPanel(subject, parent);
+  });
+  headerGroup.appendChild(backBtn);
+
+  const titleDiv = document.createElement('div');
+  titleDiv.innerHTML = `
+    <p class="eyebrow">Bundel</p>
+    <h3>${cat.title}</h3>
+    <p class="lede">Kies een modus om te starten.</p>
+  `;
+  headerGroup.appendChild(titleDiv);
+  flashcardsDisplay.appendChild(headerGroup);
+
+  const optionsContainer = document.createElement('div');
+  optionsContainer.style.display = 'grid';
+  optionsContainer.style.gridTemplateColumns = 'repeat(auto-fit, minmax(280px, 1fr))';
+  optionsContainer.style.gap = '16px';
+
+  // Oefenmodus
+  const practiceBtn = document.createElement('button');
+  practiceBtn.className = 'quiz-picker__card';
+  practiceBtn.style.textAlign = 'left';
+  practiceBtn.style.padding = '24px';
+  practiceBtn.style.width = '100%';
+  practiceBtn.style.border = '1px solid var(--border)';
+  practiceBtn.style.borderRadius = '8px';
+  practiceBtn.style.background = 'var(--surface)';
+  practiceBtn.innerHTML = `
+    <h3 style="margin-bottom:8px">Oefenmodus</h3>
+    <p class="caption">Alle ${cat.cards.length} kaarten in volgorde.</p>
+  `;
+  practiceBtn.addEventListener('click', () => {
+    activeFlashcardsCategory = { ...cat };
+    setActivePanel('flashcards-play-panel');
+    render();
+  });
+
+  // Shuffle
+  const shuffleBtn = document.createElement('button');
+  shuffleBtn.className = 'quiz-picker__card';
+  shuffleBtn.style.textAlign = 'left';
+  shuffleBtn.style.padding = '24px';
+  shuffleBtn.style.width = '100%';
+  shuffleBtn.style.border = '1px solid var(--border)';
+  shuffleBtn.style.borderRadius = '8px';
+  shuffleBtn.style.background = 'var(--surface)';
+  shuffleBtn.innerHTML = `
+    <h3 style="margin-bottom:8px">Shuffle</h3>
+    <p class="caption">Alle ${cat.cards.length} kaarten willekeurig.</p>
+  `;
+  shuffleBtn.addEventListener('click', () => {
+     shuffleBtn.innerHTML = `
+        <h3 style="margin-bottom:8px">Even schudden... 🎲</h3>
+        <p class="caption">Momentje</p>
+    `;
+    setTimeout(() => {
+        const shuffled = [...cat.cards].sort(() => Math.random() - 0.5);
+        activeFlashcardsCategory = { ...cat, cards: shuffled };
+        setActivePanel('flashcards-play-panel');
+        render();
+    }, 600);
+  });
+
+  optionsContainer.appendChild(practiceBtn);
+  optionsContainer.appendChild(shuffleBtn);
+  flashcardsDisplay.appendChild(optionsContainer);
 }
 
 function renderFlashcardsPanel(subject, parentCategory = null) {
@@ -9903,7 +10005,9 @@ function renderFlashcardsPanel(subject, parentCategory = null) {
         // Make the card clickable
         card.style.cursor = 'pointer';
         card.addEventListener('click', () => {
-            if (isLeaf) {
+            if (cat.id === 'praktijk-shuffle') {
+                 renderShuffleView(subject, cat);
+             } else if (isLeaf) {
                 activeFlashcardsCategory = { id: cat.id, title: cat.title, cards: cat.cards || [] };
                 setActivePanel('flashcards-play-panel');
                 render();
