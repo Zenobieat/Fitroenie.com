@@ -9749,7 +9749,7 @@ function getFlashcardCategories(subject) {
     { id: 'core', title: 'Corestability', cards: coreCards },
     { id: 'cardio', title: 'Cardio', cards: cardioCards },
     { id: 'praktijk', title: 'Praktisch examen', subcategories: [
-      { id: 'praktijk-shuffle', title: 'Shuffle', cards: allPraktijkCards },
+      { id: 'praktijk-shuffle', title: 'Shuffle', cards: [] },
       { id: 'praktijk-stretch', title: 'Stretching', cards: praktijkStretchCards },
       { id: 'praktijk-kracht', title: 'Krachttraining', subcategories: [
         { id: 'praktijk-kracht-free', title: 'Free weights', cards: praktijkFreeWeightsCards },
@@ -9847,64 +9847,123 @@ function renderShuffleView(subject, cat) {
   titleDiv.innerHTML = `
     <p class="eyebrow">Bundel</p>
     <h3>${cat.title}</h3>
-    <p class="lede">Kies een modus om te starten.</p>
+    <p class="lede">Selecteer categorieën om te shuffelen.</p>
   `;
   headerGroup.appendChild(titleDiv);
   flashcardsDisplay.appendChild(headerGroup);
 
-  const optionsContainer = document.createElement('div');
-  optionsContainer.style.display = 'grid';
-  optionsContainer.style.gridTemplateColumns = 'repeat(auto-fit, minmax(280px, 1fr))';
-  optionsContainer.style.gap = '16px';
+  // Get selectable categories
+  const allCats = getFlashcardCategories(subject);
+  const praktijk = allCats.find(c => c.id === 'praktijk');
+  const selectables = [];
+  if (praktijk && praktijk.subcategories) {
+     const traverse = (list) => {
+         list.forEach(item => {
+             if (item.id === 'praktijk-shuffle') return;
+             if (item.subcategories && item.subcategories.length > 0) {
+                 traverse(item.subcategories);
+             } else if (item.cards && item.cards.length > 0) {
+                 selectables.push(item);
+             }
+         });
+     };
+     traverse(praktijk.subcategories);
+  }
 
-  // Oefenmodus
-  const practiceBtn = document.createElement('button');
-  practiceBtn.className = 'quiz-picker__card';
-  practiceBtn.style.textAlign = 'left';
-  practiceBtn.style.padding = '24px';
-  practiceBtn.style.width = '100%';
-  practiceBtn.style.border = '1px solid var(--border)';
-  practiceBtn.style.borderRadius = '8px';
-  practiceBtn.style.background = 'var(--surface)';
-  practiceBtn.innerHTML = `
-    <h3 style="margin-bottom:8px">Oefenmodus</h3>
-    <p class="caption">Alle ${cat.cards.length} kaarten in volgorde.</p>
-  `;
-  practiceBtn.addEventListener('click', () => {
-    activeFlashcardsCategory = { ...cat };
-    setActivePanel('flashcards-play-panel');
-    render();
+  const selectedIds = new Set(selectables.map(s => s.id));
+
+  const list = document.createElement('div');
+  list.className = 'quiz-category__list';
+  list.style.marginBottom = '32px';
+
+  // Create card elements once and update their state on click
+  const cardElements = new Map();
+
+  selectables.forEach(s => {
+      const card = document.createElement('article');
+      card.className = 'quiz-picker__card';
+      // Removed inline cursor: pointer; handled in CSS
+      
+      const updateCardState = () => {
+          const isSelected = selectedIds.has(s.id);
+          
+          // Toggle active class
+          if (isSelected) {
+            card.classList.add('active-shuffle');
+          } else {
+            card.classList.remove('active-shuffle');
+          }
+          
+          // Remove inline styles that conflict with CSS
+          card.style.border = '';
+          card.style.background = '';
+          
+          // Use CSS classes for layout and styling
+          card.innerHTML = `
+            <div class="quiz-picker__content">
+                <div class="quiz-picker__checkbox ${isSelected ? 'checked' : ''}">
+                    ${isSelected ? '✓' : ''}
+                </div>
+                <div class="quiz-picker__text-group">
+                    <h3>${s.title}</h3>
+                    <p class="caption">${s.cards.length} kaarten</p>
+                </div>
+            </div>
+          `;
+      };
+      
+      updateCardState();
+      
+      card.addEventListener('click', () => {
+          if (selectedIds.has(s.id)) {
+              selectedIds.delete(s.id);
+          } else {
+              selectedIds.add(s.id);
+          }
+          updateCardState();
+          updateShuffleBtn();
+      });
+      
+      list.appendChild(card);
+      cardElements.set(s.id, card);
   });
+  
+  flashcardsDisplay.appendChild(list);
 
-  // Shuffle
   const shuffleBtn = document.createElement('button');
-  shuffleBtn.className = 'quiz-picker__card';
-  shuffleBtn.style.textAlign = 'left';
-  shuffleBtn.style.padding = '24px';
+  shuffleBtn.className = 'btn primary';
   shuffleBtn.style.width = '100%';
-  shuffleBtn.style.border = '1px solid var(--border)';
+  shuffleBtn.style.padding = '16px';
+  shuffleBtn.style.fontSize = '16px';
   shuffleBtn.style.borderRadius = '8px';
-  shuffleBtn.style.background = 'var(--surface)';
-  shuffleBtn.innerHTML = `
-    <h3 style="margin-bottom:8px">Shuffle</h3>
-    <p class="caption">Alle ${cat.cards.length} kaarten willekeurig.</p>
-  `;
+  
+  const updateShuffleBtn = () => {
+      const count = Array.from(selectedIds).reduce((acc, id) => {
+          const s = selectables.find(x => x.id === id);
+          return acc + (s ? s.cards.length : 0);
+      }, 0);
+      shuffleBtn.textContent = `Shuffle ${count} kaarten`;
+      shuffleBtn.disabled = count === 0;
+  };
+  updateShuffleBtn();
+
   shuffleBtn.addEventListener('click', () => {
-     shuffleBtn.innerHTML = `
-        <h3 style="margin-bottom:8px">Even schudden... 🎲</h3>
-        <p class="caption">Momentje</p>
-    `;
-    setTimeout(() => {
-        const shuffled = [...cat.cards].sort(() => Math.random() - 0.5);
-        activeFlashcardsCategory = { ...cat, cards: shuffled };
+      shuffleBtn.innerHTML = 'Even schudden... 🎲';
+      setTimeout(() => {
+        let pool = [];
+        selectables.forEach(s => {
+            if (selectedIds.has(s.id)) {
+                pool = pool.concat(s.cards);
+            }
+        });
+        const shuffled = pool.sort(() => Math.random() - 0.5);
+        activeFlashcardsCategory = { ...cat, title: 'Shuffle Sessie', cards: shuffled };
         setActivePanel('flashcards-play-panel');
         render();
-    }, 600);
+      }, 600);
   });
-
-  optionsContainer.appendChild(practiceBtn);
-  optionsContainer.appendChild(shuffleBtn);
-  flashcardsDisplay.appendChild(optionsContainer);
+  
+  flashcardsDisplay.appendChild(shuffleBtn);
 }
 
 function renderFlashcardsPanel(subject, parentCategory = null) {
