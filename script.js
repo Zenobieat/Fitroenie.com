@@ -6791,12 +6791,25 @@ function renderPractice(subject) {
             <button class="btn ghost btn-back" id="btn-practice-back">
               ← Terug
             </button>
-            <div>
+            <div style="flex-grow: 1; margin-left: 16px;">
               <h3>${exerciseData.title}</h3>
               <p>Sleep de namen naar de juiste nummers.</p>
             </div>
+            <button class="btn-focus-toggle" id="btn-toggle-focus">⛶ Oefenmodus</button>
           </div>
           
+          <div class="draggable-pool">
+            <div class="draggable-list" id="draggable-source">
+              ${exerciseData.items
+                .sort(() => Math.random() - 0.5)
+                .map(item => `
+                  <div class="draggable-item" draggable="true" data-id="${item.id}">
+                    ${item.label}
+                  </div>
+                `).join('')}
+            </div>
+          </div>
+
           <div class="practice-layout">
             <div class="practice-visual">
               <div class="practice-image-container">
@@ -6816,18 +6829,6 @@ function renderPractice(subject) {
             </div>
           </div>
 
-          <div class="draggable-pool">
-            <div class="draggable-list" id="draggable-source">
-              ${exerciseData.items
-                .sort(() => Math.random() - 0.5)
-                .map(item => `
-                  <div class="draggable-item" draggable="true" data-id="${item.id}">
-                    ${item.label}
-                  </div>
-                `).join('')}
-            </div>
-          </div>
-
           <div class="practice-feedback" id="practice-feedback"></div>
 
           <div class="practice-actions">
@@ -6840,8 +6841,22 @@ function renderPractice(subject) {
       // Back Button Logic
       document.getElementById('btn-practice-back').addEventListener('click', () => {
         activePracticeExercise = null;
+        document.body.classList.remove('app--focus-mode');
         renderPractice(subject);
       });
+
+      // Focus Mode Toggle
+      const toggleBtn = document.getElementById('btn-toggle-focus');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          document.body.classList.toggle('app--focus-mode');
+          const isFocus = document.body.classList.contains('app--focus-mode');
+          toggleBtn.innerHTML = isFocus ? '⛶ Sluit Focus' : '⛶ Oefenmodus';
+          if (isFocus) {
+            window.scrollTo(0, 0);
+          }
+        });
+      }
 
       // (Drag and Drop Logic remains the same, just wrapped)
       const draggables = practiceDisplay.querySelectorAll('.draggable-item');

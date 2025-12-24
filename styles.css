@@ -1624,11 +1624,40 @@ body.modal-open { overflow: hidden; }
   background: rgba(231, 76, 60, 0.1);
 }
 
+/* Oefenmodus toggle button */
+.btn-focus-toggle {
+  background: linear-gradient(135deg, #e7f8ed 0%, #d3f0dd 100%);
+  color: var(--primary);
+  border: 1px solid rgba(43, 182, 115, 0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(43, 182, 115, 0.05);
+}
+
+.btn-focus-toggle:hover {
+  background: linear-gradient(135deg, #dff6e8 0%, #cce8d6 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(43, 182, 115, 0.15);
+  border-color: var(--primary);
+}
+
+.btn-focus-toggle:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
 .draggable-pool {
   background: #f9fdf9;
   padding: 16px;
   border-radius: 12px;
   border: 1px solid var(--border);
+  margin-bottom: 24px; /* Added margin for top spacing */
 }
 
 .draggable-list {
@@ -1971,4 +2000,34 @@ body.modal-open { overflow: hidden; }
   justify-content: flex-end;
   gap: 8px;
   margin-top: 16px;
+}
+
+/* Focus Mode */
+body.app--focus-mode .topbar,
+body.app--focus-mode .subject-menu,
+body.app--focus-mode .hero,
+body.app--focus-mode .catalog__header,
+body.app--focus-mode .footer,
+body.app--focus-mode .panel__header,
+body.app--focus-mode .subject-sidebar,
+body.app--focus-mode .summary > h3,
+body.app--focus-mode .summary > p {
+  display: none !important;
+}
+
+body.app--focus-mode .layout {
+  max-width: 1440px;
+  padding-top: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body.app--focus-mode .subject-layout {
+  display: block !important;
+  padding: 0;
+}
+
+body.app--focus-mode .practice-container {
+  max-width: 100%;
 }
