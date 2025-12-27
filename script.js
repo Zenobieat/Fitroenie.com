@@ -6802,12 +6802,7 @@ function renderPractice(subject) {
             <div class="draggable-list" id="draggable-source">
               ${exerciseData.items
                 .slice()
-                .sort((a, b) => {
-                  if (exercise.id === 'knie-ligamenten-sleep') {
-                    return (a.id > b.id) ? 1 : -1;
-                  }
-                  return Math.random() - 0.5;
-                })
+                .sort(() => Math.random() - 0.5)
                 .map(item => `
                   <div class="draggable-item" draggable="true" data-id="${item.id}">
                     ${item.label}
