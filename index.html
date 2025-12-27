@@ -143,6 +143,9 @@
               </div>
               <div class="gamemode-leaderboard" id="gamemode-leaderboard"></div>
               <div class="gamemode-player-list" id="gamemode-player-list"></div>
+              <div style="margin-top:10px">
+                <button class="btn ghost" id="gamemode-open-lobby" type="button">Open lobby in nieuw venster</button>
+              </div>
             </div>
           </article>
 
@@ -154,30 +157,40 @@
                 <p class="caption">Scan de QR of voer je code en bijnaam in.</p>
               </div>
             </header>
-            <div class="gamemode-join">
-              <div class="gamemode-join__methods">
-                <button class="btn" id="gamemode-scan" type="button">QR scannen</button>
-                <div class="gamemode-code-entry">
-                  <label class="field">
-                    <span>Code</span>
-                    <input id="gamemode-code-input" type="text" placeholder="123456" />
-                  </label>
+              <div class="gamemode-join">
+                <div class="gamemode-join__methods">
+                  <button class="btn" id="gamemode-scan" type="button">QR scannen</button>
+                  <div class="gamemode-code-entry">
+                    <label class="field">
+                      <span>Code</span>
+                      <input id="gamemode-code-input" type="text" placeholder="123456" />
+                    </label>
+                  </div>
+                  <div class="gamemode-nickname">
+                    <label class="field">
+                      <span>Bijnaam</span>
+                      <input id="gamemode-nickname" type="text" placeholder="Jouw naam" />
+                    </label>
+                  </div>
+                  <img id="gamemode-avatar" class="avatar" alt="Profielfoto" hidden />
+                  <button class="btn primary" id="gamemode-join" type="button">Meedoen</button>
                 </div>
-                <div class="gamemode-nickname">
-                  <label class="field">
-                    <span>Bijnaam</span>
-                    <input id="gamemode-nickname" type="text" placeholder="Jouw naam" />
-                  </label>
-                </div>
-                <img id="gamemode-avatar" class="avatar" alt="Profielfoto" hidden />
-                <button class="btn primary" id="gamemode-join" type="button">Meedoen</button>
               </div>
-            </div>
-            <div class="gamemode-play" id="gamemode-play" hidden>
-              <div class="gamemode-question">
-                <h3 id="gamemode-question-title"></h3>
-                <p class="lede" id="gamemode-question-text"></p>
-                <div class="gamemode-options" id="gamemode-options">
+              <div class="gamemode-connecting" id="gamemode-connecting" hidden>
+                <div class="spinner" aria-hidden="false"></div>
+                <span class="chip ghost" id="gamemode-connecting-text">Verbinden…</span>
+              </div>
+              <div class="gamemode-lobby" id="gamemode-lobby" hidden>
+                <header class="panel__header">
+                  <span class="chip" id="gm-player-code-top">Code: ••••••</span>
+                </header>
+                <div class="gamemode-player-list" id="gamemode-player-list-client"></div>
+              </div>
+              <div class="gamemode-play" id="gamemode-play" hidden>
+                <div class="gamemode-question">
+                  <h3 id="gamemode-question-title"></h3>
+                  <p class="lede" id="gamemode-question-text"></p>
+                  <div class="gamemode-options" id="gamemode-options">
                   <button class="gm-option" data-choice="0"><span class="option__label">A</span></button>
                   <button class="gm-option" data-choice="1"><span class="option__label">B</span></button>
                   <button class="gm-option" data-choice="2"><span class="option__label">C</span></button>

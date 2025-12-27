@@ -261,6 +261,7 @@ async function startGamemode(setTitle) {
   const gmExpected = document.getElementById('gm-expected');
   const gmConnStatus = document.getElementById('gm-connection-status');
   const startBtn = document.getElementById('gamemode-start');
+  const openLobbyBtn = document.getElementById('gamemode-open-lobby');
   hostPanel.hidden = false;
   gmCodeText.textContent = code;
   const gmCodeTop = document.getElementById('gm-code-top');
@@ -285,6 +286,9 @@ async function startGamemode(setTitle) {
   gmExpected?.addEventListener('input', () => {
     const exp = Number(gmExpected.value);
     activeGame.expected = isNaN(exp) || exp < 1 ? 1 : exp;
+  });
+  openLobbyBtn?.addEventListener('click', () => {
+    window.open(deepLink, '_blank', 'noopener,noreferrer');
   });
   const playersRef = ref(db, `sessions/${sessionId}/players`);
   onValue(playersRef, (snap) => {
@@ -747,6 +751,50 @@ function setupGamemodeNav() {
 
 document.addEventListener('DOMContentLoaded', () => {
   setupGamemodeNav();
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get('mode');
+  const code = params.get('code');
+  if (mode === 'game' && code) {
+    setActiveView('anatomie');
+    setActivePanel('gamemode-panel');
+    const codeInput = document.getElementById('gamemode-code-input');
+    const connecting = document.getElementById('gamemode-connecting');
+    const connectingText = document.getElementById('gamemode-connecting-text');
+    if (codeInput) codeInput.value = code;
+    if (connecting) connecting.hidden = false;
+    if (connectingText) connectingText.textContent = 'Verbinden…';
+    let done = false;
+    const timeout = setTimeout(() => {
+      if (done) return;
+      if (connectingText) connectingText.textContent = 'Verbindingtijd verstreken. Probeer opnieuw.';
+    }, 30000);
+    joinGamemodeByCode(code, auth?.currentUser?.displayName || '').then((session) => {
+      done = true;
+      clearTimeout(timeout);
+      const lobby = document.getElementById('gamemode-lobby');
+      const gmCodeTop = document.getElementById('gm-player-code-top');
+      const panel = document.getElementById('gamemode-panel');
+      if (gmCodeTop) gmCodeTop.textContent = `Code: ${code}`;
+      if (connecting) connecting.hidden = true;
+      if (lobby) lobby.hidden = false;
+      panel?.classList.add('fullscreen');
+      const plRef = db ? ref(db, `sessions/${activePlayer.sessionId}/players`) : null;
+      if (plRef && db) {
+        onValue(plRef, (snap) => {
+          const val = snap.val() || {};
+          const list = Object.entries(val).map(([id, p], i) => ({ id, ...p, i }));
+          const container = document.getElementById('gamemode-player-list-client');
+          if (!container) return;
+          container.innerHTML = list
+            .sort((a, b) => a.i - b.i)
+            .map((p, i) => `<div class="lb-row"><span class="lb-rank">${i + 1}</span><span class="lb-name">${p.nickname || 'Speler'}</span><span class="lb-score">${p.score || 0}</span></div>`)
+            .join('');
+        });
+      }
+    }).catch(() => {
+      if (connectingText) connectingText.textContent = 'Kon niet verbinden. Controleer je netwerk.';
+    });
+  }
 });
 // Ensure listeners are bound even if DOMContentLoaded has already fired
 try { setupGamemodeNav(); } catch {}

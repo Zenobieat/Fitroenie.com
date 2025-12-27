@@ -1327,6 +1327,31 @@ body.modal-open { overflow: hidden; }
   gap: 12px;
   margin-top: 16px;
 }
+.gamemode-connecting {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+}
+.gamemode-lobby .panel__header {
+  display: flex;
+  justify-content: center;
+}
+.gamemode-player-list,
+.gamemode-player-list-client {
+  display: grid;
+  gap: 8px;
+}
+.gamemode-player-list .lb-row,
+.gamemode-player-list-client .lb-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 100px;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
 .gamemode-join__methods {
   display: grid;
   grid-template-columns: 1fr;
