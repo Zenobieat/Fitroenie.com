@@ -245,6 +245,29 @@ function renderQRCode(container, url) {
 }
 
 let activeGame = null;
+let heartbeatTimer = null;
+function startHeartbeat(sessionId, playerId) {
+  stopHeartbeat();
+  heartbeatTimer = setInterval(async () => {
+    const now = Date.now();
+    try {
+      await update(ref(db, `sessions/${sessionId}/players/${playerId}`), { lastSeen: now, connected: true });
+    } catch {}
+  }, 10000);
+  window.addEventListener('beforeunload', stopHeartbeat);
+}
+function stopHeartbeat() {
+  if (heartbeatTimer) {
+    clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+  }
+}
+function logEvent(sessionId, severity, scope, message) {
+  try {
+    const evRef = push(ref(db, `sessions/${sessionId}/events`));
+    set(evRef, { ts: Date.now(), severity, scope, message, ua: navigator.userAgent || '' });
+  } catch {}
+}
 
 async function startGamemode(setTitle) {
   const subject = getActiveSubject();
@@ -271,6 +294,13 @@ async function startGamemode(setTitle) {
   if (backendUnavailable) {
     statusEl.textContent = 'Preview zonder realtime';
   }
+  const leaderId = auth?.currentUser?.uid || localStorage.getItem('woenie_leader_id') || `host-${Math.random().toString(36).slice(2)}`;
+  localStorage.setItem('woenie_leader_id', leaderId);
+  try {
+    await set(ref(db, `sessions/${sessionId}/players/${leaderId}`), { nickname: 'Host', score: 0, connected: true, role: 'leader', joinedAt: Date.now(), lastSeen: Date.now() });
+    startHeartbeat(sessionId, leaderId);
+    logEvent(sessionId, 'info', 'host', 'host_joined');
+  } catch {}
   function setStartEnabled(enabled) {
     if (!startBtn) return;
     startBtn.disabled = !enabled;
@@ -331,6 +361,7 @@ async function startGamemode(setTitle) {
     if (!activeGame || activeGame.started || startBtn?.disabled) return;
     activeGame.started = true;
     update(ref(db, `sessions/${sessionId}`), { status: 'playing' }).then(() => broadcastQuestion(0));
+    logEvent(sessionId, 'info', 'host', 'quiz_started');
   });
   document.getElementById('gamemode-next')?.addEventListener('click', () => {
     if (!activeGame || !activeGame.started) return;
@@ -429,6 +460,9 @@ async function joinGamemodeByCode(code, nickname) {
   if (!code) return null;
   if (db) {
     try {
+      if (auth && !auth.currentUser) {
+        try { await signInAnonymously(auth); } catch {}
+      }
       const codeSnap = await get(ref(db, `codes/${code}`));
       if (codeSnap.exists()) {
         const { sessionId } = codeSnap.val();
@@ -736,13 +770,16 @@ function setupGamemodeNav() {
     }
     if (gamejoinSubmit) {
       gamejoinSubmit.disabled = true;
-      gamejoinSubmit.textContent = 'Bezig...';
+      gamejoinSubmit.textContent = 'Verbinden…';
     }
     gamejoinMessage.textContent = '';
     try {
-      const session = await joinGamemodeByCode(v.value, '');
+      const session = await Promise.race([
+        joinGamemodeByCode(v.value, ''),
+        new Promise((res) => setTimeout(() => res(null), 15000))
+      ]);
       if (!session) {
-        gamejoinMessage.textContent = 'Code niet gevonden of verlopen.';
+        gamejoinMessage.textContent = 'Kon niet verbinden (time-out). Probeer opnieuw.';
         if (gamejoinSubmit) {
           gamejoinSubmit.disabled = false;
           gamejoinSubmit.textContent = 'Meedoen';
