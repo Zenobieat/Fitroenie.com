@@ -1,0 +1,41 @@
+{
+  "rules": {
+    "sessions": {
+      "$sessionId": {
+        ".read": true,
+        "hostId": {
+          ".write": "auth != null && auth.uid === newData.val()"
+        },
+        "currentQuestionIndex": {
+          ".write": "auth != null && auth.uid === root.child('sessions/' + $sessionId + '/hostId').val()"
+        },
+        "questionStartTs": {
+          ".write": "auth != null && auth.uid === root.child('sessions/' + $sessionId + '/hostId').val()"
+        },
+        "status": {
+          ".write": "auth != null && auth.uid === root.child('sessions/' + $sessionId + '/hostId').val()"
+        },
+        "players": {
+          "$playerId": {
+            ".read": true,
+            ".write": true
+          }
+        },
+        "answers": {
+          "$qIndex": {
+            "$playerId": {
+              ".read": true,
+              ".write": true
+            }
+          }
+        }
+      }
+    },
+    "codes": {
+      "$code": {
+        ".read": true,
+        ".write": "auth != null"
+      }
+    }
+  }
+}

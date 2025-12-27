@@ -8,8 +8,20 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   onAuthStateChanged,
-  signOut
+  signOut,
+  signInAnonymously
 } from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js';
+import {
+  getDatabase,
+  ref,
+  push,
+  set,
+  update,
+  onValue,
+  onDisconnect,
+  serverTimestamp,
+  get
+} from 'https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js';
 
 console.log("FITROENIE SCRIPT V4 LOADED - Les 4 Updated");
 
@@ -49,6 +61,15 @@ const viewToggles = document.querySelectorAll('[data-view-target]');
 const subjectMenu = document.getElementById('subject-menu');
 const subjectMenuPanel = document.getElementById('subject-menu-panel');
 const subjectMenuToggle = document.getElementById('subject-menu-toggle');
+const gamemodeNav = document.getElementById('gamemode-nav');
+const gamejoinModal = document.getElementById('gamejoin-modal');
+const gamejoinOverlay = document.getElementById('gamejoin-overlay');
+const gamejoinClose = document.getElementById('gamejoin-close');
+const gamejoinForm = document.getElementById('gamejoin-form');
+const gamejoinCode = document.getElementById('gamejoin-code');
+const gamejoinSubmit = document.getElementById('gamejoin-submit');
+const gamejoinCancel = document.getElementById('gamejoin-cancel');
+const gamejoinMessage = document.getElementById('gamejoin-message');
 const quizRunnerTitle = document.getElementById('quiz-runner-title');
 const quizRunnerSubtitle = document.getElementById('quiz-runner-subtitle');
 const quizRunnerStep = document.getElementById('quiz-runner-step');
@@ -120,10 +141,12 @@ const firebaseAvailable = isValidFirebaseConfig(firebaseConfig);
 let app = null;
 let auth = null;
 let provider = null;
+let db = null;
 if (firebaseAvailable) {
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
   provider = new GoogleAuthProvider();
+  db = getDatabase(app);
   isAnalyticsSupported()
     .then((ok) => {
       if (ok) {
@@ -134,6 +157,557 @@ if (firebaseAvailable) {
     })
     .catch((err) => console.warn('Analytics niet beschikbaar:', err));
 }
+
+function makeLoginCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s = '';
+  for (let i = 0; i < 8; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return s.slice(0, 4) + '-' + s.slice(4);
+}
+
+async function createGameSession(subjectName, setTitle) {
+  if (!db) return null;
+  if (auth && !auth.currentUser) {
+    try { await signInAnonymously(auth); } catch {}
+  }
+  const hostId = auth?.currentUser?.uid || null;
+  const sessionRef = push(ref(db, 'sessions'));
+  const sessionId = sessionRef.key;
+  let code = makeLoginCode();
+  try {
+    let exists = true;
+    let attempts = 0;
+    while (exists && attempts < 5) {
+      const snap = await get(ref(db, `codes/${code}`));
+      exists = snap.exists();
+      if (exists) {
+        code = makeLoginCode();
+      }
+      attempts++;
+    }
+  } catch {}
+  const now = Date.now();
+  const session = {
+    code,
+    hostId,
+    subjectName,
+    setTitle,
+    status: 'waiting',
+    currentQuestionIndex: -1,
+    questionStartTs: null,
+    createdAt: now,
+    expiresAt: now + 2 * 60 * 60 * 1000
+  };
+  let backendUnavailable = false;
+  try {
+    await set(sessionRef, session);
+    await set(ref(db, `codes/${code}`), { sessionId, createdAt: now });
+  } catch {
+    backendUnavailable = true;
+  }
+  const url = new URL(window.location.href);
+  url.searchParams.set('mode', 'game');
+  url.searchParams.set('code', code);
+  url.searchParams.set('subject', subjectName);
+  url.searchParams.set('set', setTitle);
+  return { sessionId, code, deepLink: url.toString(), backendUnavailable };
+}
+
+function renderQRCode(container, url) {
+  if (!container) return;
+  container.innerHTML = '';
+  const img = document.createElement('img');
+  img.alt = 'QR code om snel te joinen';
+  img.width = 240;
+  img.height = 240;
+  img.src = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(url)}`;
+  img.onerror = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 240;
+    canvas.height = 240;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, 240, 240);
+    ctx.strokeStyle = '#cfe1d6';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(6, 6, 228, 228);
+    ctx.fillStyle = '#0f2016';
+    ctx.font = 'bold 16px Manrope, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Scan QR niet beschikbaar', 120, 100);
+    ctx.fillText('Gebruik code:', 120, 126);
+    const code = (new URL(url)).searchParams.get('code') || '';
+    ctx.font = 'bold 20px Manrope, sans-serif';
+    ctx.fillText(code, 120, 154);
+    container.appendChild(canvas);
+  };
+  container.appendChild(img);
+}
+
+let activeGame = null;
+
+async function startGamemode(setTitle) {
+  const subject = getActiveSubject();
+  if (!subject || !setTitle) return;
+  const created = await createGameSession(subject.name, setTitle);
+  if (!created) return;
+  const { sessionId, code, deepLink, backendUnavailable } = created;
+  activeGame = { sessionId, code, subjectName: subject.name, setTitle, index: -1, started: false };
+  const hostPanel = document.getElementById('gamemode-host-panel');
+  const codeEl = document.getElementById('gamemode-code');
+  const qrEl = document.getElementById('gamemode-qr');
+  const playerCountEl = document.getElementById('gamemode-player-count');
+  const leaderboardEl = document.getElementById('gamemode-leaderboard');
+  hostPanel.hidden = false;
+  codeEl.textContent = code;
+  renderQRCode(qrEl, deepLink);
+  const statusEl = document.getElementById('gamemode-timer');
+  if (backendUnavailable) {
+    statusEl.textContent = 'Preview zonder realtime';
+  }
+  const playersRef = ref(db, `sessions/${sessionId}/players`);
+  onValue(playersRef, (snap) => {
+    const val = snap.val() || {};
+    const list = Object.values(val);
+    playerCountEl.textContent = `${list.length} spelers`;
+    leaderboardEl.innerHTML = list
+      .sort((a, b) => (b.score || 0) - (a.score || 0))
+      .slice(0, 10)
+      .map((p, i) => `<div class="lb-row"><span class="lb-rank">${i + 1}</span><span class="lb-name">${p.nickname || 'Speler'}</span><span class="lb-score">${p.score || 0}</span></div>`)
+      .join('');
+  });
+  const sessionRef = ref(db, `sessions/${sessionId}`);
+  onValue(sessionRef, async (snap) => {
+    const s = snap.val() || {};
+    if (s.status === 'finished') {
+      const ps = await get(playersRef);
+      const list = Object.values(ps.val() || {}).sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 3);
+      leaderboardEl.innerHTML = list
+        .map((p, i) => `<div class="podium podium--${i + 1}"><span class="podium__place">${i + 1}</span><span class="podium__name">${p.nickname || 'Speler'}</span><span class="podium__score">${p.score || 0}</span></div>`)
+        .join('');
+    }
+  });
+  document.getElementById('gamemode-start')?.addEventListener('click', () => {
+    if (!activeGame || activeGame.started) return;
+    activeGame.started = true;
+    update(ref(db, `sessions/${sessionId}`), { status: 'playing' }).then(() => broadcastQuestion(0));
+  });
+  document.getElementById('gamemode-next')?.addEventListener('click', () => {
+    if (!activeGame || !activeGame.started) return;
+    const next = (activeGame.index || 0) + 1;
+    broadcastQuestion(next);
+  });
+  document.getElementById('gamemode-end')?.addEventListener('click', () => {
+    if (!activeGame) return;
+    update(ref(db, `sessions/${sessionId}`), { status: 'finished' });
+  });
+}
+
+function broadcastQuestion(index) {
+  const set = getActiveSet(getActiveSubject());
+  if (!activeGame || !set) return;
+  if (index >= set.questions.length) {
+    update(ref(db, `sessions/${activeGame.sessionId}`), { status: 'finished' });
+    return;
+  }
+  activeGame.index = index;
+  const startTs = Date.now();
+  update(ref(db, `sessions/${activeGame.sessionId}`), {
+    currentQuestionIndex: index,
+    questionStartTs: startTs
+  });
+  const timerEl = document.getElementById('gamemode-timer');
+  let left = 30;
+  timerEl.textContent = `${left}s`;
+  const iv = setInterval(() => {
+    left -= 1;
+    if (left <= 0) {
+      clearInterval(iv);
+      timerEl.textContent = `0s`;
+      resolveQuestion(index);
+    } else {
+      timerEl.textContent = `${left}s`;
+    }
+  }, 1000);
+}
+
+function computePoints(elapsedMs, correct) {
+  if (!correct) return 0;
+  const elapsedSec = Math.min(30, Math.max(0, Math.round(elapsedMs / 1000)));
+  const timeFactor = (30 - elapsedSec) / 30;
+  return Math.round(1000 * (0.5 + 0.5 * timeFactor));
+}
+
+async function resolveQuestion(index) {
+  const subject = getActiveSubject();
+  const set = getActiveSet(subject);
+  if (!activeGame || !set) return;
+  const answersSnap = await get(ref(db, `sessions/${activeGame.sessionId}/answers/${index}`));
+  const answers = answersSnap.val() || {};
+  const playersSnap = await get(ref(db, `sessions/${activeGame.sessionId}/players`));
+  const players = playersSnap.val() || {};
+  const updates = {};
+  Object.entries(answers).forEach(([playerId, pick]) => {
+    const correct = computePickCorrect(set.questions[index], pick);
+    const points = computePoints(pick.elapsedMs || 30000, correct);
+    updates[`sessions/${activeGame.sessionId}/answers/${index}/${playerId}/correct`] = correct;
+    updates[`sessions/${activeGame.sessionId}/answers/${index}/${playerId}/points`] = points;
+    const prev = players[playerId]?.score || 0;
+    updates[`sessions/${activeGame.sessionId}/players/${playerId}/score`] = prev + points;
+  });
+  if (Object.keys(updates).length) {
+    await update(ref(db), updates);
+  }
+}
+
+function testComputePoints() {
+  const p1 = computePoints(0, true);
+  const p2 = computePoints(15000, true);
+  const p3 = computePoints(30000, true);
+  const p4 = computePoints(1000, false);
+  return { p1, p2, p3, p4 };
+}
+
+function resolveQuestionOffline(index) {
+  const subject = getActiveSubject();
+  const set = getActiveSet(subject);
+  if (!activeGame || !set) return;
+  const code = activeGame.code;
+  const answers = WOENIE_LOCAL_SESSIONS[code].answers[index] || {};
+  Object.entries(answers).forEach(([playerId, pick]) => {
+    const correct = computePickCorrect(set.questions[index], pick);
+    const points = computePoints(pick.elapsedMs || 30000, correct);
+    const prev = WOENIE_LOCAL_SESSIONS[code].players[playerId]?.score || 0;
+    WOENIE_LOCAL_SESSIONS[code].players[playerId].score = prev + points;
+  });
+  activeGame.channel?.postMessage({ type: 'scores', index });
+}
+
+let activePlayer = null;
+
+async function joinGamemodeByCode(code, nickname) {
+  if (!code) return null;
+  if (db) {
+    try {
+      const codeSnap = await get(ref(db, `codes/${code}`));
+      if (codeSnap.exists()) {
+        const { sessionId } = codeSnap.val();
+        const sessionRef = ref(db, `sessions/${sessionId}`);
+        const sessionSnap = await get(sessionRef);
+        if (!sessionSnap.exists()) return null;
+        const session = sessionSnap.val();
+        const playerId = localStorage.getItem('woenie_player_id') || Math.random().toString(36).slice(2);
+        localStorage.setItem('woenie_player_id', playerId);
+        const playerRef = ref(db, `sessions/${sessionId}/players/${playerId}`);
+        await set(playerRef, { nickname: nickname || 'Speler', joinedAt: Date.now(), score: 0, connected: true });
+        try { onDisconnect(playerRef).update({ connected: false }); } catch {}
+        activePlayer = { sessionId, playerId, subjectName: session.subjectName, setTitle: session.setTitle, offline: false };
+        activeSubject = session.subjectName;
+        setActivePanel('gamemode-panel');
+        render();
+        try {
+          const mSnap = await get(ref(db, `sessions/${sessionId}/metrics/joins`));
+          const prev = mSnap.val() || 0;
+          await set(ref(db, `sessions/${sessionId}/metrics/joins`), prev + 1);
+        } catch {}
+        return session;
+      }
+    } catch {}
+  }
+  const chan = openGameChannel(code);
+  if (!chan) return null;
+  const playerId = localStorage.getItem('woenie_player_id') || Math.random().toString(36).slice(2);
+  localStorage.setItem('woenie_player_id', playerId);
+  activePlayer = { sessionId: `local-${code}`, playerId, subjectName: '', setTitle: '', offline: true, channel: chan, code };
+  setActivePanel('gamemode-panel');
+  render();
+  return await new Promise((resolve) => {
+    const timeout = setTimeout(() => resolve({ subjectName: '', setTitle: '' }), 800);
+    chan.addEventListener('message', (e) => {
+      const msg = e.data || {};
+      if (msg.type === 'session-start') {
+        activePlayer.subjectName = msg.subjectName || '';
+        activePlayer.setTitle = msg.setTitle || '';
+        clearTimeout(timeout);
+        resolve({ subjectName: activePlayer.subjectName, setTitle: activePlayer.setTitle });
+      }
+    });
+    chan.postMessage({ type: 'request-sync' });
+    chan.postMessage({ type: 'join-request', nickname, playerId });
+  });
+}
+
+function renderGamemodeHost(subject) {
+  const panel = document.getElementById('gamemode-host-panel');
+  if (!panel) return;
+  const visible = !!activeGame;
+  panel.hidden = !visible;
+}
+
+function renderGamemodePlayer(subject) {
+  const panel = document.getElementById('gamemode-panel');
+  if (!panel) return;
+  const play = document.getElementById('gamemode-play');
+  const joinBtn = document.getElementById('gamemode-join');
+  const codeInput = document.getElementById('gamemode-code-input');
+  const nnInput = document.getElementById('gamemode-nickname');
+  const qTitle = document.getElementById('gamemode-question-title');
+  const qText = document.getElementById('gamemode-question-text');
+  const optWrap = document.getElementById('gamemode-options');
+  const playerTimer = document.getElementById('gamemode-player-timer');
+  const params = new URLSearchParams(window.location.search);
+  const codeParam = params.get('code') || '';
+  if (codeParam && codeInput && !codeInput.value) codeInput.value = codeParam;
+  const scanBtn = document.getElementById('gamemode-scan');
+  scanBtn?.addEventListener('click', async () => {
+    const supported = 'BarcodeDetector' in window;
+    if (!supported) return;
+    const detector = new window.BarcodeDetector({ formats: ['qr_code'] });
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      await video.play();
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const tick = async () => {
+        if (video.readyState >= 2) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0);
+          const bitm = canvas.transferToImageBitmap ? canvas.transferToImageBitmap() : null;
+          const detections = await detector.detect(bitm || canvas);
+          if (detections && detections[0]?.rawValue) {
+            const url = new URL(detections[0].rawValue);
+            const c = url.searchParams.get('code');
+            if (c && codeInput) codeInput.value = c.toUpperCase();
+            stream.getTracks().forEach((t) => t.stop());
+            return;
+          }
+        }
+        requestAnimationFrame(tick);
+      };
+      tick();
+    } catch {}
+  });
+  joinBtn?.addEventListener('click', async () => {
+    const code = (codeInput?.value || '').toUpperCase().trim();
+    const nick = (nnInput?.value || '').trim();
+    const session = await joinGamemodeByCode(code, nick);
+    if (!session) return;
+    panel.hidden = false;
+    play.hidden = false;
+    if (activePlayer.offline) {
+      const chan = activePlayer.channel;
+      let startTs = Date.now();
+      chan.addEventListener('message', (e) => {
+        const msg = e.data || {};
+        if (msg.type === 'session-start') {
+          const subj = getActiveSubject();
+          const set = subj ? getAllQuizSets(subj).find((x) => x.title === activePlayer.setTitle) : null;
+          if (set) qTitle.textContent = formatSetTitle(set.title);
+        } else if (msg.type === 'question') {
+          const subj = getActiveSubject();
+          const set = subj ? getAllQuizSets(subj).find((x) => x.title === activePlayer.setTitle) : null;
+          if (!set) return;
+          const idx = msg.index;
+          const question = set.questions[idx];
+          qTitle.textContent = formatSetTitle(set.title);
+          qText.textContent = question.question;
+          startTs = msg.startTs || Date.now();
+          let left = Math.max(0, 30 - Math.floor((Date.now() - startTs) / 1000));
+          playerTimer.textContent = `${left}s`;
+          const iv = setInterval(() => {
+            left = Math.max(0, 30 - Math.floor((Date.now() - startTs) / 1000));
+            playerTimer.textContent = `${left}s`;
+            if (left <= 0) clearInterval(iv);
+          }, 1000);
+          optWrap.querySelectorAll('.gm-option').forEach((btn) => {
+            btn.onclick = null;
+            btn.disabled = false;
+            btn.addEventListener('click', () => {
+              const choice = Number(btn.dataset.choice);
+              const elapsedMs = Date.now() - startTs;
+              if (elapsedMs > 30000) return;
+              chan.postMessage({ type: 'answer', index: idx, playerId: activePlayer.playerId, choice, elapsedMs });
+              optWrap.querySelectorAll('.gm-option').forEach((b) => (b.disabled = true));
+            });
+          });
+        }
+      });
+    } else {
+      const sessionRef = ref(db, `sessions/${activePlayer.sessionId}`);
+      onValue(sessionRef, (snap) => {
+        const s = snap.val() || {};
+        const subject = getActiveSubject();
+        const set = subject && s.setTitle ? getAllQuizSets(subject).find((x) => x.title === s.setTitle) : null;
+        if (!set) return;
+        const idx = s.currentQuestionIndex;
+        if (typeof idx !== 'number' || idx < 0) return;
+        const question = set.questions[idx];
+        qTitle.textContent = formatSetTitle(set.title);
+        qText.textContent = question.question;
+        const startTs = s.questionStartTs || Date.now();
+        let left = Math.max(0, 30 - Math.floor((Date.now() - startTs) / 1000));
+        playerTimer.textContent = `${left}s`;
+        const iv = setInterval(() => {
+          left = Math.max(0, 30 - Math.floor((Date.now() - startTs) / 1000));
+          playerTimer.textContent = `${left}s`;
+          if (left <= 0) clearInterval(iv);
+        }, 1000);
+        optWrap.querySelectorAll('.gm-option').forEach((btn) => {
+          btn.onclick = null;
+          btn.disabled = false;
+          btn.addEventListener('click', () => {
+            const choice = Number(btn.dataset.choice);
+            const elapsedMs = Date.now() - startTs;
+            if (elapsedMs > 30000) return;
+            set(ref(db, `sessions/${activePlayer.sessionId}/answers/${idx}/${activePlayer.playerId}`), {
+              choice,
+              elapsedMs
+            });
+            try {
+              get(ref(db, `sessions/${activePlayer.sessionId}/metrics/submissions`)).then((mSnap) => {
+                const prev = mSnap.val() || 0;
+                set(ref(db, `sessions/${activePlayer.sessionId}/metrics/submissions`), prev + 1);
+              });
+            } catch {}
+            optWrap.querySelectorAll('.gm-option').forEach((b) => (b.disabled = true));
+          });
+        });
+      });
+    }
+  });
+}
+
+async function simulatePlayers(count = 25) {
+  if (!activeGame) return;
+  if (activeGame.offline) {
+    const code = activeGame.code;
+    for (let i = 0; i < count; i++) {
+      const id = `sim-${i}-${Math.random().toString(36).slice(2, 6)}`;
+      WOENIE_LOCAL_SESSIONS[code].players[id] = { nickname: `Tester ${i + 1}`, score: 0 };
+    }
+    const idx = typeof activeGame.index === 'number' ? activeGame.index : 0;
+    for (let i = 0; i < count; i++) {
+      const id = `sim-${i}-${Math.random().toString(36).slice(2, 6)}`;
+      const elapsedMs = Math.floor(Math.random() * 30000);
+      const choice = Math.floor(Math.random() * 4);
+      const answers = WOENIE_LOCAL_SESSIONS[code].answers[idx] || (WOENIE_LOCAL_SESSIONS[code].answers[idx] = {});
+      answers[id] = { choice, elapsedMs };
+    }
+    resolveQuestionOffline(idx);
+  } else {
+    const sessionId = activeGame.sessionId;
+    for (let i = 0; i < count; i++) {
+      const id = `sim-${i}-${Math.random().toString(36).slice(2, 6)}`;
+      await set(ref(db, `sessions/${sessionId}/players/${id}`), { nickname: `Tester ${i + 1}`, score: 0, connected: true });
+    }
+    const idx = typeof activeGame.index === 'number' ? activeGame.index : 0;
+    const startTsSnap = await get(ref(db, `sessions/${sessionId}/questionStartTs`));
+    const startTs = startTsSnap.val() || Date.now();
+    const submissions = [];
+    for (let i = 0; i < count; i++) {
+      const id = `sim-${i}-${Math.random().toString(36).slice(2, 6)}`;
+      const elapsedMs = Math.floor(Math.random() * 30000);
+      const choice = Math.floor(Math.random() * 4);
+      submissions.push(set(ref(db, `sessions/${sessionId}/answers/${idx}/${id}`), { choice, elapsedMs }));
+    }
+    await Promise.all(submissions);
+  }
+}
+
+function validateGameCode(code) {
+  const raw = String(code || '').trim().toUpperCase();
+  if (!raw) return { ok: false, reason: 'Voer een code in.' };
+  const re = /^[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+  if (!re.test(raw)) return { ok: false, reason: 'Ongeldige code. Gebruik formaat XXXX-XXXX.' };
+  return { ok: true, value: raw };
+}
+
+function openGamejoinModal() {
+  if (!gamejoinModal || !gamejoinOverlay) return;
+  gamejoinMessage.textContent = '';
+  gamejoinModal.hidden = false;
+  gamejoinOverlay.hidden = false;
+  requestAnimationFrame(() => {
+    gamejoinModal.classList.add('visible');
+    gamejoinOverlay.classList.add('visible');
+    gamejoinCode?.focus();
+  });
+  document.body.classList.add('modal-open');
+  const hostBtn = document.getElementById('gamejoin-host');
+  if (hostBtn) hostBtn.hidden = !activeQuizSetTitle;
+  hostBtn?.addEventListener('click', () => {
+    if (!activeQuizSetTitle) {
+      gamejoinMessage.textContent = 'Kies eerst een quizset via Examens.';
+      return;
+    }
+    startGamemode(activeQuizSetTitle);
+    closeGamejoinModal();
+  });
+}
+
+function closeGamejoinModal() {
+  if (!gamejoinModal || !gamejoinOverlay) return;
+  gamejoinModal.hidden = true;
+  gamejoinOverlay.hidden = true;
+  gamejoinModal.classList.remove('visible');
+  gamejoinOverlay.classList.remove('visible');
+  document.body.classList.remove('modal-open');
+}
+
+function setupGamemodeNav() {
+  gamemodeNav?.addEventListener('click', openGamejoinModal);
+  gamejoinClose?.addEventListener('click', closeGamejoinModal);
+  gamejoinCancel?.addEventListener('click', closeGamejoinModal);
+  gamejoinOverlay?.addEventListener('click', closeGamejoinModal);
+  gamejoinForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const v = validateGameCode(gamejoinCode?.value);
+    if (gamejoinCode) gamejoinCode.setAttribute('aria-invalid', String(!v.ok));
+    if (!v.ok) {
+      gamejoinMessage.textContent = v.reason;
+      return;
+    }
+    if (gamejoinSubmit) {
+      gamejoinSubmit.disabled = true;
+      gamejoinSubmit.textContent = 'Bezig...';
+    }
+    gamejoinMessage.textContent = '';
+    try {
+      const session = await joinGamemodeByCode(v.value, '');
+      if (!session) {
+        gamejoinMessage.textContent = 'Code niet gevonden of verlopen.';
+        if (gamejoinSubmit) {
+          gamejoinSubmit.disabled = false;
+          gamejoinSubmit.textContent = 'Meedoen';
+        }
+        return;
+      }
+      closeGamejoinModal();
+      setActivePanel('gamemode-panel');
+      render();
+    } catch (err) {
+      gamejoinMessage.textContent = 'Verbindingsprobleem. Probeer opnieuw.';
+      console.error('[WoenieQuiz Gamemode] join error', err);
+    } finally {
+      if (gamejoinSubmit) {
+        gamejoinSubmit.disabled = false;
+        gamejoinSubmit.textContent = 'Meedoen';
+      }
+    }
+  });
+  gamejoinModal?.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeGamejoinModal();
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setupGamemodeNav();
+});
+// Ensure listeners are bound even if DOMContentLoaded has already fired
+try { setupGamemodeNav(); } catch {}
 let authMode = 'login';
 let lastFocusedElement = null;
 let lastQuestionDelta = 0;
@@ -5808,6 +6382,12 @@ function getSectionQuizSets(subject, sectionId) {
   return dedupeQuizSets(flat);
 }
 
+function getAllQuizSets(subject) {
+  if (!subject) return [];
+  const flat = (subject.categories || []).flatMap((cat) => cat.quizSets || []);
+  return dedupeQuizSets(flat);
+}
+
 function getVisibleSets(subject) {
   if (!subject) return [];
   const domain = getExamDomain(subject, activeExamDomain);
@@ -7469,6 +8049,19 @@ function renderQuizPicker(subject) {
       </div>
     `;
 
+    const statusEl = card.querySelector('.quiz-picker__status');
+    if (statusEl) {
+      const gmBtn = document.createElement('button');
+      gmBtn.className = 'btn ghost';
+      gmBtn.type = 'button';
+      gmBtn.textContent = 'Gamemode';
+      gmBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        startGamemode(set.title);
+      });
+      statusEl.appendChild(gmBtn);
+    }
+
     // Direct Click Action
     card.addEventListener('click', () => {
       card.classList.add('is-opening');
@@ -8300,6 +8893,8 @@ function render() {
   renderSubjectMenu();
   renderHomeCatalog();
   persistSubjects();
+  renderGamemodeHost(subject);
+  renderGamemodePlayer(subject);
 }
 
 function setAuthMode(mode) {

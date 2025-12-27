@@ -1198,6 +1198,79 @@ body.modal-open { overflow: hidden; }
   position: relative;
   z-index: 1;
 }
+/* WoenieQuiz Gamemode */
+.panel--gamemode,
+.panel--gamemode-host {
+  padding: 16px;
+}
+.gamemode-host__join {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.gamemode-code .chip {
+  font-size: 18px;
+}
+.gamemode-qr canvas {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-soft);
+}
+.gamemode-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+.gamemode-status {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0;
+}
+.gamemode-leaderboard .lb-row,
+.gamemode-leaderboard .podium {
+  display: grid;
+  grid-template-columns: 40px 1fr 100px;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+.podium {
+  animation: rise 500ms ease-out;
+}
+@keyframes rise {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.gamemode-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+.gm-option {
+  font-size: 20px;
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  box-shadow: var(--shadow-soft);
+}
+.gm-option:disabled {
+  opacity: 0.6;
+}
+
+.pill#gamemode-nav {
+  background: #e7f8ed;
+}
+.pill#gamemode-nav:hover {
+  background: #dff6e8;
+}
+.pill#gamemode-nav:active {
+  background: #d1f1dd;
+}
 
 /* New Styles for Shuffle Interaction */
 .quiz-picker__card {

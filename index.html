@@ -26,6 +26,7 @@
           <button class="pill is-active" data-view-target="home" role="listitem" type="button">Start</button>
           <button class="pill" data-view-target="anatomie" data-panel-target="quiz-panel" role="listitem" type="button">Examens</button>
           <button class="pill" data-view-target="anatomie" data-panel-target="practice-panel" role="listitem" type="button">Oefenen</button>
+          <button class="pill" id="gamemode-nav" role="listitem" type="button">Gamemode</button>
           <button class="pill" data-view-target="profile" role="listitem" type="button">Profiel</button>
         </div>
       </nav>
@@ -89,6 +90,7 @@
           <div class="tabbar segmented" id="section-tabs" aria-label="Anatomie secties">
             <button class="tab active" type="button" data-panel-target="quiz-panel">Examens</button>
             <button class="tab" type="button" data-panel-target="practice-panel">Oefenen</button>
+            <button class="tab" type="button" data-panel-target="gamemode-panel">Gamemode</button>
             <button class="tab" type="button" data-panel-target="flashcards-panel">Flashcards</button>
           </div>
         </div>
@@ -105,6 +107,78 @@
             <div class="progress-banner" id="progress-banner"></div>
             <section id="quiz-picker" class="quiz-picker" aria-live="polite"></section>
           </div>
+
+          <article class="panel panel--gamemode-host" id="gamemode-host-panel" data-panel="gamemode-host-panel" hidden>
+            <header class="panel__header">
+              <div>
+                <p class="eyebrow">WoenieQuiz</p>
+                <h3>Gamemode (Host)</h3>
+                <p class="caption">Deel de QR of code met spelers en start de quiz.</p>
+              </div>
+            </header>
+            <div class="gamemode-host">
+              <div class="gamemode-host__join">
+                <div class="gamemode-code">
+                  <span class="chip" id="gamemode-code">XXXX-XXXX</span>
+                </div>
+                <div class="gamemode-qr" id="gamemode-qr"></div>
+              </div>
+              <div class="gamemode-controls">
+                <button class="btn" id="gamemode-start" type="button">Start quiz</button>
+                <button class="btn" id="gamemode-next" type="button">Volgende vraag</button>
+                <button class="btn danger" id="gamemode-end" type="button">Beëindigen</button>
+              </div>
+              <div class="gamemode-status">
+                <span class="chip ghost" id="gamemode-player-count">0 spelers</span>
+                <span class="chip ghost" id="gamemode-timer">30s</span>
+              </div>
+              <div class="gamemode-leaderboard" id="gamemode-leaderboard"></div>
+              <div class="gamemode-player-list" id="gamemode-player-list"></div>
+            </div>
+          </article>
+
+          <article class="panel panel--gamemode" id="gamemode-panel" data-panel="gamemode-panel" hidden>
+            <header class="panel__header">
+              <div>
+                <p class="eyebrow">WoenieQuiz</p>
+                <h3>Gamemode (Speler)</h3>
+                <p class="caption">Scan de QR of voer je code en bijnaam in.</p>
+              </div>
+            </header>
+            <div class="gamemode-join">
+              <div class="gamemode-join__methods">
+                <button class="btn" id="gamemode-scan" type="button">QR scannen</button>
+                <div class="gamemode-code-entry">
+                  <label class="field">
+                    <span>Code</span>
+                    <input id="gamemode-code-input" type="text" placeholder="XXXX-XXXX" />
+                  </label>
+                </div>
+                <div class="gamemode-nickname">
+                  <label class="field">
+                    <span>Bijnaam</span>
+                    <input id="gamemode-nickname" type="text" placeholder="Jouw naam" />
+                  </label>
+                </div>
+                <button class="btn primary" id="gamemode-join" type="button">Meedoen</button>
+              </div>
+            </div>
+            <div class="gamemode-play" id="gamemode-play" hidden>
+              <div class="gamemode-question">
+                <h3 id="gamemode-question-title"></h3>
+                <p class="lede" id="gamemode-question-text"></p>
+                <div class="gamemode-options" id="gamemode-options">
+                  <button class="gm-option" data-choice="0"><span class="option__label">A</span></button>
+                  <button class="gm-option" data-choice="1"><span class="option__label">B</span></button>
+                  <button class="gm-option" data-choice="2"><span class="option__label">C</span></button>
+                  <button class="gm-option" data-choice="3"><span class="option__label">D</span></button>
+                </div>
+              </div>
+              <div class="gamemode-play__footer">
+                <span class="chip" id="gamemode-player-timer">30s</span>
+              </div>
+            </div>
+          </article>
 
           <article class="flashcards" id="flashcards-panel" data-panel="flashcards-panel" hidden>
             <h3>Flashcards</h3>
@@ -247,13 +321,14 @@
           <button class="btn danger full" id="profile-logout" type="button">Uitloggen</button>
         </div>
       </div>
-    </section>
+  </section>
   </main>
 
   <footer class="footer">
     <p>Plak je nieuwe quizzen of samenvattingen hierboven; alles blijft lokaal opgeslagen.</p>
   </footer>
   <div id="auth-overlay" class="auth__overlay" hidden></div>
+  <div id="gamejoin-overlay" class="auth__overlay" hidden></div>
   <section id="auth-modal" class="auth" hidden role="dialog" aria-modal="true" aria-labelledby="auth-title">
     <div class="auth__header">
       <div>
@@ -279,6 +354,29 @@
       <div class="auth__divider"><span>of</span></div>
       <button class="btn google" id="google-btn" type="button">Log in met Google</button>
       <div class="message" id="auth-message" role="status"></div>
+    </form>
+  </section>
+
+  <section id="gamejoin-modal" class="auth" hidden role="dialog" aria-modal="true" aria-labelledby="gamejoin-title">
+    <div class="auth__header">
+      <div>
+        <p class="eyebrow">WoenieQuiz</p>
+        <h2 id="gamejoin-title">Gamemode code invoeren</h2>
+        <p class="caption">Voer je 8-cijferige code in, bijv. XXXX-XXXX.</p>
+      </div>
+      <button class="icon-btn" id="gamejoin-close" aria-label="Sluit gamemodevenster">×</button>
+    </div>
+    <form id="gamejoin-form" class="auth__form" novalidate>
+      <label class="field">
+        <span>Code</span>
+        <input id="gamejoin-code" type="text" name="code" placeholder="XXXX-XXXX" aria-describedby="gamejoin-message" aria-invalid="false" required />
+      </label>
+      <div class="message" id="gamejoin-message" role="status" aria-live="polite"></div>
+      <div class="auth__actions">
+        <button class="btn" id="gamejoin-submit" type="submit">Meedoen</button>
+        <button class="btn tertiary" id="gamejoin-host" type="button" hidden>Host Gamemode</button>
+        <button class="btn ghost" id="gamejoin-cancel" type="button">Annuleren</button>
+      </div>
     </form>
   </section>
 
