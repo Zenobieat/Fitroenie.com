@@ -6973,7 +6973,7 @@ function renderPractice(subject) {
                  item.style.transform = `translate(${invertX}px, ${invertY}px)`;
                  item.style.transition = 'none';
                  targetZone.classList.remove('incorrect');
-                 targetZone.classList.add('correct');
+                 targetZone.classList.add('corrected');
                  
                  requestAnimationFrame(() => {
                    item.getBoundingClientRect(); // Force reflow
