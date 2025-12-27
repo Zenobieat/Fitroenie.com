@@ -294,18 +294,21 @@ async function startGamemode(setTitle) {
   onValue(playersRef, (snap) => {
     const val = snap.val() || {};
     const list = Object.values(val);
-    const connectedCount = list.filter((p) => p.connected !== false).length;
+    const connectedCount = list.filter((p) => p.connected !== false && (!p.lastSeen || Date.now() - p.lastSeen <= 15000)).length;
     updateConnectionUI(list, connectedCount);
     if (connectedCount > 0) {
       const qrWrap = document.querySelector('.gamemode-host__qr');
       if (qrWrap) qrWrap.hidden = true;
       hostPanel.classList.add('fullscreen');
     }
-    leaderboardEl.innerHTML = list
-      .sort((a, b) => (b.score || 0) - (a.score || 0))
-      .slice(0, 10)
-      .map((p, i) => `<div class="lb-row"><span class="lb-rank">${i + 1}</span><span class="lb-name">${p.nickname || 'Speler'}</span><span class="lb-score">${p.score || 0}</span></div>`)
-      .join('');
+    if (!startGamemode._lbTs || Date.now() - startGamemode._lbTs > 250) {
+      startGamemode._lbTs = Date.now();
+      leaderboardEl.innerHTML = list
+        .sort((a, b) => (b.score || 0) - (a.score || 0))
+        .slice(0, 10)
+        .map((p, i) => `<div class="lb-row"><span class="lb-rank">${i + 1}</span><span class="lb-name">${p.nickname || 'Speler'}</span><span class="lb-score">${p.score || 0}</span></div>`)
+        .join('');
+    }
   });
   const sessionRef = ref(db, `sessions/${sessionId}`);
   onValue(sessionRef, async (snap) => {
@@ -436,8 +439,10 @@ async function joinGamemodeByCode(code, nickname) {
         const playerId = localStorage.getItem('woenie_player_id') || Math.random().toString(36).slice(2);
         localStorage.setItem('woenie_player_id', playerId);
         const playerRef = ref(db, `sessions/${sessionId}/players/${playerId}`);
-        await set(playerRef, { nickname: nickname || 'Speler', joinedAt: Date.now(), score: 0, connected: true });
+        await set(playerRef, { nickname: nickname || 'Speler', joinedAt: Date.now(), score: 0, connected: true, role: 'player', lastSeen: Date.now() });
         try { onDisconnect(playerRef).update({ connected: false }); } catch {}
+        startHeartbeat(sessionId, playerId);
+        logEvent(sessionId, 'info', 'player', 'player_joined');
         activePlayer = { sessionId, playerId, subjectName: session.subjectName, setTitle: session.setTitle, offline: false };
         activeSubject = session.subjectName;
         setActivePanel('gamemode-panel');
@@ -773,6 +778,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const codeInput = document.getElementById('gamemode-code-input');
     const connecting = document.getElementById('gamemode-connecting');
     const connectingText = document.getElementById('gamemode-connecting-text');
+    const retryBtn = document.getElementById('gamemode-retry');
     if (codeInput) codeInput.value = code;
     if (connecting) connecting.hidden = false;
     if (connectingText) connectingText.textContent = 'Verbinden…';
@@ -780,6 +786,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const timeout = setTimeout(() => {
       if (done) return;
       if (connectingText) connectingText.textContent = 'Verbindingtijd verstreken. Probeer opnieuw.';
+      if (retryBtn) retryBtn.hidden = false;
     }, 30000);
     joinGamemodeByCode(code, auth?.currentUser?.displayName || '').then((session) => {
       done = true;
@@ -789,6 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const panel = document.getElementById('gamemode-panel');
       if (gmCodeTop) gmCodeTop.textContent = `Code: ${code}`;
       if (connecting) connecting.hidden = true;
+      if (retryBtn) retryBtn.hidden = true;
       if (lobby) lobby.hidden = false;
       panel?.classList.add('fullscreen');
       const plRef = db ? ref(db, `sessions/${activePlayer.sessionId}/players`) : null;
@@ -806,6 +814,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }).catch(() => {
       if (connectingText) connectingText.textContent = 'Kon niet verbinden. Controleer je netwerk.';
+      if (retryBtn) {
+        retryBtn.hidden = false;
+        retryBtn.onclick = () => {
+          retryBtn.hidden = true;
+          if (connectingText) connectingText.textContent = 'Verbinden…';
+          joinGamemodeByCode(code, auth?.currentUser?.displayName || '');
+        };
+      }
     });
   }
 });
