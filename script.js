@@ -496,9 +496,22 @@ function renderGamemodePlayer(subject) {
   const params = new URLSearchParams(window.location.search);
   const codeParam = params.get('code') || '';
   if (codeParam && codeInput && !codeInput.value) codeInput.value = codeParam;
-  if (auth?.currentUser?.photoURL && avatarEl) {
-    avatarEl.src = auth.currentUser.photoURL;
-    avatarEl.hidden = false;
+  if (avatarEl) {
+    const name = auth?.currentUser?.displayName || '';
+    const photo = auth?.currentUser?.photoURL || '';
+    avatarEl.setAttribute('referrerpolicy', 'no-referrer');
+    const useInitial = () => {
+      const url = makeInitialAvatar(name);
+      avatarEl.src = url;
+      avatarEl.hidden = false;
+    };
+    if (photo) {
+      avatarEl.onerror = () => useInitial();
+      avatarEl.src = photo;
+      avatarEl.hidden = false;
+    } else {
+      useInitial();
+    }
   }
   if (auth?.currentUser?.displayName && nnInput && !nnInput.value) {
     nnInput.value = auth.currentUser.displayName;
@@ -824,6 +837,24 @@ if (FORCE_CLEAN) {
 
 function deepClone(value) {
   return JSON.parse(JSON.stringify(value));
+}
+
+function makeInitialAvatar(name) {
+  const c = document.createElement('canvas');
+  c.width = 96;
+  c.height = 96;
+  const ctx = c.getContext('2d');
+  const bg = ['#cfe1d6','#e0e7ff','#fde68a','#fecaca','#fbcfe8','#d1fae5'];
+  const pick = bg[Math.floor(Math.random() * bg.length)];
+  ctx.fillStyle = pick;
+  ctx.fillRect(0, 0, 96, 96);
+  ctx.fillStyle = '#0f2016';
+  ctx.font = 'bold 42px Manrope, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const initial = (name || 'Speler').trim().charAt(0).toUpperCase() || 'S';
+  ctx.fillText(initial, 48, 52);
+  return c.toDataURL('image/png');
 }
 
 function formatSetTitle(raw = '') {
