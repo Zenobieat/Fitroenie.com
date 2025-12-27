@@ -125,17 +125,18 @@
                   <p class="caption">Scan de QR of open Join op je toestel en voer deze 6-cijferige code in om mee te doen.</p>
                 </div>
               </div>
-              <div class="gamemode-status">
-                <div class="gm-connection">
-                  <label class="field">
+             <div class="gamemode-status">
+               <div class="gm-connection">
+                 <label class="field">
                     <span>Verwachte spelers</span>
                     <input id="gm-expected" type="number" min="1" value="1" />
                   </label>
-                  <span class="chip ghost" id="gm-connection-status">0/1 verbonden</span>
-                  <span class="chip ghost" id="gamemode-player-count">0 spelers</span>
-                </div>
-                <span class="chip ghost" id="gamemode-timer">30s</span>
-              </div>
+                 <span class="chip ghost" id="gm-connection-status">0/1 verbonden</span>
+                 <span class="chip ghost" id="gamemode-player-count">0 spelers</span>
+               </div>
+               <span class="chip ghost" id="gamemode-timer">30s</span>
+               <span class="chip success" id="paircode-status" hidden>Koppelcode geactiveerd</span>
+             </div>
               <div class="gamemode-controls">
                 <button class="btn primary disabled" id="gamemode-start" type="button" disabled>Start quiz</button>
                 <button class="btn" id="gamemode-next" type="button">Volgende vraag</button>
@@ -200,6 +201,7 @@
               </div>
               <div class="gamemode-play__footer">
                 <span class="chip" id="gamemode-player-timer">30s</span>
+                <button class="btn" id="gamemode-next-under" type="button">Volgende vraag</button>
               </div>
             </div>
           </article>

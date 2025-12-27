@@ -201,7 +201,7 @@ async function createGameSession(subjectName, setTitle) {
   let backendUnavailable = false;
   try {
     await set(sessionRef, session);
-    await set(ref(db, `codes/${code}`), { sessionId, createdAt: now });
+    await set(ref(db, `codes/${code}`), { sessionId, quizKey: `${subjectName}::${setTitle}`, status: 'active', createdAt: now, expiresAt: session.expiresAt });
   } catch {
     backendUnavailable = true;
   }
@@ -211,6 +211,29 @@ async function createGameSession(subjectName, setTitle) {
   url.searchParams.set('subject', subjectName);
   url.searchParams.set('set', setTitle);
   return { sessionId, code, deepLink: url.toString(), backendUnavailable };
+}
+
+async function createPairCode(sessionId, quizKey) {
+  if (!db) return null;
+  let code = makeLoginCode();
+  try {
+    let exists = true;
+    let attempts = 0;
+    while (exists && attempts < 5) {
+      const snap = await get(ref(db, `paircodes/${code}`));
+      exists = snap.exists();
+      if (exists) code = makeLoginCode();
+      attempts++;
+    }
+  } catch {}
+  const now = Date.now();
+  const data = { sessionId, quizKey, status: 'active', createdAt: now, expiresAt: now + 30 * 60 * 1000 };
+  try {
+    await set(ref(db, `paircodes/${code}`), data);
+    return { code, ...data };
+  } catch {
+    return null;
+  }
 }
 
 function renderQRCode(container, url) {
@@ -294,6 +317,23 @@ async function startGamemode(setTitle) {
   if (backendUnavailable) {
     statusEl.textContent = 'Preview zonder realtime';
   }
+  try {
+    const pc = await createPairCode(sessionId, `${subject.name}::${setTitle}`);
+    if (pc) {
+      const pairStatus = document.getElementById('paircode-status');
+      if (pairStatus) pairStatus.hidden = false;
+      onValue(ref(db, `paircodes/${pc.code}`), (snap) => {
+        const v = snap.val() || {};
+        if (v.status === 'used') {
+          const pairStatus = document.getElementById('paircode-status');
+          if (pairStatus) pairStatus.textContent = 'Koppeling bevestigd';
+        } else if (v.status === 'expired') {
+          const pairStatus = document.getElementById('paircode-status');
+          if (pairStatus) pairStatus.textContent = 'Koppelcode verlopen';
+        }
+      });
+    }
+  } catch {}
   const leaderId = auth?.currentUser?.uid || localStorage.getItem('woenie_leader_id') || `host-${Math.random().toString(36).slice(2)}`;
   localStorage.setItem('woenie_leader_id', leaderId);
   try {
@@ -364,6 +404,11 @@ async function startGamemode(setTitle) {
     logEvent(sessionId, 'info', 'host', 'quiz_started');
   });
   document.getElementById('gamemode-next')?.addEventListener('click', () => {
+    if (!activeGame || !activeGame.started) return;
+    const next = (activeGame.index || 0) + 1;
+    broadcastQuestion(next);
+  });
+  document.getElementById('gamemode-next-under')?.addEventListener('click', () => {
     if (!activeGame || !activeGame.started) return;
     const next = (activeGame.index || 0) + 1;
     broadcastQuestion(next);
@@ -462,6 +507,28 @@ async function joinGamemodeByCode(code, nickname) {
     try {
       if (auth && !auth.currentUser) {
         try { await signInAnonymously(auth); } catch {}
+      }
+      const pairSnap = await get(ref(db, `paircodes/${code}`));
+      if (pairSnap.exists()) {
+        const pv = pairSnap.val();
+        if (pv.status !== 'active' || (pv.expiresAt && pv.expiresAt < Date.now())) return null;
+        const playerId = localStorage.getItem('woenie_player_id') || Math.random().toString(36).slice(2);
+        localStorage.setItem('woenie_player_id', playerId);
+        await update(ref(db, `paircodes/${code}`), { status: 'used', usedBy: playerId });
+        const sessionId = pv.sessionId;
+        const sessionRef = ref(db, `sessions/${sessionId}`);
+        const sessionSnap = await get(sessionRef);
+        if (!sessionSnap.exists()) return null;
+        const session = sessionSnap.val();
+        const playerRef = ref(db, `sessions/${sessionId}/players/${playerId}`);
+        await set(playerRef, { nickname: nickname || 'Speler', joinedAt: Date.now(), score: 0, connected: true, role: 'player', lastSeen: Date.now() });
+        try { onDisconnect(playerRef).update({ connected: false }); } catch {}
+        startHeartbeat(sessionId, playerId);
+        activePlayer = { sessionId, playerId, subjectName: session.subjectName, setTitle: session.setTitle, offline: false };
+        activeSubject = session.subjectName;
+        setActivePanel('gamemode-panel');
+        render();
+        return session;
       }
       const codeSnap = await get(ref(db, `codes/${code}`));
       if (codeSnap.exists()) {

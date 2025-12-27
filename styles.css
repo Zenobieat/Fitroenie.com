@@ -1327,6 +1327,15 @@ body.modal-open { overflow: hidden; }
   gap: 12px;
   margin-top: 16px;
 }
+.gamemode-play__footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+}
+.gamemode-play__footer .btn {
+  margin-left: auto;
+}
 .gamemode-connecting {
   display: flex;
   align-items: center;
