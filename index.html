@@ -26,7 +26,7 @@
           <button class="pill is-active" data-view-target="home" role="listitem" type="button">Start</button>
           <button class="pill" data-view-target="anatomie" data-panel-target="quiz-panel" role="listitem" type="button">Examens</button>
           <button class="pill" data-view-target="anatomie" data-panel-target="practice-panel" role="listitem" type="button">Oefenen</button>
-          <button class="pill" id="gamemode-nav" role="listitem" type="button">Gamemode</button>
+          <button class="pill" id="gamemode-nav" role="listitem" type="button">Join</button>
           <button class="pill" data-view-target="profile" role="listitem" type="button">Profiel</button>
         </div>
       </nav>
@@ -109,28 +109,37 @@
           </div>
 
           <article class="panel panel--gamemode-host" id="gamemode-host-panel" data-panel="gamemode-host-panel" hidden>
-            <header class="panel__header">
-              <div>
-                <p class="eyebrow">WoenieQuiz</p>
-                <h3>Gamemode (Host)</h3>
-                <p class="caption">Deel de QR of code met spelers en start de quiz.</p>
-              </div>
-            </header>
+             <header class="panel__header">
+               <div>
+                 <p class="eyebrow">WoenieQuiz</p>
+                 <h3>Gamemode (Host)</h3>
+                 <p class="caption">Deel de QR of code met spelers en start de quiz.</p>
+               </div>
+               <span class="chip" id="gm-code-top" aria-live="polite">Code: ••••••</span>
+             </header>
             <div class="gamemode-host">
-              <div class="gamemode-host__join">
-                <div class="gamemode-code">
-                  <span class="chip" id="gamemode-code">XXXX-XXXX</span>
+              <div class="gamemode-host__qr">
+                <div class="gm-qr-frame" id="gamemode-qr"></div>
+                <div class="gm-code-box">
+                  <div class="gm-code" id="gm-code-text">••••••</div>
+                  <p class="caption">Scan de QR of open Join op je toestel en voer deze 6-cijferige code in om mee te doen.</p>
                 </div>
-                <div class="gamemode-qr" id="gamemode-qr"></div>
-              </div>
-              <div class="gamemode-controls">
-                <button class="btn" id="gamemode-start" type="button">Start quiz</button>
-                <button class="btn" id="gamemode-next" type="button">Volgende vraag</button>
-                <button class="btn danger" id="gamemode-end" type="button">Beëindigen</button>
               </div>
               <div class="gamemode-status">
-                <span class="chip ghost" id="gamemode-player-count">0 spelers</span>
+                <div class="gm-connection">
+                  <label class="field">
+                    <span>Verwachte spelers</span>
+                    <input id="gm-expected" type="number" min="1" value="1" />
+                  </label>
+                  <span class="chip ghost" id="gm-connection-status">0/1 verbonden</span>
+                  <span class="chip ghost" id="gamemode-player-count">0 spelers</span>
+                </div>
                 <span class="chip ghost" id="gamemode-timer">30s</span>
+              </div>
+              <div class="gamemode-controls">
+                <button class="btn primary disabled" id="gamemode-start" type="button" disabled>Start quiz</button>
+                <button class="btn" id="gamemode-next" type="button">Volgende vraag</button>
+                <button class="btn danger" id="gamemode-end" type="button">Beëindigen</button>
               </div>
               <div class="gamemode-leaderboard" id="gamemode-leaderboard"></div>
               <div class="gamemode-player-list" id="gamemode-player-list"></div>
@@ -151,7 +160,7 @@
                 <div class="gamemode-code-entry">
                   <label class="field">
                     <span>Code</span>
-                    <input id="gamemode-code-input" type="text" placeholder="XXXX-XXXX" />
+                    <input id="gamemode-code-input" type="text" placeholder="123456" />
                   </label>
                 </div>
                 <div class="gamemode-nickname">
@@ -160,6 +169,7 @@
                     <input id="gamemode-nickname" type="text" placeholder="Jouw naam" />
                   </label>
                 </div>
+                <img id="gamemode-avatar" class="avatar" alt="Profielfoto" hidden />
                 <button class="btn primary" id="gamemode-join" type="button">Meedoen</button>
               </div>
             </div>
@@ -329,6 +339,7 @@
   </footer>
   <div id="auth-overlay" class="auth__overlay" hidden></div>
   <div id="gamejoin-overlay" class="auth__overlay" hidden></div>
+  <div id="gamehost-overlay" class="auth__overlay" hidden></div>
   <section id="auth-modal" class="auth" hidden role="dialog" aria-modal="true" aria-labelledby="auth-title">
     <div class="auth__header">
       <div>
@@ -361,15 +372,15 @@
     <div class="auth__header">
       <div>
         <p class="eyebrow">WoenieQuiz</p>
-        <h2 id="gamejoin-title">Gamemode code invoeren</h2>
-        <p class="caption">Voer je 8-cijferige code in, bijv. XXXX-XXXX.</p>
+        <h2 id="gamejoin-title">Join code invoeren</h2>
+        <p class="caption">Voer je 6-cijferige code in, bijv. 123456.</p>
       </div>
       <button class="icon-btn" id="gamejoin-close" aria-label="Sluit gamemodevenster">×</button>
     </div>
     <form id="gamejoin-form" class="auth__form" novalidate>
       <label class="field">
         <span>Code</span>
-        <input id="gamejoin-code" type="text" name="code" placeholder="XXXX-XXXX" aria-describedby="gamejoin-message" aria-invalid="false" required />
+        <input id="gamejoin-code" type="text" name="code" placeholder="123456" aria-describedby="gamejoin-message" aria-invalid="false" required />
       </label>
       <div class="message" id="gamejoin-message" role="status" aria-live="polite"></div>
       <div class="auth__actions">
@@ -378,6 +389,30 @@
         <button class="btn ghost" id="gamejoin-cancel" type="button">Annuleren</button>
       </div>
     </form>
+  </section>
+
+  <section id="gamehost-modal" class="auth" hidden role="dialog" aria-modal="true" aria-labelledby="gamehost-title">
+    <div class="auth__header">
+      <div>
+        <p class="eyebrow">WoenieQuiz</p>
+        <h2 id="gamehost-title">Deelnemers inloggen</h2>
+        <p class="caption">De QR en code zijn uniek per sessie. Deel ze met je deelnemers.</p>
+      </div>
+      <button class="icon-btn" id="gamehost-close" aria-label="Sluit hostvenster">×</button>
+    </div>
+    <div class="auth__body">
+      <div class="gm-qr-frame" id="gamehost-qr" aria-label="QR code voor Join">
+        <div id="gamehost-spinner" class="spinner" aria-hidden="false"></div>
+      </div>
+      <div class="gm-code-box">
+        <div class="gm-code" id="gamehost-code">••••••</div>
+        <p class="caption">Scan de QR of open Join op je toestel en voer deze 6-cijferige code in.</p>
+      </div>
+      <div class="message" id="gamehost-message" role="status" aria-live="polite"></div>
+    </div>
+    <div class="auth__actions">
+      <button class="btn ghost" id="gamehost-close-2" type="button">Sluiten</button>
+    </div>
   </section>
 
   <div id="feedback-modal" class="feedback-modal" hidden>

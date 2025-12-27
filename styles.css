@@ -1203,10 +1203,75 @@ body.modal-open { overflow: hidden; }
 .panel--gamemode-host {
   padding: 16px;
 }
+.panel--gamemode-host.fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: linear-gradient(180deg, #fbfcff 0%, #eef5f3 60%, #fbfdfc 100%);
+  padding: 16px;
+  overflow: auto;
+}
+.panel--gamemode.fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: linear-gradient(180deg, #fbfcff 0%, #eef5f3 60%, #fbfdfc 100%);
+  padding: 16px;
+  overflow: auto;
+}
 .gamemode-host__join {
   display: flex;
   gap: 16px;
   align-items: center;
+}
+.gamemode-host__qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.gm-qr-frame {
+  width: min(360px, 80vw);
+  height: min(360px, 80vw);
+  display: grid;
+  place-items: center;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+.spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid #cfe1d6;
+  border-top-color: var(--accent);
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.gm-code-box {
+  width: min(360px, 80vw);
+  background: #dff6e8;
+  border: 1px solid #c6ead7;
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.gm-code {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--text);
+}
+.gm-connection {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 .gamemode-code .chip {
   font-size: 18px;
@@ -1221,10 +1286,22 @@ body.modal-open { overflow: hidden; }
   gap: 10px;
   margin-top: 10px;
 }
+.gamemode-controls .btn.disabled,
+.gamemode-controls .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.2);
+}
+.gamemode-controls .btn.primary:not(.disabled):not(:disabled) {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(43,182,115,0.28);
+}
 .gamemode-status {
   display: flex;
   gap: 10px;
   margin: 10px 0;
+  justify-content: space-between;
 }
 .gamemode-leaderboard .lb-row,
 .gamemode-leaderboard .podium {
@@ -1249,6 +1326,17 @@ body.modal-open { overflow: hidden; }
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-top: 16px;
+}
+.gamemode-join__methods {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+.gamemode-join__methods .avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  box-shadow: var(--shadow-soft);
 }
 .gm-option {
   font-size: 20px;

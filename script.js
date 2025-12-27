@@ -159,10 +159,10 @@ if (firebaseAvailable) {
 }
 
 function makeLoginCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let s = '';
-  for (let i = 0; i < 8; i++) s += chars[Math.floor(Math.random() * chars.length)];
-  return s.slice(0, 4) + '-' + s.slice(4);
+  const len = 6;
+  for (let i = 0; i < len; i++) s += Math.floor(Math.random() * 10);
+  return s;
 }
 
 async function createGameSession(subjectName, setTitle) {
@@ -252,24 +252,51 @@ async function startGamemode(setTitle) {
   const created = await createGameSession(subject.name, setTitle);
   if (!created) return;
   const { sessionId, code, deepLink, backendUnavailable } = created;
-  activeGame = { sessionId, code, subjectName: subject.name, setTitle, index: -1, started: false };
+  activeGame = { sessionId, code, subjectName: subject.name, setTitle, index: -1, started: false, expected: 1 };
   const hostPanel = document.getElementById('gamemode-host-panel');
-  const codeEl = document.getElementById('gamemode-code');
+  const gmCodeText = document.getElementById('gm-code-text');
   const qrEl = document.getElementById('gamemode-qr');
   const playerCountEl = document.getElementById('gamemode-player-count');
   const leaderboardEl = document.getElementById('gamemode-leaderboard');
+  const gmExpected = document.getElementById('gm-expected');
+  const gmConnStatus = document.getElementById('gm-connection-status');
+  const startBtn = document.getElementById('gamemode-start');
   hostPanel.hidden = false;
-  codeEl.textContent = code;
+  gmCodeText.textContent = code;
+  const gmCodeTop = document.getElementById('gm-code-top');
+  if (gmCodeTop) gmCodeTop.textContent = `Code: ${code}`;
   renderQRCode(qrEl, deepLink);
   const statusEl = document.getElementById('gamemode-timer');
   if (backendUnavailable) {
     statusEl.textContent = 'Preview zonder realtime';
   }
+  function setStartEnabled(enabled) {
+    if (!startBtn) return;
+    startBtn.disabled = !enabled;
+    startBtn.classList.toggle('disabled', !enabled);
+  }
+  function updateConnectionUI(list, connectedCount) {
+    const exp = Number(gmExpected?.value || activeGame.expected || 1);
+    activeGame.expected = isNaN(exp) || exp < 1 ? 1 : exp;
+    gmConnStatus.textContent = `${connectedCount}/${activeGame.expected} verbonden`;
+    playerCountEl.textContent = `${list.length} spelers`;
+    setStartEnabled(connectedCount >= activeGame.expected && activeGame.expected > 0);
+  }
+  gmExpected?.addEventListener('input', () => {
+    const exp = Number(gmExpected.value);
+    activeGame.expected = isNaN(exp) || exp < 1 ? 1 : exp;
+  });
   const playersRef = ref(db, `sessions/${sessionId}/players`);
   onValue(playersRef, (snap) => {
     const val = snap.val() || {};
     const list = Object.values(val);
-    playerCountEl.textContent = `${list.length} spelers`;
+    const connectedCount = list.filter((p) => p.connected !== false).length;
+    updateConnectionUI(list, connectedCount);
+    if (connectedCount > 0) {
+      const qrWrap = document.querySelector('.gamemode-host__qr');
+      if (qrWrap) qrWrap.hidden = true;
+      hostPanel.classList.add('fullscreen');
+    }
     leaderboardEl.innerHTML = list
       .sort((a, b) => (b.score || 0) - (a.score || 0))
       .slice(0, 10)
@@ -285,10 +312,16 @@ async function startGamemode(setTitle) {
       leaderboardEl.innerHTML = list
         .map((p, i) => `<div class="podium podium--${i + 1}"><span class="podium__place">${i + 1}</span><span class="podium__name">${p.nickname || 'Speler'}</span><span class="podium__score">${p.score || 0}</span></div>`)
         .join('');
+      setTimeout(() => {
+        hostPanel.classList.remove('fullscreen');
+        const qrWrap = document.querySelector('.gamemode-host__qr');
+        if (qrWrap) qrWrap.hidden = false;
+        setActivePanel('quiz-panel');
+      }, 1500);
     }
   });
   document.getElementById('gamemode-start')?.addEventListener('click', () => {
-    if (!activeGame || activeGame.started) return;
+    if (!activeGame || activeGame.started || startBtn?.disabled) return;
     activeGame.started = true;
     update(ref(db, `sessions/${sessionId}`), { status: 'playing' }).then(() => broadcastQuestion(0));
   });
@@ -451,6 +484,7 @@ function renderGamemodePlayer(subject) {
   const joinBtn = document.getElementById('gamemode-join');
   const codeInput = document.getElementById('gamemode-code-input');
   const nnInput = document.getElementById('gamemode-nickname');
+  const avatarEl = document.getElementById('gamemode-avatar');
   const qTitle = document.getElementById('gamemode-question-title');
   const qText = document.getElementById('gamemode-question-text');
   const optWrap = document.getElementById('gamemode-options');
@@ -458,6 +492,13 @@ function renderGamemodePlayer(subject) {
   const params = new URLSearchParams(window.location.search);
   const codeParam = params.get('code') || '';
   if (codeParam && codeInput && !codeInput.value) codeInput.value = codeParam;
+  if (auth?.currentUser?.photoURL && avatarEl) {
+    avatarEl.src = auth.currentUser.photoURL;
+    avatarEl.hidden = false;
+  }
+  if (auth?.currentUser?.displayName && nnInput && !nnInput.value) {
+    nnInput.value = auth.currentUser.displayName;
+  }
   const scanBtn = document.getElementById('gamemode-scan');
   scanBtn?.addEventListener('click', async () => {
     const supported = 'BarcodeDetector' in window;
@@ -492,11 +533,12 @@ function renderGamemodePlayer(subject) {
   });
   joinBtn?.addEventListener('click', async () => {
     const code = (codeInput?.value || '').toUpperCase().trim();
-    const nick = (nnInput?.value || '').trim();
+    const nick = (nnInput?.value || auth?.currentUser?.displayName || '').trim();
     const session = await joinGamemodeByCode(code, nick);
     if (!session) return;
     panel.hidden = false;
     play.hidden = false;
+    panel.classList.add('fullscreen');
     if (activePlayer.offline) {
       const chan = activePlayer.channel;
       let startTs = Date.now();
@@ -620,8 +662,8 @@ async function simulatePlayers(count = 25) {
 function validateGameCode(code) {
   const raw = String(code || '').trim().toUpperCase();
   if (!raw) return { ok: false, reason: 'Voer een code in.' };
-  const re = /^[A-Z0-9]{4}-[A-Z0-9]{4}$/;
-  if (!re.test(raw)) return { ok: false, reason: 'Ongeldige code. Gebruik formaat XXXX-XXXX.' };
+  const re = /^[0-9]{6}$/;
+  if (!re.test(raw)) return { ok: false, reason: 'Ongeldige code. Gebruik precies 6 cijfers.' };
   return { ok: true, value: raw };
 }
 
@@ -8057,7 +8099,7 @@ function renderQuizPicker(subject) {
       gmBtn.textContent = 'Gamemode';
       gmBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        startGamemode(set.title);
+        openGameHostModal(set.title);
       });
       statusEl.appendChild(gmBtn);
     }
@@ -8896,6 +8938,81 @@ function render() {
   renderGamemodeHost(subject);
   renderGamemodePlayer(subject);
 }
+
+const gamehostModal = document.getElementById('gamehost-modal');
+const gamehostOverlay = document.getElementById('gamehost-overlay');
+const gamehostClose = document.getElementById('gamehost-close');
+const gamehostClose2 = document.getElementById('gamehost-close-2');
+const gamehostQR = document.getElementById('gamehost-qr');
+const gamehostCode = document.getElementById('gamehost-code');
+const gamehostSpinner = document.getElementById('gamehost-spinner');
+const gamehostMessage = document.getElementById('gamehost-message');
+
+function openGameHostModal(setTitle) {
+  if (!gamehostModal || !gamehostOverlay) return;
+  gamehostMessage.textContent = '';
+  gamehostQR.innerHTML = '';
+  if (gamehostSpinner) gamehostSpinner.style.display = 'block';
+  gamehostCode.textContent = '••••••';
+  gamehostModal.hidden = false;
+  gamehostOverlay.hidden = false;
+  requestAnimationFrame(async () => {
+    gamehostModal.classList.add('visible');
+    gamehostOverlay.classList.add('visible');
+    const subject = getActiveSubject();
+    const code = makeLoginCode();
+    const url = new URL(window.location.href);
+    url.searchParams.set('mode', 'game');
+    url.searchParams.set('code', code);
+    if (subject?.name) url.searchParams.set('subject', subject.name);
+    if (setTitle) url.searchParams.set('set', setTitle);
+    gamehostCode.textContent = code;
+    renderQRCode(gamehostQR, url.toString());
+    if (gamehostSpinner) gamehostSpinner.style.display = 'none';
+    try {
+      const created = await createGameSession(subject?.name || '', setTitle);
+      if (created && created.code) {
+        gamehostCode.textContent = created.code;
+        renderQRCode(gamehostQR, created.deepLink);
+      }
+    } catch (err) {
+      // Fallback to local channel so joining still works offline/preview
+      try {
+        const chan = openGameChannel(code);
+        if (chan) {
+          WOENIE_LOCAL_SESSIONS[code] = WOENIE_LOCAL_SESSIONS[code] || { status: 'waiting', players: {}, answers: {}, scores: {} };
+          chan.addEventListener('message', (e) => {
+            const msg = e.data || {};
+            if (msg.type === 'request-sync') {
+              chan.postMessage({ type: 'session-start', subjectName: subject?.name || '', setTitle, status: 'waiting' });
+            } else if (msg.type === 'join-request') {
+              const id = msg.playerId;
+              WOENIE_LOCAL_SESSIONS[code].players[id] = { nickname: msg.nickname || 'Speler', score: 0 };
+              chan.postMessage({ type: 'session-start', subjectName: subject?.name || '', setTitle, status: 'waiting' });
+            }
+          });
+        }
+      } catch {}
+      gamehostMessage.textContent = 'Backend niet bereikbaar. Join werkt lokaal met deze code.';
+      console.error('[WoenieQuiz Gamemode] host modal error', err);
+    }
+  });
+  document.body.classList.add('modal-open');
+}
+
+function closeGameHostModal() {
+  if (!gamehostModal || !gamehostOverlay) return;
+  gamehostModal.hidden = true;
+  gamehostOverlay.hidden = true;
+  gamehostModal.classList.remove('visible');
+  gamehostOverlay.classList.remove('visible');
+  document.body.classList.remove('modal-open');
+}
+
+gamehostClose?.addEventListener('click', closeGameHostModal);
+gamehostClose2?.addEventListener('click', closeGameHostModal);
+gamehostOverlay?.addEventListener('click', closeGameHostModal);
+gamehostModal?.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeGameHostModal(); });
 
 function setAuthMode(mode) {
   authMode = mode;
