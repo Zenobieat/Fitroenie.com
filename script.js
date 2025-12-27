@@ -6801,7 +6801,13 @@ function renderPractice(subject) {
           <div class="draggable-pool">
             <div class="draggable-list" id="draggable-source">
               ${exerciseData.items
-                .sort(() => Math.random() - 0.5)
+                .slice()
+                .sort((a, b) => {
+                  if (exercise.id === 'knie-ligamenten-sleep') {
+                    return (a.id > b.id) ? 1 : -1;
+                  }
+                  return Math.random() - 0.5;
+                })
                 .map(item => `
                   <div class="draggable-item" draggable="true" data-id="${item.id}">
                     ${item.label}
@@ -6899,6 +6905,7 @@ function renderPractice(subject) {
       dropZones.forEach(zone => setupDropZone(zone));
       setupDropZone(sourceContainer, true);
 
+      let hasChecked = false;
       document.getElementById('btn-check-practice').addEventListener('click', () => {
         let correctCount = 0;
         const wrongItems = [];
@@ -6924,7 +6931,14 @@ function renderPractice(subject) {
           feedback.textContent = "Geweldig! Alles is correct.";
           feedback.style.color = "var(--success)";
         } else {
-          feedback.textContent = `Je hebt ${correctCount} van de ${exerciseData.items.length} goed. Even geduld, we zetten alles op de juiste plaats...`;
+          if (!hasChecked) {
+             feedback.textContent = `Je hebt ${correctCount} van de ${exerciseData.items.length} goed. Foutieve antwoorden zijn rood gemarkeerd. Klik nogmaals om de oplossing te zien.`;
+             feedback.style.color = "var(--text)";
+             hasChecked = true;
+             return;
+          }
+
+          feedback.textContent = `Oplossing wordt getoond...`;
           feedback.style.color = "var(--text)";
           
           // Disable interaction
