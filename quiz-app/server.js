@@ -70,8 +70,10 @@ io.on('connection', (socket) => {
     const joinUrl = `${baseUrl}/player.html?pin=${pin}`
     QRCode.toDataURL(joinUrl).then((url) => {
       socket.emit('game-info', { pin, qr: url, url: joinUrl })
+      socket.emit('game-created', { pin })
     }).catch(() => {
       socket.emit('game-info', { pin, qr: '', url: joinUrl })
+      socket.emit('game-created', { pin })
     })
   })
   socket.on('host-start-game', (pin) => {

@@ -30,6 +30,8 @@
     <button onclick="joinGame()" class="btn-join">DEELNEMEN</button>
     <p id="error-msg" style="color:#ff4d4d;font-weight:bold;"></p>
     <div class="status-bar" id="connection-status">Verbinden met server...</div>
+    <p style="font-size:12px;margin-top:20px;cursor:pointer;" onclick="toggleDebug()">Hulp nodig? Klik hier.</p>
+    <div id="debug-log" style="margin-top:10px;font-size:12px;color:#aaa;background:rgba(0,0,0,0.2);padding:10px;text-align:left;max-height:100px;overflow-y:auto;display:none">Log:<br></div>
   </div>
   <div id="screen-wait" class="view">
     <h1>Je zit erin!</h1>
@@ -48,31 +50,46 @@
   <script>
     const socket = io({ transports: ['websocket', 'polling'] })
     let myPin = null
+    function log(msg) {
+      console.log(msg)
+      const el = document.getElementById('debug-log')
+      if (el) el.innerHTML += `${msg}<br>`
+    }
+    function toggleDebug() {
+      const el = document.getElementById('debug-log')
+      if (el) el.style.display = el.style.display === 'block' ? 'none' : 'block'
+    }
     const params = new URLSearchParams(window.location.search)
     if (params.has('pin')) document.getElementById('pin').value = params.get('pin')
     socket.on('connect', () => {
       const cs = document.getElementById('connection-status')
       if (cs) { cs.innerText = '🟢 Verbonden!'; cs.style.color = '#4CAF50' }
+      log(`Verbonden: ${socket.id}`)
     })
     socket.on('connect_error', () => {
       const cs = document.getElementById('connection-status')
       if (cs) { cs.innerText = '🔴 Verbindingsfout. Zit je op Wifi?'; cs.style.color = '#ff4d4d' }
+      log('Verbindingsfout')
     })
+    socket.on('disconnect', () => { log('Verbinding verbroken') })
     function joinGame() {
       const nickname = document.getElementById('nickname').value
       const pin = document.getElementById('pin').value
       if (!nickname || !pin) return
       myPin = pin
+      log(`Join poging PIN=${pin}`)
       socket.emit('player-join', { pin, nickname })
     }
     socket.on('join-success', () => {
       document.getElementById('display-name').innerText = document.getElementById('nickname').value
       switchView('screen-wait')
+      log('Join succesvol')
     })
-    socket.on('error-msg', (msg) => { document.getElementById('error-msg').innerText = msg })
+    socket.on('error-msg', (msg) => { document.getElementById('error-msg').innerText = msg; log(`Server fout: ${msg}`) })
     socket.on('game-started', () => {
       switchView('screen-game')
       if (navigator.vibrate) navigator.vibrate(200)
+      log('Game gestart')
     })
     function sendAnswer(ans) { socket.emit('player-answer', { pin: myPin, answer: ans }) }
     function switchView(id) {

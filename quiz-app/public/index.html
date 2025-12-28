@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz Host</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+    .pin-box { font-size: 60px; font-weight: bold; color: #4CAF50; letter-spacing: 5px; margin: 20px 0; }
+    .player-list { display: flex; justify-content: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+    .player-tag { background: #333; color: white; padding: 10px 20px; border-radius: 20px; }
+    .hidden { display: none !important; }
+    #game-view { background: #222; color: white; height: 100vh; position: fixed; top:0; left:0; width: 100%; display: flex; flex-direction: column; justify-content: center; }
+  </style>
+</head>
+<body>
+  <div id="lobby-view">
+    <h1>Ga naar deze site op je gsm</h1>
+    <p>Voer deze code in:</p>
+    <div class="pin-box" id="pin-display">LADEN...</div>
+    <h3>Spelers:</h3>
+    <div class="player-list" id="player-list"></div>
+    <br><br>
+    <button onclick="start()" style="padding: 15px 30px; font-size: 20px;">START QUIZ</button>
+  </div>
+  <div id="game-view" class="hidden">
+    <h1>GAME IS BEZIG</h1>
+  </div>
+  <script>
+    const socket = io()
+    let myPin = null
+    socket.emit('host-create-game')
+    socket.on('game-created', (data) => {
+      myPin = data.pin
+      document.getElementById('pin-display').innerText = data.pin
+    })
+    socket.on('update-players', (players) => {
+      document.getElementById('player-list').innerHTML = players.map(p => `<div class="player-tag">${p.nickname}</div>`).join('')
+    })
+    function start() { if (myPin) socket.emit('host-start-game', myPin) }
+    socket.on('game-started', () => {
+      document.getElementById('lobby-view').classList.add('hidden')
+      document.getElementById('game-view').classList.remove('hidden')
+    })
+  </script>
+</body>
+</html>
