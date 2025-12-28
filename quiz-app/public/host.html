@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Host</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; padding: 0; text-align: center; }
+    .view { display: none; padding: 20px; }
+    .view.active { display: block; }
+    .host-body { background: #f0f0f0; }
+    .highlight { font-size: 3em; font-weight: 800; color: #4CAF50; display: block; margin: 10px 0; }
+    .btn-start { font-size: 1.5rem; padding: 15px 30px; background: #333; color: #fff; border: none; cursor: pointer; border-radius: 8px; }
+    #mobile-warning { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: #222; color: #fff; align-items: center; justify-content: center; z-index: 1000; }
+    @media (max-width: 768px) {
+      .host-body #mobile-warning { display: flex; }
+      .host-body #app-content { display: none; }
+    }
+    ul { list-style: none; padding: 0; }
+    .info-box { font-size: 1rem; }
+    #qr-code { width: 240px; height: 240px; object-fit: contain; }
+  </style>
+</head>
+<body class="host-body">
+  <div id="mobile-warning">Please use a Desktop or Tablet to HOST the game.</div>
+  <div id="app-content">
+    <div id="lobby-view" class="view active">
+      <h1>Join the Quiz!</h1>
+      <div class="info-box">
+        <p>Go to: <span id="ip-display">...</span></p>
+        <p>Code: <span id="pin-display" class="highlight">LOADING...</span></p>
+      </div>
+      <img id="qr-code" src="" alt="QR Code" />
+      <div class="player-area">
+        <h3>Players (<span id="player-count">0</span>):</h3>
+        <ul id="player-list"></ul>
+      </div>
+      <button onclick="startGame()" class="btn-start">START QUIZ</button>
+    </div>
+    <div id="game-view" class="view">
+      <h1 id="question-text">Question 1: What is the capital of Belgium?</h1>
+      <div class="answers-display">
+        <div class="ans red">A: Paris</div>
+        <div class="ans blue">B: Brussels</div>
+        <div class="ans orange">C: Amsterdam</div>
+        <div class="ans green">D: Berlin</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const socket = io()
+    let currentPin = null
+    socket.emit('host-create-game')
+    socket.on('game-created', (data) => {
+      currentPin = data.pin
+      document.getElementById('pin-display').innerText = data.pin
+      document.getElementById('qr-code').src = data.qr
+      document.getElementById('ip-display').innerText = `${data.base}/player.html`
+    })
+    socket.on('update-players', (players) => {
+      document.getElementById('player-count').innerText = players.length
+      const list = document.getElementById('player-list')
+      list.innerHTML = players.map(p => `<li>${p.nickname}</li>`).join('')
+    })
+    function startGame() {
+      if (currentPin) socket.emit('host-start-game', currentPin)
+    }
+    socket.on('game-started', () => {
+      document.getElementById('lobby-view').classList.remove('active')
+      document.getElementById('game-view').classList.add('active')
+    })
+    socket.on('player-answered', (data) => {
+      console.log('Answer received from', data.playerId, data.answer)
+    })
+  </script>
+</body>
+</html>

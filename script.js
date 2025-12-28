@@ -205,7 +205,8 @@ async function createGameSession(subjectName, setTitle) {
   } catch {
     backendUnavailable = true;
   }
-  const url = new URL(window.location.href);
+  const base = (localStorage.getItem('woenie_public_base_url') && /^https?:\/\//.test(localStorage.getItem('woenie_public_base_url'))) ? localStorage.getItem('woenie_public_base_url') : window.location.origin;
+  const url = new URL(window.location.pathname, base);
   url.searchParams.set('mode', 'game');
   url.searchParams.set('code', code);
   url.searchParams.set('subject', subjectName);
@@ -9146,6 +9147,8 @@ const gamehostQR = document.getElementById('gamehost-qr');
 const gamehostCode = document.getElementById('gamehost-code');
 const gamehostSpinner = document.getElementById('gamehost-spinner');
 const gamehostMessage = document.getElementById('gamehost-message');
+const publicUrlInput = document.getElementById('public-url-input');
+const publicUrlSave = document.getElementById('public-url-save');
 
 function openGameHostModal(setTitle) {
   if (!gamehostModal || !gamehostOverlay) return;
@@ -9160,7 +9163,8 @@ function openGameHostModal(setTitle) {
     gamehostOverlay.classList.add('visible');
     const subject = getActiveSubject();
     const code = makeLoginCode();
-    const url = new URL(window.location.href);
+    const base = (localStorage.getItem('woenie_public_base_url') && /^https?:\/\//.test(localStorage.getItem('woenie_public_base_url'))) ? localStorage.getItem('woenie_public_base_url') : window.location.origin;
+    const url = new URL(window.location.pathname, base);
     url.searchParams.set('mode', 'game');
     url.searchParams.set('code', code);
     if (subject?.name) url.searchParams.set('subject', subject.name);
@@ -9207,6 +9211,20 @@ function closeGameHostModal() {
   gamehostOverlay.classList.remove('visible');
   document.body.classList.remove('modal-open');
 }
+publicUrlSave?.addEventListener('click', () => {
+  const val = (publicUrlInput?.value || '').trim();
+  if (!val) return;
+  try {
+    const u = new URL(val);
+    localStorage.setItem('woenie_public_base_url', `${u.protocol}//${u.host}`);
+    if (gamehostMessage) gamehostMessage.textContent = 'Publieke URL opgeslagen. Nieuwe QR gebruikt deze URL.';
+  } catch {
+    if (gamehostMessage) gamehostMessage.textContent = 'Ongeldige URL. Gebruik https:// of http://';
+  }
+});
+document.getElementById('gamehost-modal')?.addEventListener('click', () => {
+  if (publicUrlInput && !publicUrlInput.value) publicUrlInput.value = localStorage.getItem('woenie_public_base_url') || '';
+});
 
 gamehostClose?.addEventListener('click', closeGameHostModal);
 gamehostClose2?.addEventListener('click', closeGameHostModal);

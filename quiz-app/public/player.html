@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Quiz Player</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .view { display: none; padding: 20px; }
+    .view.active { display: block; }
+    .player-body { background: #46178f; color: #fff; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; text-align: center; }
+    input { display: block; width: 80%; padding: 15px; margin: 10px auto; font-size: 1.2rem; border-radius: 4px; border: none; }
+    .btn-join { width: 80%; padding: 15px; background: #333; color: #fff; font-size: 1.2rem; border: none; border-radius: 4px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; height: 80vh; gap: 10px; }
+    .btn-opt { font-size: 3rem; border: none; border-radius: 8px; color: #fff; }
+    .red { background-color: #e21b3c; }
+    .blue { background-color: #1368ce; }
+    .orange { background-color: #d89e00; }
+    .green { background-color: #26890c; }
+    .spinner { width: 40px; height: 40px; border-radius: 50%; border: 3px solid #fff; border-top-color: #1368ce; animation: spin 0.9s linear infinite; margin: 0 auto; }
+    @keyframes spin { to { transform: rotate(360deg) } }
+  </style>
+</head>
+<body class="player-body">
+  <div id="login-view" class="view active">
+    <h1>Quiz Join</h1>
+    <input type="text" id="nickname" placeholder="Nickname" maxlength="12" />
+    <input type="tel" id="pin-input" placeholder="Game PIN" />
+    <button onclick="joinGame()" class="btn-join">JOIN</button>
+    <p id="error-msg"></p>
+  </div>
+  <div id="waiting-view" class="view">
+    <h1>You're in!</h1>
+    <p>See your name on screen?</p>
+    <div class="spinner"></div>
+    <p>Waiting for host...</p>
+  </div>
+  <div id="controller-view" class="view">
+    <div class="grid">
+      <button class="btn-opt red" onclick="sendAnswer('A')">▲</button>
+      <button class="btn-opt blue" onclick="sendAnswer('B')">◆</button>
+      <button class="btn-opt orange" onclick="sendAnswer('C')">●</button>
+      <button class="btn-opt green" onclick="sendAnswer('D')">■</button>
+    </div>
+  </div>
+  <script>
+    const socket = io()
+    let myPin = null
+    const params = new URLSearchParams(window.location.search)
+    if (params.has('pin')) {
+      document.getElementById('pin-input').value = params.get('pin')
+    }
+    function joinGame() {
+      const nickname = document.getElementById('nickname').value
+      const pin = document.getElementById('pin-input').value
+      if (!nickname || !pin) return
+      myPin = pin
+      socket.emit('player-join', { pin, nickname })
+    }
+    socket.on('join-success', () => { switchView('waiting-view') })
+    socket.on('error-message', (msg) => { document.getElementById('error-msg').innerText = msg })
+    socket.on('game-started', () => { switchView('controller-view') })
+    function sendAnswer(ans) { socket.emit('player-answer', { pin: myPin, answer: ans }) }
+    function switchView(id) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'))
+      document.getElementById(id).classList.add('active')
+    }
+  </script>
+</body>
+</html>
