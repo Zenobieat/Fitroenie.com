@@ -16,6 +16,12 @@
 - Host screen: `http://localhost:3000/host.html`
 - Players: `http://<your-ip>:3000/player.html`
 
+### Tunnel Mode (Localtunnel)
+- Install localtunnel: `npm install localtunnel`
+- Start: `node server.js`
+- The terminal prints `🌍 PUBLIC URL: https://...loca.lt` — open `/host.html` on your PC and share the QR
+- Phones can join over WiFi or 4G because the tunnel provides HTTPS
+
 ## Firebase Gamemode
 - The main site uses Firebase RTDB for realtime lobby/quiz synchronization.
 - Presence uses heartbeat (`lastSeen`) to ensure accurate connected counts.

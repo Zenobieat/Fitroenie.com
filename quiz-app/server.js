@@ -5,6 +5,7 @@ const path = require('path')
 const os = require('os')
 const QRCode = require('qrcode')
 const cors = require('cors')
+const localtunnel = require('localtunnel')
 
 const app = express()
 app.use(cors())
@@ -26,6 +27,7 @@ function getLocalIp() {
 
 const PORT = process.env.PORT || 3000
 const LOCAL_IP = getLocalIp()
+global.publicUrl = null
 
 function detectNgrokPublicUrl() {
   return new Promise((resolve) => {
@@ -64,7 +66,8 @@ io.on('connection', (socket) => {
     const pin = Math.floor(1000 + Math.random() * 9000).toString()
     games[pin] = { hostSocket: socket.id, players: [], state: 'lobby' }
     socket.join(pin)
-    const joinUrl = `http://${LOCAL_IP}:${PORT}/player.html?pin=${pin}`
+    const baseUrl = global.publicUrl || `http://${LOCAL_IP}:${PORT}`
+    const joinUrl = `${baseUrl}/player.html?pin=${pin}`
     QRCode.toDataURL(joinUrl).then((url) => {
       socket.emit('game-info', { pin, qr: url, url: joinUrl })
     }).catch(() => {
@@ -100,9 +103,18 @@ io.on('connection', (socket) => {
   })
 })
 
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, '0.0.0.0', async () => {
   console.log(`=== SERVER STARTED ===`)
-  console.log(`Host Screen: http://localhost:${PORT}/host.html`)
-  console.log(`Players use: http://${LOCAL_IP}:${PORT}/player.html`)
+  try {
+    const tunnel = await localtunnel({ port: PORT })
+    global.publicUrl = tunnel.url
+    console.log(`🌍 PUBLIC URL: ${global.publicUrl}`)
+    console.log(`👉 OPEN HOST: ${global.publicUrl}/host.html`)
+    tunnel.on('close', () => { console.log('Tunnel closed') })
+  } catch (e) {
+    console.log('Localtunnel unavailable, falling back to LAN IP')
+    console.log(`Host Screen: http://localhost:${PORT}/host.html`)
+    console.log(`Players use: http://${LOCAL_IP}:${PORT}/player.html`)
+  }
   console.log(`======================`)
 })
