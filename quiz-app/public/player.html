@@ -50,6 +50,11 @@
   <script>
     const socket = io({ transports: ['websocket', 'polling'] })
     let myPin = null
+    const deviceId = (localStorage.getItem('fitroenie_device_id') || (() => {
+      const id = Math.random().toString(36).slice(2)
+      localStorage.setItem('fitroenie_device_id', id)
+      return id
+    })())
     function log(msg) {
       console.log(msg)
       const el = document.getElementById('debug-log')
@@ -78,7 +83,7 @@
       if (!nickname || !pin) return
       myPin = pin
       log(`Join poging PIN=${pin}`)
-      socket.emit('player-join', { pin, nickname })
+      socket.emit('player-join', { pin, nickname, deviceId, origin: window.location.origin })
     }
     socket.on('join-success', () => {
       document.getElementById('display-name').innerText = document.getElementById('nickname').value
@@ -92,6 +97,10 @@
       log('Game gestart')
     })
     function sendAnswer(ans) { socket.emit('player-answer', { pin: myPin, answer: ans }) }
+    // Heartbeat every 10s to maintain presence
+    setInterval(() => {
+      if (myPin) socket.emit('heartbeat', { pin: myPin, deviceId })
+    }, 10000)
     function switchView(id) {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'))
       document.getElementById(id).classList.add('active')
