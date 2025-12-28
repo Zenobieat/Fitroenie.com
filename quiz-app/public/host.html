@@ -53,11 +53,11 @@
     const socket = io()
     let currentPin = null
     socket.emit('host-create-game')
-    socket.on('game-created', (data) => {
+    socket.on('game-info', (data) => {
       currentPin = data.pin
       document.getElementById('pin-display').innerText = data.pin
       document.getElementById('qr-code').src = data.qr
-      document.getElementById('ip-display').innerText = `${data.base}/player.html`
+      document.getElementById('ip-display').innerText = data.url
     })
     socket.on('update-players', (players) => {
       document.getElementById('player-count').innerText = players.length
@@ -71,7 +71,7 @@
       document.getElementById('lobby-view').classList.remove('active')
       document.getElementById('game-view').classList.add('active')
     })
-    socket.on('player-answered', (data) => {
+    socket.on('receive-answer', (data) => {
       console.log('Answer received from', data.playerId, data.answer)
     })
   </script>

@@ -23,20 +23,21 @@
   </style>
 </head>
 <body class="player-body">
-  <div id="login-view" class="view active">
-    <h1>Quiz Join</h1>
-    <input type="text" id="nickname" placeholder="Nickname" maxlength="12" />
-    <input type="tel" id="pin-input" placeholder="Game PIN" />
-    <button onclick="joinGame()" class="btn-join">JOIN</button>
-    <p id="error-msg"></p>
+  <div id="screen-login" class="view active">
+    <h1>Fitroenie Quiz</h1>
+    <input type="text" id="nickname" placeholder="Jouw Naam" maxlength="12" />
+    <input type="number" id="pin" placeholder="Game Code" />
+    <button onclick="joinGame()" class="btn-join">DEELNEMEN</button>
+    <p id="error-msg" style="color:#ff4d4d;font-weight:bold;"></p>
+    <div class="status-bar" id="connection-status">Verbinden met server...</div>
   </div>
-  <div id="waiting-view" class="view">
-    <h1>You're in!</h1>
-    <p>See your name on screen?</p>
-    <div class="spinner"></div>
-    <p>Waiting for host...</p>
+  <div id="screen-wait" class="view">
+    <h1>Je zit erin!</h1>
+    <h2 id="display-name">...</h2>
+    <div style="font-size:50px;">⏳</div>
+    <p>Wacht tot de host start...</p>
   </div>
-  <div id="controller-view" class="view">
+  <div id="screen-game" class="view">
     <div class="grid">
       <button class="btn-opt red" onclick="sendAnswer('A')">▲</button>
       <button class="btn-opt blue" onclick="sendAnswer('B')">◆</button>
@@ -45,22 +46,34 @@
     </div>
   </div>
   <script>
-    const socket = io()
+    const socket = io({ transports: ['websocket', 'polling'] })
     let myPin = null
     const params = new URLSearchParams(window.location.search)
-    if (params.has('pin')) {
-      document.getElementById('pin-input').value = params.get('pin')
-    }
+    if (params.has('pin')) document.getElementById('pin').value = params.get('pin')
+    socket.on('connect', () => {
+      const cs = document.getElementById('connection-status')
+      if (cs) { cs.innerText = '🟢 Verbonden!'; cs.style.color = '#4CAF50' }
+    })
+    socket.on('connect_error', () => {
+      const cs = document.getElementById('connection-status')
+      if (cs) { cs.innerText = '🔴 Verbindingsfout. Zit je op Wifi?'; cs.style.color = '#ff4d4d' }
+    })
     function joinGame() {
       const nickname = document.getElementById('nickname').value
-      const pin = document.getElementById('pin-input').value
+      const pin = document.getElementById('pin').value
       if (!nickname || !pin) return
       myPin = pin
       socket.emit('player-join', { pin, nickname })
     }
-    socket.on('join-success', () => { switchView('waiting-view') })
-    socket.on('error-message', (msg) => { document.getElementById('error-msg').innerText = msg })
-    socket.on('game-started', () => { switchView('controller-view') })
+    socket.on('join-success', () => {
+      document.getElementById('display-name').innerText = document.getElementById('nickname').value
+      switchView('screen-wait')
+    })
+    socket.on('error-msg', (msg) => { document.getElementById('error-msg').innerText = msg })
+    socket.on('game-started', () => {
+      switchView('screen-game')
+      if (navigator.vibrate) navigator.vibrate(200)
+    })
     function sendAnswer(ans) { socket.emit('player-answer', { pin: myPin, answer: ans }) }
     function switchView(id) {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'))
