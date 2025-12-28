@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Quiz (PHP/MySQL)</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; padding: 20px; }
+    .container { max-width: 720px; margin: 0 auto; }
+    .card { border: 1px solid #ddd; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    input, button { padding: 10px 14px; font-size: 16px; }
+    button { cursor: pointer; }
+    .pin { font-size: 28px; font-weight: 800; letter-spacing: .12em; }
+    .hidden { display: none; }
+    ul { list-style: none; padding: 0; }
+    .ans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+    .btn-opt { font-size: 22px; border: none; color: #fff; border-radius: 10px; padding: 14px; }
+    .red { background:#e21b3c } .blue{background:#1368ce} .orange{background:#d89e00} .green{background:#26890c}
+    .status { font-size: 13px; color: #555; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card" id="host-card">
+      <h2>Host</h2>
+      <div class="row">
+        <button id="create-btn">Nieuwe quiz aanmaken</button>
+        <span id="host-status" class="status"></span>
+      </div>
+      <div id="host-pin" class="pin hidden">••••••</div>
+      <div>
+        <h3>Spelers</h3>
+        <ul id="player-list"></ul>
+      </div>
+      <div class="row">
+        <button id="start-btn" class="hidden">Start quiz</button>
+      </div>
+    </div>
+    <div class="card" id="player-card">
+      <h2>Speler</h2>
+      <div class="row">
+        <input id="player-name" type="text" placeholder="Jouw naam">
+        <input id="player-pin" type="text" placeholder="Code">
+        <button id="join-btn">Meedoen</button>
+      </div>
+      <div id="player-status" class="status"></div>
+      <div id="controller" class="hidden">
+        <h3>Beantwoord</h3>
+        <div class="ans-grid">
+          <button class="btn-opt red">▲</button>
+          <button class="btn-opt blue">◆</button>
+          <button class="btn-opt orange">●</button>
+          <button class="btn-opt green">■</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const api = (params, method = 'POST') => fetch('api.php', {
+      method,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(params)
+    }).then(r => r.json());
+    let hostPin = null;
+    let pollIv = null;
+    document.getElementById('create-btn').addEventListener('click', async () => {
+      const r = await api({ action: 'create_game' });
+      if (r.ok) {
+        hostPin = r.pin;
+        document.getElementById('host-pin').textContent = r.pin;
+        document.getElementById('host-pin').classList.remove('hidden');
+        document.getElementById('start-btn').classList.remove('hidden');
+        document.getElementById('host-status').textContent = 'Lobby gestart';
+        startHostPoll();
+      } else {
+        document.getElementById('host-status').textContent = 'Fout bij aanmaken';
+      }
+    });
+    document.getElementById('start-btn').addEventListener('click', async () => {
+      if (!hostPin) return;
+      const r = await api({ action: 'start_game', pin: hostPin });
+      if (r.ok) document.getElementById('host-status').textContent = 'Quiz gestart';
+    });
+    function startHostPoll() {
+      clearInterval(pollIv);
+      pollIv = setInterval(async () => {
+        if (!hostPin) return;
+        const r = await api({ action: 'get_status', pin: hostPin }, 'POST');
+        if (!r.ok) return;
+        const list = document.getElementById('player-list');
+        list.innerHTML = (r.players || []).map(p => `<li>${p.name}</li>`).join('');
+      }, 1000);
+    }
+    let playerPin = null;
+    document.getElementById('join-btn').addEventListener('click', async () => {
+      const name = document.getElementById('player-name').value.trim();
+      const pin = document.getElementById('player-pin').value.trim();
+      if (!name || !pin) return;
+      const r = await api({ action: 'join_game', pin, name }, 'POST');
+      if (r.ok) {
+        playerPin = pin;
+        document.getElementById('player-status').textContent = 'Je zit in de lobby';
+        startPlayerPoll();
+      } else {
+        document.getElementById('player-status').textContent = 'Kon niet joinen';
+      }
+    });
+    function startPlayerPoll() {
+      clearInterval(pollIv);
+      pollIv = setInterval(async () => {
+        if (!playerPin) return;
+        const r = await api({ action: 'get_status', pin: playerPin }, 'POST');
+        if (!r.ok) return;
+        if (r.status === 'playing') {
+          document.getElementById('controller').classList.remove('hidden');
+          document.getElementById('player-status').textContent = 'Quiz bezig';
+        } else {
+          document.getElementById('controller').classList.add('hidden');
+          document.getElementById('player-status').textContent = 'Wachten op host';
+        }
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
