@@ -26,3 +26,14 @@
 - The main site uses Firebase RTDB for realtime lobby/quiz synchronization.
 - Presence uses heartbeat (`lastSeen`) to ensure accurate connected counts.
 - QR deep-link and manual code entry both supported.
+
+## Render Deployment (Node)
+- Render builds from the repo root by default, but the Node app is in `quiz-app/`.
+- Use `render.yaml` (blueprint) or set in Dashboard:
+  - Root Directory: `quiz-app`
+  - Build Command: `npm install`
+  - Start Command: `node server.js`
+  - Environment: Node
+  - Env Vars: `NODE_ENV=production` (optional)
+- Node version on Render defaults to 22.16.0. We set package `engines` to `>=18.18.0 <23.0.0` for compatibility.
+- After linking the repo and enabling auto-deploy on `main`, Render will build and start successfully.

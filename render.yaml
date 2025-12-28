@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: fitroenie-quiz
+    env: node
+    rootDir: quiz-app
+    buildCommand: npm install
+    startCommand: node server.js
+    autoDeploy: true
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
