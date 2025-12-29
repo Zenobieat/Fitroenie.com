@@ -101,6 +101,15 @@ io.on('connection', (socket) => {
         game.codeStatus = 'used'
         game.usedBy = deviceId
         game.boundOrigin = (data.origin || null)
+        setTimeout(() => {
+          const g = games[pin]
+          if (!g) return
+          if (g.state === 'lobby') {
+            g.codeStatus = 'active'
+            g.usedBy = null
+            g.boundOrigin = null
+          }
+        }, 30000)
       } else if (game.usedBy && game.usedBy !== deviceId) {
         socket.emit('error-msg', 'Code alleen geldig op dit apparaat')
         return

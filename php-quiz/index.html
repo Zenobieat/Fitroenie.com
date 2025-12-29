@@ -57,11 +57,22 @@
     </div>
   </div>
   <script>
-    const api = (params, method = 'POST') => fetch('api.php', {
-      method,
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(params)
-    }).then(r => r.json());
+    const api = async (params, method = 'POST') => {
+      const timeLimit = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms));
+      try {
+        const res = await Promise.race([
+          fetch('api.php', {
+            method,
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(params)
+          }),
+          timeLimit(5000)
+        ]);
+        return await res.json();
+      } catch (e) {
+        return { ok: false, error: e.message || 'network_error' };
+      }
+    };
     let hostPin = null;
     let pollIv = null;
     document.getElementById('create-btn').addEventListener('click', async () => {
@@ -90,6 +101,8 @@
         if (!r.ok) return;
         const list = document.getElementById('player-list');
         list.innerHTML = (r.players || []).map(p => `<li>${p.name}</li>`).join('');
+        const hint = document.getElementById('qr-hint');
+        if (hint) hint.textContent = `Deel deze URL met PIN: ${location.href}`;
       }, 1000);
     }
     let playerPin = null;
@@ -111,7 +124,11 @@
       pollIv = setInterval(async () => {
         if (!playerPin) return;
         const r = await api({ action: 'get_status', pin: playerPin }, 'POST');
-        if (!r.ok) return;
+        if (!r.ok) {
+          const ps = document.getElementById('player-status');
+          ps.textContent = r.error === 'timeout' ? 'Server timeout. Controleer verbinding.' : `Fout: ${r.error}`;
+          return;
+        }
         if (r.status === 'playing') {
           document.getElementById('controller').classList.remove('hidden');
           document.getElementById('player-status').textContent = 'Quiz bezig';

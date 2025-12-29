@@ -165,11 +165,15 @@ function makeLoginCode() {
   return s;
 }
 
-async function createGameSession(subjectName, setTitle) {
-  if (!db) return null;
+async function ensureAuth() {
   if (auth && !auth.currentUser) {
     try { await signInAnonymously(auth); } catch {}
   }
+}
+
+async function createGameSession(subjectName, setTitle) {
+  if (!db) return null;
+  await ensureAuth();
   const hostId = auth?.currentUser?.uid || null;
   const sessionRef = push(ref(db, 'sessions'));
   const sessionId = sessionRef.key;
@@ -216,6 +220,7 @@ async function createGameSession(subjectName, setTitle) {
 
 async function createPairCode(sessionId, quizKey) {
   if (!db) return null;
+  await ensureAuth();
   let code = makeLoginCode();
   try {
     let exists = true;
@@ -230,7 +235,12 @@ async function createPairCode(sessionId, quizKey) {
   const now = Date.now();
   const data = { sessionId, quizKey, status: 'active', createdAt: now, expiresAt: now + 30 * 60 * 1000 };
   try {
-    await set(ref(db, `paircodes/${code}`), data);
+    try {
+      await set(ref(db, `paircodes/${code}`), data);
+    } catch {
+      await ensureAuth();
+      await set(ref(db, `paircodes/${code}`), data);
+    }
     return { code, ...data };
   } catch {
     return null;
@@ -277,7 +287,7 @@ function startHeartbeat(sessionId, playerId) {
     try {
       await update(ref(db, `sessions/${sessionId}/players/${playerId}`), { lastSeen: now, connected: true });
     } catch {}
-  }, 10000);
+  }, 5000);
   window.addEventListener('beforeunload', stopHeartbeat);
 }
 function stopHeartbeat() {
@@ -506,23 +516,25 @@ async function joinGamemodeByCode(code, nickname) {
   if (!code) return null;
   if (db) {
     try {
-      if (auth && !auth.currentUser) {
-        try { await signInAnonymously(auth); } catch {}
-      }
+      await ensureAuth();
       const pairSnap = await get(ref(db, `paircodes/${code}`));
       if (pairSnap.exists()) {
         const pv = pairSnap.val();
-        if (pv.status !== 'active' || (pv.expiresAt && pv.expiresAt < Date.now())) return null;
+        if (pv.status !== 'active' || (pv.expiresAt && pv.expiresAt < Date.now())) throw new Error('paircode_expired');
         const playerId = localStorage.getItem('woenie_player_id') || Math.random().toString(36).slice(2);
         localStorage.setItem('woenie_player_id', playerId);
-        await update(ref(db, `paircodes/${code}`), { status: 'used', usedBy: playerId });
+        try {
+          await update(ref(db, `paircodes/${code}`), { status: 'used', usedBy: playerId });
+        } catch { throw new Error('backend_unavailable'); }
         const sessionId = pv.sessionId;
         const sessionRef = ref(db, `sessions/${sessionId}`);
         const sessionSnap = await get(sessionRef);
-        if (!sessionSnap.exists()) return null;
+        if (!sessionSnap.exists()) throw new Error('session_not_found');
         const session = sessionSnap.val();
         const playerRef = ref(db, `sessions/${sessionId}/players/${playerId}`);
-        await set(playerRef, { nickname: nickname || 'Speler', joinedAt: Date.now(), score: 0, connected: true, role: 'player', lastSeen: Date.now() });
+        try {
+          await set(playerRef, { nickname: nickname || 'Speler', joinedAt: Date.now(), score: 0, connected: true, role: 'player', lastSeen: Date.now() });
+        } catch { throw new Error('backend_unavailable'); }
         try { onDisconnect(playerRef).update({ connected: false }); } catch {}
         startHeartbeat(sessionId, playerId);
         activePlayer = { sessionId, playerId, subjectName: session.subjectName, setTitle: session.setTitle, offline: false };
@@ -536,12 +548,14 @@ async function joinGamemodeByCode(code, nickname) {
         const { sessionId } = codeSnap.val();
         const sessionRef = ref(db, `sessions/${sessionId}`);
         const sessionSnap = await get(sessionRef);
-        if (!sessionSnap.exists()) return null;
+        if (!sessionSnap.exists()) throw new Error('session_not_found');
         const session = sessionSnap.val();
         const playerId = localStorage.getItem('woenie_player_id') || Math.random().toString(36).slice(2);
         localStorage.setItem('woenie_player_id', playerId);
         const playerRef = ref(db, `sessions/${sessionId}/players/${playerId}`);
-        await set(playerRef, { nickname: nickname || 'Speler', joinedAt: Date.now(), score: 0, connected: true, role: 'player', lastSeen: Date.now() });
+        try {
+          await set(playerRef, { nickname: nickname || 'Speler', joinedAt: Date.now(), score: 0, connected: true, role: 'player', lastSeen: Date.now() });
+        } catch { throw new Error('backend_unavailable'); }
         try { onDisconnect(playerRef).update({ connected: false }); } catch {}
         startHeartbeat(sessionId, playerId);
         logEvent(sessionId, 'info', 'player', 'player_joined');
@@ -556,6 +570,7 @@ async function joinGamemodeByCode(code, nickname) {
         } catch {}
         return session;
       }
+      throw new Error('code_not_found');
     } catch {}
   }
   const chan = openGameChannel(code);
@@ -917,8 +932,17 @@ document.addEventListener('DOMContentLoaded', () => {
             .join('');
         });
       }
-    }).catch(() => {
-      if (connectingText) connectingText.textContent = 'Kon niet verbinden. Controleer je netwerk.';
+    }).catch((err) => {
+      const msg = (err && err.message) || '';
+      if (msg === 'paircode_expired') {
+        if (connectingText) connectingText.textContent = 'Deze koppelcode is verlopen. Vraag een nieuwe code.';
+      } else if (msg === 'backend_unavailable') {
+        if (connectingText) connectingText.textContent = 'Server niet bereikbaar. Controleer internet of probeer later opnieuw.';
+      } else if (msg === 'code_not_found' || msg === 'session_not_found') {
+        if (connectingText) connectingText.textContent = 'Code niet gevonden. Controleer of je de juiste code gebruikt.';
+      } else {
+        if (connectingText) connectingText.textContent = 'Kon niet verbinden. Controleer je netwerk.';
+      }
       if (retryBtn) {
         retryBtn.hidden = false;
         retryBtn.onclick = () => {
@@ -9216,8 +9240,16 @@ publicUrlSave?.addEventListener('click', () => {
   if (!val) return;
   try {
     const u = new URL(val);
+    const host = u.host.toLowerCase();
+    if (host.includes('localhost')) {
+      if (gamehostMessage) gamehostMessage.textContent = 'Gebruik geen localhost. Vul je LAN IP of een HTTPS tunnel URL in.';
+      return;
+    }
     localStorage.setItem('woenie_public_base_url', `${u.protocol}//${u.host}`);
-    if (gamehostMessage) gamehostMessage.textContent = 'Publieke URL opgeslagen. Nieuwe QR gebruikt deze URL.';
+    if (gamehostMessage) {
+      const insecure = u.protocol === 'http:';
+      gamehostMessage.textContent = insecure ? 'Publieke URL opgeslagen. Let op: HTTP kan op mobiel worden geblokkeerd. Gebruik bij voorkeur HTTPS.' : 'Publieke URL opgeslagen. Nieuwe QR gebruikt deze URL.';
+    }
   } catch {
     if (gamehostMessage) gamehostMessage.textContent = 'Ongeldige URL. Gebruik https:// of http://';
   }
