@@ -122,8 +122,7 @@
                 <div class="gm-qr-frame" id="gamemode-qr"></div>
                 <div class="gm-code-box">
                   <div class="gm-code" id="gm-code-text">••••••</div>
-                  <p class="caption">Scan de QR of open Join op je toestel en voer deze 6-cijferige code in om mee te doen.</p>
-                  <p class="caption" style="margin-top:5px"><a href="#" id="gamemode-host-link" target="_blank" style="color:var(--primary)">Open Link</a></p>
+                  <p class="caption">Scan de QR of voer de code in op fitroenie.com</p>
                 </div>
               </div>
              <div class="gamemode-status">
@@ -424,18 +423,12 @@
       </div>
       <div class="gm-code-box">
         <div class="gm-code" id="gamehost-code">••••••</div>
-        <p class="caption">Scan de QR of open Join op je toestel en voer deze 6-cijferige code in.</p>
-        <p class="caption" style="margin-top:5px"><a href="#" id="gamehost-link" target="_blank" style="color:var(--primary)">Open Link</a></p>
+        <p class="caption">Scan de QR of voer de code in op fitroenie.com</p>
       </div>
       <div class="message" id="gamehost-message" role="status" aria-live="polite"></div>
-    </div>
-    <div class="auth__actions">
-      <button class="btn ghost" id="gamehost-close-2" type="button">Sluiten</button>
-      <label class="field" style="margin-top:8px">
-        <span>Publieke URL (voor QR)</span>
-        <input id="public-url-input" type="text" placeholder="https://192.168.1.XX:8000 of ngrok URL" />
-      </label>
-      <button class="btn tertiary" id="public-url-save" type="button">Opslaan</button>
+      <div class="auth__actions">
+        <button class="btn" id="gamehost-close-2" type="button">Sluiten</button>
+      </div>
     </div>
   </section>
 
@@ -471,6 +464,6 @@
     window.process = window.process || { env: { NODE_ENV: 'production' } };
     window.FITROENIE_ANALYTICS_ENABLED = false;
   </script>
-  <script type="module" src="script.js?v=19"></script>
+  <script type="module" src="script.js?v=20"></script>
 </body>
 </html>

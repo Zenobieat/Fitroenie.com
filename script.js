@@ -171,12 +171,16 @@ async function ensureAuth() {
   }
 }
 
+function openGameChannel(code) {
+  if (!window.BroadcastChannel) return null;
+  return new BroadcastChannel('woenie_quiz_' + code);
+}
+
 async function createGameSession(subjectName, setTitle) {
   // Use PHP API instead of Firebase
   const now = Date.now();
   let code = null;
   let sessionId = null;
-  let backendUnavailable = false;
   
   try {
     const res = await fetch('php-quiz/api.php?action=create_game', {
@@ -184,6 +188,7 @@ async function createGameSession(subjectName, setTitle) {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: `subject_name=${encodeURIComponent(subjectName)}&set_title=${encodeURIComponent(setTitle)}`
     });
+    if (!res.ok) throw new Error('Network response was not ok');
     const data = await res.json();
     if (data.ok) {
       code = data.pin;
@@ -193,10 +198,7 @@ async function createGameSession(subjectName, setTitle) {
     }
   } catch (err) {
     console.error('PHP createGameSession error:', err);
-    backendUnavailable = true;
-    // Fallback code generation for local/offline mode if needed, though PHP is preferred
-    code = Math.floor(100000 + Math.random() * 900000).toString();
-    sessionId = code;
+    throw err; // Rethrow to let caller handle fallback
   }
 
   const session = {
@@ -209,7 +211,7 @@ async function createGameSession(subjectName, setTitle) {
     expiresAt: now + 2 * 60 * 60 * 1000
   };
 
-  const base = (localStorage.getItem('woenie_public_base_url') && /^https?:\/\//.test(localStorage.getItem('woenie_public_base_url'))) ? localStorage.getItem('woenie_public_base_url') : window.location.origin;
+  const base = window.location.origin;
   const url = new URL(window.location.pathname, base);
   url.searchParams.set('mode', 'game');
   url.searchParams.set('code', code);
@@ -218,12 +220,10 @@ async function createGameSession(subjectName, setTitle) {
   WOENIE_LOCAL_SESSIONS = WOENIE_LOCAL_SESSIONS || {};
   WOENIE_LOCAL_SESSIONS[code] = { ...session, players: {} };
   
-  // Start polling for players if backend is available
-  if (!backendUnavailable) {
-    startHostPolling(code);
-  }
+  // Start polling for players
+  startHostPolling(code);
 
-  return { sessionId, code, deepLink: url.toString(), backendUnavailable };
+  return { sessionId, code, deepLink: url.toString(), backendUnavailable: false };
 }
 
 let hostPollInterval = null;
@@ -644,7 +644,50 @@ async function joinGamemodeByCode(code, nickname) {
         throw new Error(data.error || 'Kon niet deelnemen.');
     }
   } catch (e) {
-      console.error('Join error:', e);
+      console.warn('Join error via PHP, trying offline channel...', e);
+      
+      // Fallback: Try BroadcastChannel (Offline Mode)
+      if (window.BroadcastChannel) {
+        return new Promise((resolve, reject) => {
+          const chan = new BroadcastChannel('woenie_quiz_' + code);
+          const playerId = nickname + '_' + Math.random().toString(36).substr(2, 5);
+          
+          const timeout = setTimeout(() => {
+            chan.close();
+            if (e.name === 'AbortError') reject(new Error('Verbinding time-out. De server reageert niet.'));
+            else reject(new Error('Kon geen verbinding maken (online en offline gefaald).'));
+          }, 3000);
+
+          chan.addEventListener('message', (evt) => {
+            const msg = evt.data || {};
+            if (msg.type === 'session-start') {
+              clearTimeout(timeout);
+              // Joined successfully via offline channel
+              activePlayer = {
+                sessionId: code,
+                playerId: nickname,
+                subjectName: msg.subjectName || '',
+                setTitle: msg.setTitle || '',
+                offline: true,
+                channel: chan,
+                currentQuestionIndex: -1
+              };
+              // Keep channel open for updates
+              resolve({
+                sessionId: code,
+                code: code,
+                subjectName: msg.subjectName,
+                setTitle: msg.setTitle,
+                status: msg.status || 'lobby'
+              });
+            }
+          });
+
+          // Send join request
+          chan.postMessage({ type: 'join-request', playerId, nickname });
+        });
+      }
+
       if (e.name === 'AbortError') {
           throw new Error('Verbinding time-out. De server reageert niet.');
       }
@@ -9557,8 +9600,6 @@ const gamehostQR = document.getElementById('gamehost-qr');
 const gamehostCode = document.getElementById('gamehost-code');
 const gamehostSpinner = document.getElementById('gamehost-spinner');
 const gamehostMessage = document.getElementById('gamehost-message');
-const publicUrlInput = document.getElementById('public-url-input');
-const publicUrlSave = document.getElementById('public-url-save');
 
 function openGameHostModal(setTitle) {
   if (!gamehostModal || !gamehostOverlay) return;
@@ -9573,7 +9614,7 @@ function openGameHostModal(setTitle) {
     gamehostOverlay.classList.add('visible');
     const subject = getActiveSubject();
     const code = makeLoginCode();
-    const base = (localStorage.getItem('woenie_public_base_url') && /^https?:\/\//.test(localStorage.getItem('woenie_public_base_url'))) ? localStorage.getItem('woenie_public_base_url') : window.location.origin;
+    const base = window.location.origin;
     const url = new URL(window.location.pathname, base);
     url.searchParams.set('mode', 'game');
     url.searchParams.set('code', code);
@@ -9581,28 +9622,41 @@ function openGameHostModal(setTitle) {
     if (setTitle) url.searchParams.set('set', setTitle);
     gamehostCode.textContent = code;
     renderQRCode(gamehostQR, url.toString());
-    const ghLink = document.getElementById('gamehost-link');
-    if (ghLink) {
-        ghLink.href = url.toString();
-        ghLink.textContent = url.toString();
-    }
+    
     if (gamehostSpinner) gamehostSpinner.style.display = 'none';
     try {
       const created = await createGameSession(subject?.name || '', setTitle);
       if (created && created.code) {
         gamehostCode.textContent = created.code;
         renderQRCode(gamehostQR, created.deepLink);
-        if (ghLink) {
-             ghLink.href = created.deepLink;
-             ghLink.textContent = created.deepLink;
-        }
       }
     } catch (err) {
+      console.warn('Backend unavailable, falling back to offline host', err);
       // Fallback to local channel so joining still works offline/preview
       try {
+        // Generate random offline code if backend failed
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        gamehostCode.textContent = code;
+        
+        // Generate Deep Link for offline mode
+        const base = window.location.origin;
+        const url = new URL(window.location.pathname, base);
+        url.searchParams.set('mode', 'game');
+        url.searchParams.set('code', code);
+        renderQRCode(gamehostQR, url.toString());
+
         const chan = openGameChannel(code);
         if (chan) {
-          WOENIE_LOCAL_SESSIONS[code] = WOENIE_LOCAL_SESSIONS[code] || { status: 'waiting', players: {}, answers: {}, scores: {} };
+          WOENIE_LOCAL_SESSIONS = WOENIE_LOCAL_SESSIONS || {};
+          WOENIE_LOCAL_SESSIONS[code] = { 
+            status: 'waiting', 
+            players: {}, 
+            answers: {}, 
+            scores: {},
+            subjectName: subject?.name || '',
+            setTitle: setTitle
+          };
+          
           chan.addEventListener('message', (e) => {
             const msg = e.data || {};
             if (msg.type === 'request-sync') {
@@ -9610,15 +9664,33 @@ function openGameHostModal(setTitle) {
             } else if (msg.type === 'join-request') {
               if (Object.keys(WOENIE_LOCAL_SESSIONS[code].players).length >= 5) return;
               const id = msg.playerId;
-              WOENIE_LOCAL_SESSIONS[code].players[id] = { nickname: msg.nickname || 'Speler', score: 0 };
+              const nickname = msg.nickname || 'Speler';
+              WOENIE_LOCAL_SESSIONS[code].players[id] = { nickname, score: 0 };
               chan.postMessage({ type: 'session-start', subjectName: subject?.name || '', setTitle, status: 'waiting' });
               updateHostUI(code);
             }
           });
         }
-      } catch {}
-      gamehostMessage.textContent = 'Backend niet bereikbaar. Join werkt lokaal met deze code.';
-      console.error('[WoenieQuiz Gamemode] host modal error', err);
+        // Set activeGame to offline mode so host panel renders
+        activeGame = {
+          code: code,
+          offline: true,
+          players: {},
+          started: false,
+          setTitle: setTitle,
+          subjectName: subject?.name,
+          channel: chan
+        };
+        renderGamemodeHost(subject);
+        
+    if (gamehostMessage) {
+            gamehostMessage.textContent = 'Offline modus actief (lokaal netwerk).';
+            gamehostMessage.style.color = '#e0e7ff'; // Neutral/Info color
+        }
+      } catch (e2) {
+          console.error('Offline fallback failed', e2);
+          if (gamehostMessage) gamehostMessage.textContent = 'Kon spel niet starten (offline modus mislukt).';
+      }
     }
   });
   document.body.classList.add('modal-open');
@@ -9632,28 +9704,6 @@ function closeGameHostModal() {
   gamehostOverlay.classList.remove('visible');
   document.body.classList.remove('modal-open');
 }
-publicUrlSave?.addEventListener('click', () => {
-  const val = (publicUrlInput?.value || '').trim();
-  if (!val) return;
-  try {
-    const u = new URL(val);
-    const host = u.host.toLowerCase();
-    if (host.includes('localhost')) {
-      if (gamehostMessage) gamehostMessage.textContent = 'Gebruik geen localhost. Vul je LAN IP of een HTTPS tunnel URL in.';
-      return;
-    }
-    localStorage.setItem('woenie_public_base_url', `${u.protocol}//${u.host}`);
-    if (gamehostMessage) {
-      const insecure = u.protocol === 'http:';
-      gamehostMessage.textContent = insecure ? 'Publieke URL opgeslagen. Let op: HTTP kan op mobiel worden geblokkeerd. Gebruik bij voorkeur HTTPS.' : 'Publieke URL opgeslagen. Nieuwe QR gebruikt deze URL.';
-    }
-  } catch {
-    if (gamehostMessage) gamehostMessage.textContent = 'Ongeldige URL. Gebruik https:// of http://';
-  }
-});
-document.getElementById('gamehost-modal')?.addEventListener('click', () => {
-  if (publicUrlInput && !publicUrlInput.value) publicUrlInput.value = localStorage.getItem('woenie_public_base_url') || '';
-});
 
 gamehostClose?.addEventListener('click', closeGameHostModal);
 gamehostClose2?.addEventListener('click', closeGameHostModal);
