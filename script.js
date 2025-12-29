@@ -172,51 +172,147 @@ async function ensureAuth() {
 }
 
 async function createGameSession(subjectName, setTitle) {
-  if (!db) return null;
-  await ensureAuth();
-  const hostId = auth?.currentUser?.uid || null;
-  const sessionRef = push(ref(db, 'sessions'));
-  const sessionId = sessionRef.key;
-  let code = makeLoginCode();
-  try {
-    let exists = true;
-    let attempts = 0;
-    while (exists && attempts < 5) {
-      const snap = await get(ref(db, `codes/${code}`));
-      exists = snap.exists();
-      if (exists) {
-        code = makeLoginCode();
-      }
-      attempts++;
-    }
-  } catch {}
+  // Use PHP API instead of Firebase
   const now = Date.now();
+  let code = null;
+  let sessionId = null;
+  let backendUnavailable = false;
+  
+  try {
+    const res = await fetch('php-quiz/api.php?action=create_game', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `subject_name=${encodeURIComponent(subjectName)}&set_title=${encodeURIComponent(setTitle)}`
+    });
+    const data = await res.json();
+    if (data.ok) {
+      code = data.pin;
+      sessionId = data.pin; // Use PIN as session ID for simplicity in PHP version
+    } else {
+      throw new Error(data.error || 'create_failed');
+    }
+  } catch (err) {
+    console.error('PHP createGameSession error:', err);
+    backendUnavailable = true;
+    // Fallback code generation for local/offline mode if needed, though PHP is preferred
+    code = Math.floor(100000 + Math.random() * 900000).toString();
+    sessionId = code;
+  }
+
   const session = {
     code,
-    hostId,
+    hostId: 'local-host',
     subjectName,
     setTitle,
-    status: 'waiting',
-    currentQuestionIndex: -1,
-    questionStartTs: null,
+    status: 'lobby',
     createdAt: now,
     expiresAt: now + 2 * 60 * 60 * 1000
   };
-  let backendUnavailable = false;
-  try {
-    await set(sessionRef, session);
-    await set(ref(db, `codes/${code}`), { sessionId, quizKey: `${subjectName}::${setTitle}`, status: 'active', createdAt: now, expiresAt: session.expiresAt });
-  } catch {
-    backendUnavailable = true;
-  }
+
   const base = (localStorage.getItem('woenie_public_base_url') && /^https?:\/\//.test(localStorage.getItem('woenie_public_base_url'))) ? localStorage.getItem('woenie_public_base_url') : window.location.origin;
   const url = new URL(window.location.pathname, base);
   url.searchParams.set('mode', 'game');
   url.searchParams.set('code', code);
-  url.searchParams.set('subject', subjectName);
-  url.searchParams.set('set', setTitle);
+  
+  // Store session locally for the host to manage state/polling
+  WOENIE_LOCAL_SESSIONS = WOENIE_LOCAL_SESSIONS || {};
+  WOENIE_LOCAL_SESSIONS[code] = { ...session, players: {} };
+  
+  // Start polling for players if backend is available
+  if (!backendUnavailable) {
+    startHostPolling(code);
+  }
+
   return { sessionId, code, deepLink: url.toString(), backendUnavailable };
 }
+
+let hostPollInterval = null;
+function startHostPolling(pin) {
+  if (hostPollInterval) clearInterval(hostPollInterval);
+  hostPollInterval = setInterval(async () => {
+    try {
+      const res = await fetch(`php-quiz/api.php?action=get_status&pin=${pin}`);
+      const data = await res.json();
+      if (data.ok) {
+        const players = data.players || [];
+        if (!WOENIE_LOCAL_SESSIONS[pin]) WOENIE_LOCAL_SESSIONS[pin] = { players: {}, answers: {} };
+        const localPlayers = WOENIE_LOCAL_SESSIONS[pin].players;
+        
+        players.forEach(p => {
+          const pid = p.name; 
+          if (!localPlayers[pid]) {
+             localPlayers[pid] = { nickname: p.name, score: parseInt(p.score) || 0 };
+          } else {
+             localPlayers[pid].score = parseInt(p.score) || 0;
+          }
+        });
+        
+        const answers = data.answered_players || [];
+        const currentQ = data.current_question;
+        if (currentQ) {
+            const idx = currentQ - 1;
+            if (!WOENIE_LOCAL_SESSIONS[pin].answers) WOENIE_LOCAL_SESSIONS[pin].answers = {};
+            if (!WOENIE_LOCAL_SESSIONS[pin].answers[idx]) WOENIE_LOCAL_SESSIONS[pin].answers[idx] = {};
+            
+            answers.forEach(a => {
+                if (a.player_name && typeof a.answer_index === 'number') {
+                    WOENIE_LOCAL_SESSIONS[pin].answers[idx][a.player_name] = { 
+                        choice: a.answer_index,
+                        elapsedMs: 0
+                    };
+                }
+            });
+        }
+        
+        updateHostUI(pin);
+      }
+    } catch (e) { console.error('Poll error', e); }
+  }, 2000);
+}
+
+function updateHostUI(code) {
+  const session = WOENIE_LOCAL_SESSIONS[code];
+  if (!session) return;
+  const players = Object.values(session.players);
+  const count = players.length;
+  
+  const playerCountEl = document.getElementById('gamemode-player-count');
+  const connStatusEl = document.getElementById('gm-connection-status');
+  const startBtn = document.getElementById('gamemode-start');
+  const qrWrap = document.querySelector('.gamemode-host__qr');
+  const codeTop = document.getElementById('gm-code-top');
+  const playerListEl = document.getElementById('gamemode-player-list');
+
+  if (playerCountEl) playerCountEl.textContent = `${count} spelers`;
+  if (connStatusEl) connStatusEl.textContent = `${count} verbonden`;
+  
+  if (count >= 1) {
+    if (qrWrap) qrWrap.hidden = true;
+    if (startBtn) {
+       startBtn.disabled = false;
+       startBtn.classList.remove('disabled');
+    }
+    if (codeTop) codeTop.textContent = `Code: ${code}`;
+  } else {
+    if (qrWrap) qrWrap.hidden = false;
+    if (startBtn) {
+       startBtn.disabled = true;
+       startBtn.classList.add('disabled');
+    }
+  }
+  
+  if (playerListEl) {
+    playerListEl.innerHTML = players.map(p => {
+       let status = '';
+       if (activeGame && activeGame.started && typeof activeGame.index === 'number') {
+           const ans = session.answers?.[activeGame.index]?.[p.nickname];
+           if (ans) status = ' <span style="color:#4CAF50">✓</span>';
+       }
+       return `<div class="lb-row"><span class="lb-name">${p.nickname}</span>${status}</div>`;
+    }).join('');
+  }
+}
+
 
 async function createPairCode(sessionId, quizKey) {
   if (!db) return null;
@@ -328,91 +424,36 @@ async function startGamemode(setTitle) {
   if (backendUnavailable) {
     statusEl.textContent = 'Preview zonder realtime';
   }
-  try {
-    const pc = await createPairCode(sessionId, `${subject.name}::${setTitle}`);
-    if (pc) {
-      const pairStatus = document.getElementById('paircode-status');
-      if (pairStatus) pairStatus.hidden = false;
-      onValue(ref(db, `paircodes/${pc.code}`), (snap) => {
-        const v = snap.val() || {};
-        if (v.status === 'used') {
-          const pairStatus = document.getElementById('paircode-status');
-          if (pairStatus) pairStatus.textContent = 'Koppeling bevestigd';
-        } else if (v.status === 'expired') {
-          const pairStatus = document.getElementById('paircode-status');
-          if (pairStatus) pairStatus.textContent = 'Koppelcode verlopen';
-        }
-      });
-    }
-  } catch {}
-  const leaderId = auth?.currentUser?.uid || localStorage.getItem('woenie_leader_id') || `host-${Math.random().toString(36).slice(2)}`;
-  localStorage.setItem('woenie_leader_id', leaderId);
-  try {
-    await set(ref(db, `sessions/${sessionId}/players/${leaderId}`), { nickname: 'Host', score: 0, connected: true, role: 'leader', joinedAt: Date.now(), lastSeen: Date.now() });
-    startHeartbeat(sessionId, leaderId);
-    logEvent(sessionId, 'info', 'host', 'host_joined');
-  } catch {}
+
   function setStartEnabled(enabled) {
     if (!startBtn) return;
     startBtn.disabled = !enabled;
     startBtn.classList.toggle('disabled', !enabled);
   }
-  function updateConnectionUI(list, connectedCount) {
-    const exp = Number(gmExpected?.value || activeGame.expected || 1);
-    activeGame.expected = isNaN(exp) || exp < 1 ? 1 : exp;
-    gmConnStatus.textContent = `${connectedCount}/${activeGame.expected} verbonden`;
-    playerCountEl.textContent = `${list.length} spelers`;
-    setStartEnabled(connectedCount >= activeGame.expected && activeGame.expected > 0);
-  }
+
+  // Initial UI update
+  updateHostUI(code);
+
   gmExpected?.addEventListener('input', () => {
     const exp = Number(gmExpected.value);
     activeGame.expected = isNaN(exp) || exp < 1 ? 1 : exp;
+    updateHostUI(code);
   });
   openLobbyBtn?.addEventListener('click', () => {
     window.open(deepLink, '_blank', 'noopener,noreferrer');
   });
-  const playersRef = ref(db, `sessions/${sessionId}/players`);
-  onValue(playersRef, (snap) => {
-    const val = snap.val() || {};
-    const list = Object.values(val);
-    const connectedCount = list.filter((p) => p.connected !== false && (!p.lastSeen || Date.now() - p.lastSeen <= 15000)).length;
-    updateConnectionUI(list, connectedCount);
-    if (connectedCount > 0) {
-      const qrWrap = document.querySelector('.gamemode-host__qr');
-      if (qrWrap) qrWrap.hidden = true;
-      hostPanel.classList.add('fullscreen');
-    }
-    if (!startGamemode._lbTs || Date.now() - startGamemode._lbTs > 250) {
-      startGamemode._lbTs = Date.now();
-      leaderboardEl.innerHTML = list
-        .sort((a, b) => (b.score || 0) - (a.score || 0))
-        .slice(0, 10)
-        .map((p, i) => `<div class="lb-row"><span class="lb-rank">${i + 1}</span><span class="lb-name">${p.nickname || 'Speler'}</span><span class="lb-score">${p.score || 0}</span></div>`)
-        .join('');
-    }
-  });
-  const sessionRef = ref(db, `sessions/${sessionId}`);
-  onValue(sessionRef, async (snap) => {
-    const s = snap.val() || {};
-    if (s.status === 'finished') {
-      const ps = await get(playersRef);
-      const list = Object.values(ps.val() || {}).sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 3);
-      leaderboardEl.innerHTML = list
-        .map((p, i) => `<div class="podium podium--${i + 1}"><span class="podium__place">${i + 1}</span><span class="podium__name">${p.nickname || 'Speler'}</span><span class="podium__score">${p.score || 0}</span></div>`)
-        .join('');
-      setTimeout(() => {
-        hostPanel.classList.remove('fullscreen');
-        const qrWrap = document.querySelector('.gamemode-host__qr');
-        if (qrWrap) qrWrap.hidden = false;
-        setActivePanel('quiz-panel');
-      }, 1500);
-    }
-  });
-  document.getElementById('gamemode-start')?.addEventListener('click', () => {
+  
+  document.getElementById('gamemode-start')?.addEventListener('click', async () => {
     if (!activeGame || activeGame.started || startBtn?.disabled) return;
     activeGame.started = true;
-    update(ref(db, `sessions/${sessionId}`), { status: 'playing' }).then(() => broadcastQuestion(0));
-    logEvent(sessionId, 'info', 'host', 'quiz_started');
+    try {
+        await fetch(`php-quiz/api.php?action=start_game`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `pin=${activeGame.code}`
+        });
+        broadcastQuestion(0);
+    } catch(e) { console.error('Start error', e); }
   });
   document.getElementById('gamemode-next')?.addEventListener('click', () => {
     if (!activeGame || !activeGame.started) return;
@@ -426,7 +467,11 @@ async function startGamemode(setTitle) {
   });
   document.getElementById('gamemode-end')?.addEventListener('click', () => {
     if (!activeGame) return;
-    update(ref(db, `sessions/${sessionId}`), { status: 'finished' });
+    fetch(`php-quiz/api.php?action=update_game`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `pin=${activeGame.code}&status=finished`
+    }).catch(console.error);
   });
 }
 
@@ -434,15 +479,21 @@ function broadcastQuestion(index) {
   const set = getActiveSet(getActiveSubject());
   if (!activeGame || !set) return;
   if (index >= set.questions.length) {
-    update(ref(db, `sessions/${activeGame.sessionId}`), { status: 'finished' });
+    fetch(`php-quiz/api.php?action=update_game`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `pin=${activeGame.code}&status=finished`
+    }).catch(console.error);
     return;
   }
   activeGame.index = index;
-  const startTs = Date.now();
-  update(ref(db, `sessions/${activeGame.sessionId}`), {
-    currentQuestionIndex: index,
-    questionStartTs: startTs
-  });
+  
+  fetch(`php-quiz/api.php?action=update_game`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `pin=${activeGame.code}&current_question=${index + 1}`
+  }).catch(console.error);
+
   const timerEl = document.getElementById('gamemode-timer');
   let left = 30;
   timerEl.textContent = `${left}s`;
@@ -469,22 +520,44 @@ async function resolveQuestion(index) {
   const subject = getActiveSubject();
   const set = getActiveSet(subject);
   if (!activeGame || !set) return;
-  const answersSnap = await get(ref(db, `sessions/${activeGame.sessionId}/answers/${index}`));
-  const answers = answersSnap.val() || {};
-  const playersSnap = await get(ref(db, `sessions/${activeGame.sessionId}/players`));
-  const players = playersSnap.val() || {};
-  const updates = {};
-  Object.entries(answers).forEach(([playerId, pick]) => {
-    const correct = computePickCorrect(set.questions[index], pick);
-    const points = computePoints(pick.elapsedMs || 30000, correct);
-    updates[`sessions/${activeGame.sessionId}/answers/${index}/${playerId}/correct`] = correct;
-    updates[`sessions/${activeGame.sessionId}/answers/${index}/${playerId}/points`] = points;
-    const prev = players[playerId]?.score || 0;
-    updates[`sessions/${activeGame.sessionId}/players/${playerId}/score`] = prev + points;
+  const pin = activeGame.code;
+  const session = WOENIE_LOCAL_SESSIONS[pin];
+  if (!session) return;
+  
+  const answers = session.answers?.[index] || {};
+  const players = session.players || {};
+  
+  const updates = [];
+  
+  Object.entries(players).forEach(([playerName, pData]) => {
+      const pick = answers[playerName];
+      let points = 0;
+      let correct = false;
+      
+      if (pick) {
+          correct = computePickCorrect(set.questions[index], pick);
+          points = computePoints(pick.elapsedMs || 30000, correct);
+      }
+      
+      // Update local score
+      const prev = pData.score || 0;
+      const newScore = prev + points;
+      pData.score = newScore;
+      
+      if (points > 0) {
+          updates.push(fetch('php-quiz/api.php?action=update_score', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: `pin=${pin}&name=${encodeURIComponent(playerName)}&score=${newScore}`
+          }));
+      }
   });
-  if (Object.keys(updates).length) {
-    await update(ref(db), updates);
+  
+  if (updates.length > 0) {
+      await Promise.all(updates);
   }
+  
+  updateHostUI(pin);
 }
 
 function testComputePoints() {
@@ -514,88 +587,270 @@ let activePlayer = null;
 
 async function joinGamemodeByCode(code, nickname) {
   if (!code) return null;
-  if (db) {
-    try {
-      await ensureAuth();
-      const pairSnap = await get(ref(db, `paircodes/${code}`));
-      if (pairSnap.exists()) {
-        const pv = pairSnap.val();
-        if (pv.status !== 'active' || (pv.expiresAt && pv.expiresAt < Date.now())) throw new Error('paircode_expired');
-        const playerId = localStorage.getItem('woenie_player_id') || Math.random().toString(36).slice(2);
-        localStorage.setItem('woenie_player_id', playerId);
-        try {
-          await update(ref(db, `paircodes/${code}`), { status: 'used', usedBy: playerId });
-        } catch { throw new Error('backend_unavailable'); }
-        const sessionId = pv.sessionId;
-        const sessionRef = ref(db, `sessions/${sessionId}`);
-        const sessionSnap = await get(sessionRef);
-        if (!sessionSnap.exists()) throw new Error('session_not_found');
-        const session = sessionSnap.val();
-        if (session.players && Object.keys(session.players).length >= 5) throw new Error('session_full');
-        const playerRef = ref(db, `sessions/${sessionId}/players/${playerId}`);
-        try {
-          await set(playerRef, { nickname: nickname || 'Speler', joinedAt: Date.now(), score: 0, connected: true, role: 'player', lastSeen: Date.now() });
-        } catch { throw new Error('backend_unavailable'); }
-        try { onDisconnect(playerRef).update({ connected: false }); } catch {}
-        startHeartbeat(sessionId, playerId);
-        activePlayer = { sessionId, playerId, subjectName: session.subjectName, setTitle: session.setTitle, offline: false };
-        activeSubject = session.subjectName;
-        setActivePanel('gamemode-panel');
-        render();
-        return session;
-      }
-      const codeSnap = await get(ref(db, `codes/${code}`));
-      if (codeSnap.exists()) {
-        const { sessionId } = codeSnap.val();
-        const sessionRef = ref(db, `sessions/${sessionId}`);
-        const sessionSnap = await get(sessionRef);
-        if (!sessionSnap.exists()) throw new Error('session_not_found');
-        const session = sessionSnap.val();
-        if (session.players && Object.keys(session.players).length >= 5) throw new Error('session_full');
-        const playerId = localStorage.getItem('woenie_player_id') || Math.random().toString(36).slice(2);
-        localStorage.setItem('woenie_player_id', playerId);
-        const playerRef = ref(db, `sessions/${sessionId}/players/${playerId}`);
-        try {
-          await set(playerRef, { nickname: nickname || 'Speler', joinedAt: Date.now(), score: 0, connected: true, role: 'player', lastSeen: Date.now() });
-        } catch { throw new Error('backend_unavailable'); }
-        try { onDisconnect(playerRef).update({ connected: false }); } catch {}
-        startHeartbeat(sessionId, playerId);
-        logEvent(sessionId, 'info', 'player', 'player_joined');
-        activePlayer = { sessionId, playerId, subjectName: session.subjectName, setTitle: session.setTitle, offline: false };
-        activeSubject = session.subjectName;
-        setActivePanel('gamemode-panel');
-        render();
-        try {
-          const mSnap = await get(ref(db, `sessions/${sessionId}/metrics/joins`));
-          const prev = mSnap.val() || 0;
-          await set(ref(db, `sessions/${sessionId}/metrics/joins`), prev + 1);
-        } catch {}
-        return session;
-      }
-      throw new Error('code_not_found');
-    } catch {}
-  }
-  const chan = openGameChannel(code);
-  if (!chan) return null;
-  const playerId = localStorage.getItem('woenie_player_id') || Math.random().toString(36).slice(2);
-  localStorage.setItem('woenie_player_id', playerId);
-  activePlayer = { sessionId: `local-${code}`, playerId, subjectName: '', setTitle: '', offline: true, channel: chan, code };
-  setActivePanel('gamemode-panel');
-  render();
-  return await new Promise((resolve) => {
-    const timeout = setTimeout(() => resolve({ subjectName: '', setTitle: '' }), 800);
-    chan.addEventListener('message', (e) => {
-      const msg = e.data || {};
-      if (msg.type === 'session-start') {
-        activePlayer.subjectName = msg.subjectName || '';
-        activePlayer.setTitle = msg.setTitle || '';
-        clearTimeout(timeout);
-        resolve({ subjectName: activePlayer.subjectName, setTitle: activePlayer.setTitle });
-      }
+  console.log('[WoenieQuiz] Joining game:', code, nickname);
+  
+  // Try PHP API first
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+    const res = await fetch('php-quiz/api.php?action=join_game', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `pin=${encodeURIComponent(code)}&name=${encodeURIComponent(nickname)}`,
+        signal: controller.signal
     });
-    chan.postMessage({ type: 'request-sync' });
-    chan.postMessage({ type: 'join-request', nickname, playerId });
-  });
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+        throw new Error(`Server error: ${res.status} ${res.statusText}`);
+    }
+
+    const text = await res.text();
+    let data;
+    try {
+        data = JSON.parse(text);
+    } catch (e) {
+        console.error('[WoenieQuiz] Invalid JSON response:', text);
+        throw new Error('Ongeldige server reactie. Controleer internetverbinding.');
+    }
+    
+    if (data.ok) {
+        console.log('[WoenieQuiz] Join success:', data);
+        // Success
+        activePlayer = {
+            sessionId: code,
+            playerId: nickname,
+            subjectName: data.subject_name || '',
+            setTitle: data.set_title || '',
+            offline: false,
+            currentQuestionIndex: -1
+        };
+        startPlayerPolling(code);
+        
+        return {
+            sessionId: code,
+            code: code,
+            subjectName: data.subject_name,
+            setTitle: data.set_title,
+            status: 'lobby'
+        };
+    } else {
+        console.warn('[WoenieQuiz] Join failed:', data.error);
+        // Map PHP errors to friendly messages if possible
+        if (data.error === 'game_full') throw new Error('Het spel zit vol (max 5 spelers).');
+        if (data.error === 'game_not_found') throw new Error('Geen spel gevonden met deze code.');
+        if (data.error === 'game_already_started_or_finished') throw new Error('Het spel is al bezig of afgelopen.');
+        throw new Error(data.error || 'Kon niet deelnemen.');
+    }
+  } catch (e) {
+      console.error('Join error:', e);
+      if (e.name === 'AbortError') {
+          throw new Error('Verbinding time-out. De server reageert niet.');
+      }
+      throw e; 
+  }
+}
+
+let playerPollInterval = null;
+function startPlayerPolling(pin) {
+  if (playerPollInterval) clearInterval(playerPollInterval);
+  
+  // Show lobby initially
+  const lobby = document.getElementById('gamemode-lobby');
+  if (lobby) {
+      lobby.hidden = false;
+      lobby.innerHTML = '<div style="text-align:center; padding:20px;"><h3>Wachten op host...</h3><p>Je bent verbonden!</p><p id="gm-player-wait-msg">Het spel begint zodra de host start.</p></div>';
+  }
+
+  playerPollInterval = setInterval(async () => {
+    if (!activePlayer || activePlayer.sessionId !== pin) {
+        clearInterval(playerPollInterval);
+        return;
+    }
+    
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        
+        const res = await fetch(`php-quiz/api.php?action=get_status&pin=${pin}`, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        
+        const data = await res.json();
+        if (data.ok) {
+            // Check status
+            const status = data.status;
+            const currentQ = data.current_question; // 1-based index
+            
+            // Update UI based on status
+            const lobby = document.getElementById('gamemode-lobby');
+            const playerStatus = document.getElementById('gm-player-status');
+            
+            if (playerStatus) {
+                playerStatus.textContent = 'Verbonden';
+                playerStatus.classList.add('success');
+                playerStatus.classList.remove('error');
+            }
+
+            if (status === 'playing' && currentQ !== null) {
+                // Game started or new question
+                if (lobby) lobby.hidden = true;
+                
+                // Transition to question view if not already there or if question changed
+                const qIndex = currentQ - 1;
+                if (activePlayer.currentQuestionIndex !== qIndex) {
+                    activePlayer.currentQuestionIndex = qIndex;
+                    showPlayerQuestion(qIndex, data.subject_name, data.set_title); 
+                }
+            } else if (status === 'finished') {
+                if (lobby) lobby.hidden = true;
+                showPlayerResults();
+                clearInterval(playerPollInterval);
+            } else {
+                // Lobby
+                if (lobby) {
+                    lobby.hidden = false;
+                    const msg = document.getElementById('gm-player-wait-msg');
+                    if (msg) msg.textContent = 'Wachten op host...';
+                    
+                     // Optional: show other players in lobby
+                     // Not implementing full list to save bandwidth/complexity on phone
+                }
+            }
+        } else {
+             // Game might be gone
+             if (data.error === 'game_not_found') {
+                 alert('De host heeft het spel beëindigd.');
+                 clearInterval(playerPollInterval);
+                 location.reload();
+             }
+        }
+    } catch (e) {
+        console.error('Player poll error', e);
+        const playerStatus = document.getElementById('gm-player-status');
+        if (playerStatus) {
+            playerStatus.textContent = 'Verbinding verbroken...';
+            playerStatus.classList.remove('success');
+            playerStatus.classList.add('error');
+        }
+    }
+  }, 1000);
+}
+
+function findQuizSet(subjectName, setTitle) {
+    // Currently only supporting Anatomie structure as per codebase
+    // This can be expanded if more subjects are added globally
+    if (!subjectName || !setTitle) return null;
+    
+    // In a real app, we might want a global registry of subjects. 
+    // For now, we check the known 'anatomie' object.
+    const subjects = [anatomie]; 
+    
+    const subj = subjects.find(s => s.name === subjectName || s.name === 'Anatomie'); // Fallback to Anatomie
+    if (!subj) return null;
+    
+    for (const cat of subj.categories) {
+        if (cat.quizSets) {
+            const set = cat.quizSets.find(s => s.title === setTitle);
+            if (set) return set;
+        }
+    }
+    return null;
+}
+
+function showPlayerQuestion(index, subjectName, setTitle) {
+    const quizSet = findQuizSet(subjectName, setTitle);
+    if (!quizSet || !quizSet.questions || !quizSet.questions[index]) {
+        // Fallback if question not found locally
+        const container = document.getElementById('gamemode-panel');
+        if (container) {
+            container.innerHTML = '<div style="padding:20px; text-align:center;"><h3>Vraag ' + (index + 1) + '</h3><p>Kijk naar het scherm van de host voor de vraag en antwoorden.</p><div id="gm-player-options" class="gm-player-options"></div></div>';
+            renderGenericOptions(container.querySelector('#gm-player-options'), 4);
+        }
+        return;
+    }
+    
+    const q = quizSet.questions[index];
+    const container = document.getElementById('gamemode-panel');
+    if (!container) return;
+    
+    // Render player UI: just buttons usually, but we can show text if available
+    let html = `
+      <div class="gm-player-question-view">
+        <div class="gm-player-q-header">Vraag ${index + 1}</div>
+        <div class="gm-player-options-grid" id="gm-player-options-grid"></div>
+      </div>
+    `;
+    
+    container.innerHTML = html;
+    const grid = document.getElementById('gm-player-options-grid');
+    
+    // Determine number of options
+    const opts = q.options || ['A', 'B', 'C', 'D'];
+    
+    opts.forEach((opt, i) => {
+       const btn = document.createElement('button');
+       btn.className = 'gm-option-btn';
+       // We can show text or just colors/shapes. Let's show text if short, or just A/B/C/D
+       btn.textContent = opt; 
+       btn.dataset.idx = i;
+       
+       // Colors for options (Kahoot style)
+       const colors = ['#e21b3c', '#1368ce', '#d89e00', '#26890c'];
+       if (colors[i]) btn.style.backgroundColor = colors[i];
+       btn.style.color = 'white';
+       
+       btn.onclick = () => submitAnswer(i, btn);
+       grid.appendChild(btn);
+    });
+}
+
+function renderGenericOptions(container, count) {
+    const colors = ['#e21b3c', '#1368ce', '#d89e00', '#26890c'];
+    for(let i=0; i<count; i++) {
+       const btn = document.createElement('button');
+       btn.className = 'gm-option-btn';
+       btn.textContent = String.fromCharCode(65+i); // A, B, C...
+       if (colors[i]) btn.style.backgroundColor = colors[i];
+       btn.style.color = 'white';
+       btn.onclick = () => submitAnswer(i, btn);
+       container.appendChild(btn);
+    }
+}
+
+async function submitAnswer(answerIndex, btnElement) {
+    if (!activePlayer) return;
+    
+    // Visual feedback
+    const allBtns = document.querySelectorAll('.gm-option-btn');
+    allBtns.forEach(b => b.disabled = true);
+    btnElement.style.opacity = '0.5';
+    btnElement.textContent = 'Verzonden...';
+    
+    try {
+        const res = await fetch('php-quiz/api.php?action=submit_answer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `pin=${encodeURIComponent(activePlayer.sessionId)}&name=${encodeURIComponent(activePlayer.playerId)}&question_index=${encodeURIComponent(activePlayer.currentQuestionIndex + 1)}&answer_index=${encodeURIComponent(answerIndex)}`
+        });
+        const data = await res.json();
+        if (data.ok) {
+            btnElement.textContent = 'Antwoord ontvangen!';
+        } else {
+            btnElement.textContent = 'Fout bij verzenden';
+            allBtns.forEach(b => b.disabled = false); // Allow retry?
+        }
+    } catch (e) {
+        console.error(e);
+        btnElement.textContent = 'Netwerkfout';
+    }
+}
+
+function showPlayerResults() {
+    const container = document.getElementById('gamemode-panel');
+    if (container) {
+        container.innerHTML = '<div style="padding:20px; text-align:center;"><h3>Spel afgelopen!</h3><p>Kijk naar het scherm van de host voor de resultaten.</p><button class="btn btn-primary" onclick="location.reload()">Terug naar menu</button></div>';
+    }
 }
 
 function renderGamemodeHost(subject) {
@@ -647,7 +902,32 @@ function renderGamemodeHost(subject) {
         const chan = openGameChannel(code);
         chan?.postMessage({ type: 'session-start', subjectName: subject?.name, setTitle: activeGame.setTitle });
       } else {
-        // Firebase start logic would go here
+        startBtn.disabled = true;
+        startBtn.textContent = 'Starten...';
+        
+        fetch('php-quiz/api.php?action=start_game', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `pin=${code}`
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.ok) {
+                 activeGame.started = true;
+                 broadcastQuestion(0);
+                 // UI will update on next poll
+             } else {
+                alert('Kon spel niet starten: ' + (data.error || 'Onbekende fout'));
+                startBtn.disabled = false;
+                startBtn.textContent = 'Start';
+            }
+        })
+        .catch(e => {
+            console.error(e);
+            alert('Verbindingsfout bij starten.');
+            startBtn.disabled = false;
+            startBtn.textContent = 'Start';
+        });
       }
     });
   }
@@ -784,38 +1064,61 @@ function renderGamemodePlayer(subject) {
 
 async function simulatePlayers(count = 25) {
   if (!activeGame) return;
+  const pin = activeGame.code;
+  
+  const players = [];
+  for(let i=0; i<count; i++) {
+      players.push({ name: `Tester ${i+1}` });
+  }
+
   if (activeGame.offline) {
-    const code = activeGame.code;
-    for (let i = 0; i < count; i++) {
-      const id = `sim-${i}-${Math.random().toString(36).slice(2, 6)}`;
-      WOENIE_LOCAL_SESSIONS[code].players[id] = { nickname: `Tester ${i + 1}`, score: 0 };
+    const session = WOENIE_LOCAL_SESSIONS[pin];
+    if (!session) return;
+    
+    players.forEach(p => {
+        session.players[p.name] = { nickname: p.name, score: 0 };
+    });
+    
+    const idx = typeof activeGame.index === 'number' ? activeGame.index : -1;
+    if (idx >= 0) {
+        if (!session.answers) session.answers = {};
+        if (!session.answers[idx]) session.answers[idx] = {};
+        
+        players.forEach(p => {
+             const elapsedMs = Math.floor(Math.random() * 30000);
+             const choice = Math.floor(Math.random() * 4);
+             session.answers[idx][p.name] = { choice, elapsedMs };
+        });
+        resolveQuestionOffline(idx);
     }
-    const idx = typeof activeGame.index === 'number' ? activeGame.index : 0;
-    for (let i = 0; i < count; i++) {
-      const id = `sim-${i}-${Math.random().toString(36).slice(2, 6)}`;
-      const elapsedMs = Math.floor(Math.random() * 30000);
-      const choice = Math.floor(Math.random() * 4);
-      const answers = WOENIE_LOCAL_SESSIONS[code].answers[idx] || (WOENIE_LOCAL_SESSIONS[code].answers[idx] = {});
-      answers[id] = { choice, elapsedMs };
-    }
-    resolveQuestionOffline(idx);
-  } else {
-    const sessionId = activeGame.sessionId;
-    for (let i = 0; i < count; i++) {
-      const id = `sim-${i}-${Math.random().toString(36).slice(2, 6)}`;
-      await set(ref(db, `sessions/${sessionId}/players/${id}`), { nickname: `Tester ${i + 1}`, score: 0, connected: true });
-    }
-    const idx = typeof activeGame.index === 'number' ? activeGame.index : 0;
-    const startTsSnap = await get(ref(db, `sessions/${sessionId}/questionStartTs`));
-    const startTs = startTsSnap.val() || Date.now();
-    const submissions = [];
-    for (let i = 0; i < count; i++) {
-      const id = `sim-${i}-${Math.random().toString(36).slice(2, 6)}`;
-      const elapsedMs = Math.floor(Math.random() * 30000);
-      const choice = Math.floor(Math.random() * 4);
-      submissions.push(set(ref(db, `sessions/${sessionId}/answers/${idx}/${id}`), { choice, elapsedMs }));
-    }
-    await Promise.all(submissions);
+    updateHostUI(pin);
+    return;
+  }
+  
+  // PHP Online Mode
+  const joinPromises = players.map(p => 
+      fetch('php-quiz/api.php?action=join_game', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `pin=${pin}&name=${encodeURIComponent(p.name)}`
+      }).then(r => r.json()).catch(e => console.error(e))
+  );
+  
+  await Promise.all(joinPromises);
+  console.log(`Simulated ${count} joins`);
+  
+  if (typeof activeGame.index === 'number' && activeGame.index >= 0) {
+       const qIndex = activeGame.index + 1;
+       const answerPromises = players.map(p => {
+          const choice = Math.floor(Math.random() * 4);
+          return fetch('php-quiz/api.php?action=submit_answer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `pin=${pin}&name=${encodeURIComponent(p.name)}&question_index=${qIndex}&answer_index=${choice}`
+             }).then(r => r.json()).catch(e => console.error(e));
+       });
+       await Promise.all(answerPromises);
+       console.log(`Simulated ${count} answers`);
   }
 }
 
@@ -1003,10 +1306,19 @@ function setupGamemodeJoinUI() {
       console.error(err);
       if (connectingText) connectingText.textContent = 'Fout: ' + (err.message || 'Onbekend');
       if (retryBtn) retryBtn.hidden = false;
+      // Zorg dat gebruiker kan lezen wat er mis ging
+      if (connecting) {
+          connecting.hidden = false;
+          // Als de fout ernstig is, misschien direct terug naar input?
+          // Nee, laat gebruiker "Opnieuw proberen" of zelf herladen
+      }
+      
       // Laat retry knop teruggaan naar input
       retryBtn.onclick = () => {
         if (connecting) connecting.hidden = true;
         if (joinDiv) joinDiv.hidden = false;
+        if (connectingText) connectingText.textContent = 'Verbinden…'; // Reset text
+        if (retryBtn) retryBtn.hidden = true;
       };
     }
   });
@@ -9269,12 +9581,21 @@ function openGameHostModal(setTitle) {
     if (setTitle) url.searchParams.set('set', setTitle);
     gamehostCode.textContent = code;
     renderQRCode(gamehostQR, url.toString());
+    const ghLink = document.getElementById('gamehost-link');
+    if (ghLink) {
+        ghLink.href = url.toString();
+        ghLink.textContent = url.toString();
+    }
     if (gamehostSpinner) gamehostSpinner.style.display = 'none';
     try {
       const created = await createGameSession(subject?.name || '', setTitle);
       if (created && created.code) {
         gamehostCode.textContent = created.code;
         renderQRCode(gamehostQR, created.deepLink);
+        if (ghLink) {
+             ghLink.href = created.deepLink;
+             ghLink.textContent = created.deepLink;
+        }
       }
     } catch (err) {
       // Fallback to local channel so joining still works offline/preview
@@ -9291,6 +9612,7 @@ function openGameHostModal(setTitle) {
               const id = msg.playerId;
               WOENIE_LOCAL_SESSIONS[code].players[id] = { nickname: msg.nickname || 'Speler', score: 0 };
               chan.postMessage({ type: 'session-start', subjectName: subject?.name || '', setTitle, status: 'waiting' });
+              updateHostUI(code);
             }
           });
         }
