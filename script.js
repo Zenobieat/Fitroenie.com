@@ -720,56 +720,11 @@ async function joinGamemodeByCode(code, nickname) {
         throw new Error(data.error || 'Kon niet deelnemen.');
     }
   } catch (e) {
-      console.warn('Join error via PHP, trying offline channel...', e);
-      
-      // Fallback: Try BroadcastChannel (Offline Mode)
-      if (window.BroadcastChannel) {
-        return new Promise((resolve, reject) => {
-          const chan = new BroadcastChannel('woenie_quiz_' + code);
-          const playerId = nickname + '_' + Math.random().toString(36).substr(2, 5);
-          
-          const timeout = setTimeout(() => {
-            chan.close();
-            if (e.name === 'AbortError') reject(new Error('Verbinding time-out. De server reageert niet.'));
-            else reject(new Error('Kon geen verbinding maken (online en offline gefaald).'));
-          }, 3000);
-
-          chan.addEventListener('message', (evt) => {
-            const msg = evt.data || {};
-            if (msg.type === 'session-start') {
-              clearTimeout(timeout);
-              // Joined successfully via offline channel
-              activePlayer = {
-                sessionId: code,
-                playerId: playerId,
-                subjectName: msg.subjectName || '',
-                setTitle: msg.setTitle || '',
-                offline: true,
-                channel: chan,
-                currentQuestionIndex: -1
-              };
-              // Keep channel open for updates
-              startOfflinePlayerListener(chan);
-              
-              resolve({
-                sessionId: code,
-                code: code,
-                subjectName: msg.subjectName,
-                setTitle: msg.setTitle,
-                status: msg.status || 'lobby'
-              });
-            }
-          });
-
-          // Send join request
-          chan.postMessage({ type: 'join-request', playerId, nickname });
-        });
-      }
-
+      console.error('Join error:', e);
       if (e.name === 'AbortError') {
-          throw new Error('Verbinding time-out. De server reageert niet.');
+          throw new Error('Verbinding time-out. De server reageert niet. Controleer je internetverbinding.');
       }
-      throw e; 
+      throw new Error('Kon niet verbinden met server. Controleer je internetverbinding en de code.');
   }
 }
 
@@ -1396,7 +1351,24 @@ function setupGamemodeJoinUI() {
   const connecting = document.getElementById('gamemode-connecting');
   const connectingText = document.getElementById('gamemode-connecting-text');
   const retryBtn = document.getElementById('gamemode-retry');
+  const cancelBtn = document.getElementById('gamemode-cancel-conn');
   const joinDiv = document.querySelector('.gamemode-join');
+  
+  // Helper to reset UI
+  const resetJoinUI = () => {
+      if (connecting) connecting.hidden = true;
+      if (joinDiv) joinDiv.hidden = false;
+      if (connectingText) connectingText.textContent = 'Verbinden…';
+      if (retryBtn) retryBtn.hidden = true;
+  };
+
+  if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+          resetJoinUI();
+          // Note: The ongoing fetch cannot be truly cancelled here without abort controller shared ref, 
+          // but hiding UI is sufficient for UX.
+      });
+  }
 
   scanBtn?.addEventListener('click', async () => {
     const supported = 'BarcodeDetector' in window;
@@ -1464,6 +1436,7 @@ function setupGamemodeJoinUI() {
     if (connecting) connecting.hidden = false;
     if (connectingText) connectingText.textContent = 'Verbinden…';
     if (retryBtn) retryBtn.hidden = true;
+    if (cancelBtn) cancelBtn.hidden = false;
 
     try {
       const session = await joinGamemodeByCode(code, nick);
@@ -1486,17 +1459,10 @@ function setupGamemodeJoinUI() {
       // Zorg dat gebruiker kan lezen wat er mis ging
       if (connecting) {
           connecting.hidden = false;
-          // Als de fout ernstig is, misschien direct terug naar input?
-          // Nee, laat gebruiker "Opnieuw proberen" of zelf herladen
       }
       
       // Laat retry knop teruggaan naar input
-      retryBtn.onclick = () => {
-        if (connecting) connecting.hidden = true;
-        if (joinDiv) joinDiv.hidden = false;
-        if (connectingText) connectingText.textContent = 'Verbinden…'; // Reset text
-        if (retryBtn) retryBtn.hidden = true;
-      };
+      retryBtn.onclick = resetJoinUI;
     }
   });
 }
