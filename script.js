@@ -275,7 +275,7 @@ function startHostPolling(pin) {
 function updateHostUI(code) {
   const session = WOENIE_LOCAL_SESSIONS[code];
   if (!session) return;
-  const players = Object.values(session.players);
+  const players = Object.entries(session.players).map(([id, data]) => ({ id, ...data }));
   const count = players.length;
   
   const playerCountEl = document.getElementById('gamemode-player-count');
@@ -307,7 +307,7 @@ function updateHostUI(code) {
     playerListEl.innerHTML = players.map(p => {
        let status = '';
        if (activeGame && activeGame.started && typeof activeGame.index === 'number') {
-           const ans = session.answers?.[activeGame.index]?.[p.nickname];
+           const ans = session.answers?.[activeGame.index]?.[p.id];
            if (ans) status = ' <span style="color:#4CAF50">✓</span>';
        }
        return `<div class="lb-row"><span class="lb-name">${p.nickname}</span>${status}</div>`;
@@ -448,6 +448,12 @@ async function startGamemode(setTitle) {
   document.getElementById('gamemode-start')?.addEventListener('click', async () => {
     if (!activeGame || activeGame.started || startBtn?.disabled) return;
     activeGame.started = true;
+    
+    if (activeGame.offline) {
+        broadcastQuestion(0);
+        return;
+    }
+
     try {
         await fetch(`php-quiz/api.php?action=start_game`, {
             method: 'POST',
@@ -469,11 +475,16 @@ async function startGamemode(setTitle) {
   });
   document.getElementById('gamemode-end')?.addEventListener('click', () => {
     if (!activeGame) return;
-    fetch(`php-quiz/api.php?action=update_game`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `pin=${activeGame.code}&status=finished`
-    }).catch(console.error);
+    if (activeGame.offline) {
+        activeGame.channel?.postMessage({ type: 'game-finished' });
+        // Also update local state if needed, but mainly just notify players
+    } else {
+        fetch(`php-quiz/api.php?action=update_game`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `pin=${activeGame.code}&status=finished`
+        }).catch(console.error);
+    }
   });
 }
 
@@ -481,20 +492,33 @@ function broadcastQuestion(index) {
   const set = getActiveSet(getActiveSubject());
   if (!activeGame || !set) return;
   if (index >= set.questions.length) {
-    fetch(`php-quiz/api.php?action=update_game`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `pin=${activeGame.code}&status=finished`
-    }).catch(console.error);
+    if (activeGame.offline) {
+        activeGame.channel?.postMessage({ type: 'game-finished' });
+    } else {
+        fetch(`php-quiz/api.php?action=update_game`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `pin=${activeGame.code}&status=finished`
+        }).catch(console.error);
+    }
     return;
   }
   activeGame.index = index;
   
-  fetch(`php-quiz/api.php?action=update_game`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `pin=${activeGame.code}&current_question=${index + 1}`
-  }).catch(console.error);
+  if (activeGame.offline) {
+      activeGame.channel?.postMessage({ 
+          type: 'question-start', 
+          index: index,
+          subjectName: activeGame.subjectName,
+          setTitle: activeGame.setTitle
+      });
+  } else {
+      fetch(`php-quiz/api.php?action=update_game`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `pin=${activeGame.code}&current_question=${index + 1}`
+      }).catch(console.error);
+  }
 
   const timerEl = document.getElementById('gamemode-timer');
   let left = 30;
@@ -504,7 +528,11 @@ function broadcastQuestion(index) {
     if (left <= 0) {
       clearInterval(iv);
       timerEl.textContent = `0s`;
-      resolveQuestion(index);
+      if (activeGame.offline) {
+          resolveQuestionOffline(index);
+      } else {
+          resolveQuestion(index);
+      }
     } else {
       timerEl.textContent = `${left}s`;
     }
@@ -575,17 +603,63 @@ function resolveQuestionOffline(index) {
   const set = getActiveSet(subject);
   if (!activeGame || !set) return;
   const code = activeGame.code;
+  const question = set.questions[index];
   const answers = WOENIE_LOCAL_SESSIONS[code].answers[index] || {};
   Object.entries(answers).forEach(([playerId, pick]) => {
-    const correct = computePickCorrect(set.questions[index], pick);
+    const correct = computePickCorrect(question, pick);
     const points = computePoints(pick.elapsedMs || 30000, correct);
     const prev = WOENIE_LOCAL_SESSIONS[code].players[playerId]?.score || 0;
     WOENIE_LOCAL_SESSIONS[code].players[playerId].score = prev + points;
   });
-  activeGame.channel?.postMessage({ type: 'scores', index });
+  activeGame.channel?.postMessage({ 
+      type: 'scores', 
+      index,
+      correctAnswerIndex: question ? question.answerIndex : -1
+  });
+  updateHostUI(code);
 }
 
 let activePlayer = null;
+
+function startOfflinePlayerListener(channel) {
+  if (!channel) return;
+  
+  channel.addEventListener('message', (evt) => {
+    const msg = evt.data || {};
+    if (!activePlayer) return;
+
+    if (msg.type === 'question-start') {
+       activePlayer.lastAnswerIndex = null; // Reset previous answer
+       activePlayer.questionStartTime = Date.now();
+       const index = msg.index;
+       const subjectName = msg.subjectName;
+       const setTitle = msg.setTitle;
+       
+       const lobby = document.getElementById('gamemode-lobby');
+       const playerStatus = document.getElementById('gm-player-status');
+       
+       if (playerStatus) {
+           playerStatus.textContent = 'Verbonden (Offline)';
+           playerStatus.classList.add('success');
+       }
+
+       if (lobby) lobby.hidden = true;
+       
+       if (activePlayer.currentQuestionIndex !== index) {
+          activePlayer.currentQuestionIndex = index;
+          showPlayerQuestion(index, subjectName, setTitle);
+       }
+    } else if (msg.type === 'game-finished') {
+       const lobby = document.getElementById('gamemode-lobby');
+       if (lobby) lobby.hidden = true;
+       showPlayerResults();
+    } else if (msg.type === 'scores') {
+       const lobby = document.getElementById('gamemode-lobby');
+       if (lobby) lobby.hidden = true;
+       showPlayerRoundResult(msg.correctAnswerIndex);
+    }
+  });
+}
 
 async function joinGamemodeByCode(code, nickname) {
   if (!code) return null;
@@ -667,7 +741,7 @@ async function joinGamemodeByCode(code, nickname) {
               // Joined successfully via offline channel
               activePlayer = {
                 sessionId: code,
-                playerId: nickname,
+                playerId: playerId,
                 subjectName: msg.subjectName || '',
                 setTitle: msg.setTitle || '',
                 offline: true,
@@ -675,6 +749,8 @@ async function joinGamemodeByCode(code, nickname) {
                 currentQuestionIndex: -1
               };
               // Keep channel open for updates
+              startOfflinePlayerListener(chan);
+              
               resolve({
                 sessionId: code,
                 code: code,
@@ -872,6 +948,22 @@ async function submitAnswer(answerIndex, btnElement) {
     btnElement.style.opacity = '0.5';
     btnElement.textContent = 'Verzonden...';
     
+    if (activePlayer.offline) {
+        activePlayer.lastAnswerIndex = answerIndex;
+        if (activePlayer.channel) {
+            const elapsed = activePlayer.questionStartTime ? (Date.now() - activePlayer.questionStartTime) : 0;
+            activePlayer.channel.postMessage({
+                type: 'submit-answer',
+                playerId: activePlayer.playerId,
+                questionIndex: activePlayer.currentQuestionIndex,
+                answerIndex: answerIndex,
+                elapsedMs: elapsed 
+            });
+            btnElement.textContent = 'Antwoord ontvangen!';
+        }
+        return;
+    }
+
     try {
         const res = await fetch('php-quiz/api.php?action=submit_answer', {
             method: 'POST',
@@ -896,6 +988,44 @@ function showPlayerResults() {
     if (container) {
         container.innerHTML = '<div style="padding:20px; text-align:center;"><h3>Spel afgelopen!</h3><p>Kijk naar het scherm van de host voor de resultaten.</p><button class="btn btn-primary" onclick="location.reload()">Terug naar menu</button></div>';
     }
+}
+
+function showPlayerRoundResult(correctIndex) {
+    const container = document.getElementById('gamemode-panel');
+    if (!container || !activePlayer) return;
+    
+    const myAnswer = activePlayer.lastAnswerIndex;
+    const isCorrect = (myAnswer === correctIndex);
+    
+    // Only show result if player actually answered
+    if (typeof myAnswer === 'undefined' || myAnswer === null) {
+        container.innerHTML = `
+            <div style="padding:40px; text-align:center; background:#666; color:white; height:100%; display:flex; flex-direction:column; justify-content:center;">
+                <h1 style="font-size:30px; margin:0;">Tijd is om!</h1>
+                <p>Je hebt niet geantwoord.</p>
+                <p>Wacht op de volgende vraag...</p>
+            </div>
+        `;
+        return;
+    }
+
+    const color = isCorrect ? '#4CAF50' : '#F44336';
+    const text = isCorrect ? 'Correct!' : 'Fout!';
+    const sub = isCorrect ? '+ punten' : 'Helaas...';
+    
+    container.innerHTML = `
+        <div style="padding:40px; text-align:center; background:${color}; color:white; height:100%; display:flex; flex-direction:column; justify-content:center;">
+            <h1 style="font-size:40px; margin:0;">${text}</h1>
+            <p style="font-size:20px;">${sub}</p>
+            <div style="font-size:60px; margin:20px 0;">
+                ${isCorrect ? '🏆' : '❌'}
+            </div>
+            <p>Wacht op de volgende vraag...</p>
+        </div>
+    `;
+    
+    // Reset answer for next round
+    activePlayer.lastAnswerIndex = null;
 }
 
 function renderGamemodeHost(subject) {
@@ -944,8 +1074,10 @@ function renderGamemodeHost(subject) {
     startBtn.parentNode.replaceChild(newBtn, startBtn);
     newBtn.addEventListener('click', () => {
       if (activeGame.offline) {
+        activeGame.started = true;
         const chan = openGameChannel(code);
         chan?.postMessage({ type: 'session-start', subjectName: subject?.name, setTitle: activeGame.setTitle });
+        broadcastQuestion(0);
       } else {
         startBtn.disabled = true;
         startBtn.textContent = 'Starten...';
@@ -9670,6 +9802,17 @@ function openGameHostModal(setTitle) {
               WOENIE_LOCAL_SESSIONS[code].players[id] = { nickname, score: 0 };
               chan.postMessage({ type: 'session-start', subjectName: subject?.name || '', setTitle, status: 'waiting' });
               updateHostUI(code);
+            } else if (msg.type === 'submit-answer') {
+              const { playerId, questionIndex, answerIndex, elapsedMs } = msg;
+              if (!WOENIE_LOCAL_SESSIONS[code].answers) WOENIE_LOCAL_SESSIONS[code].answers = {};
+              if (!WOENIE_LOCAL_SESSIONS[code].answers[questionIndex]) {
+                  WOENIE_LOCAL_SESSIONS[code].answers[questionIndex] = {};
+              }
+              WOENIE_LOCAL_SESSIONS[code].answers[questionIndex][playerId] = {
+                  choice: answerIndex,
+                  elapsedMs: elapsedMs || 30000
+              };
+              chan.postMessage({ type: 'answer-ack', playerId });
             }
           });
         }
