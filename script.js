@@ -272,6 +272,16 @@ function startHostPolling(pin) {
   }, 2000);
 }
 
+function escapeHtml(text) {
+  if (!text) return text;
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function updateHostUI(code) {
   const session = WOENIE_LOCAL_SESSIONS[code];
   if (!session) return;
@@ -310,7 +320,7 @@ function updateHostUI(code) {
            const ans = session.answers?.[activeGame.index]?.[p.id];
            if (ans) status = ' <span style="color:#4CAF50">✓</span>';
        }
-       return `<div class="lb-row"><span class="lb-name">${p.nickname}</span>${status}</div>`;
+       return `<div class="lb-row"><span class="lb-name">${escapeHtml(p.nickname)}</span>${status}</div>`;
     }).join('');
   }
 }
@@ -1019,7 +1029,7 @@ function renderGamemodeHost(subject) {
   }
 
   if (playerList) {
-    playerList.innerHTML = players.map(p => `<div class="chip">${p.nickname || 'Speler'}</div>`).join('');
+    playerList.innerHTML = players.map(p => `<div class="chip">${escapeHtml(p.nickname || 'Speler')}</div>`).join('');
   }
 
   if (startBtn) {
