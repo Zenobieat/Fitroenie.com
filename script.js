@@ -171,6 +171,8 @@ async function ensureAuth() {
   }
 }
 
+let WOENIE_LOCAL_SESSIONS = {};
+
 function openGameChannel(code) {
   if (!window.BroadcastChannel) return null;
   return new BroadcastChannel('woenie_quiz_' + code);
