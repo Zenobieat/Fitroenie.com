@@ -531,6 +531,7 @@ async function joinGamemodeByCode(code, nickname) {
         const sessionSnap = await get(sessionRef);
         if (!sessionSnap.exists()) throw new Error('session_not_found');
         const session = sessionSnap.val();
+        if (session.players && Object.keys(session.players).length >= 5) throw new Error('session_full');
         const playerRef = ref(db, `sessions/${sessionId}/players/${playerId}`);
         try {
           await set(playerRef, { nickname: nickname || 'Speler', joinedAt: Date.now(), score: 0, connected: true, role: 'player', lastSeen: Date.now() });
@@ -550,6 +551,7 @@ async function joinGamemodeByCode(code, nickname) {
         const sessionSnap = await get(sessionRef);
         if (!sessionSnap.exists()) throw new Error('session_not_found');
         const session = sessionSnap.val();
+        if (session.players && Object.keys(session.players).length >= 5) throw new Error('session_full');
         const playerId = localStorage.getItem('woenie_player_id') || Math.random().toString(36).slice(2);
         localStorage.setItem('woenie_player_id', playerId);
         const playerRef = ref(db, `sessions/${sessionId}/players/${playerId}`);
@@ -601,23 +603,67 @@ function renderGamemodeHost(subject) {
   if (!panel) return;
   const visible = !!activeGame;
   panel.hidden = !visible;
+  if (!visible) return;
+
+  const qrFrame = document.getElementById('gamemode-qr');
+  const startBtn = document.getElementById('gamemode-start');
+  const playerList = document.getElementById('gamemode-player-list');
+  const countLabel = document.getElementById('gamemode-player-count');
+  const connStatus = document.getElementById('gm-connection-status');
+  const codeText = document.getElementById('gm-code-text');
+  const codeTop = document.getElementById('gm-code-top');
+
+  const code = activeGame.code || '';
+  if (codeText) codeText.textContent = code;
+  if (codeTop) codeTop.textContent = `Code: ${code}`;
+
+  let players = [];
+  if (activeGame.offline) {
+    const sess = WOENIE_LOCAL_SESSIONS[code];
+    if (sess && sess.players) players = Object.values(sess.players);
+  } else if (activeGame.players) {
+    players = Object.values(activeGame.players);
+  }
+
+  const count = players.length;
+  if (countLabel) countLabel.textContent = `${count} spelers`;
+  if (connStatus) connStatus.textContent = `${count}/5 verbonden`;
+
+  if (qrFrame && qrFrame.parentElement) {
+    qrFrame.parentElement.style.display = count >= 1 ? 'none' : 'block';
+  }
+
+  if (playerList) {
+    playerList.innerHTML = players.map(p => `<div class="chip">${p.nickname || 'Speler'}</div>`).join('');
+  }
+
+  if (startBtn) {
+    startBtn.disabled = count < 1;
+    startBtn.classList.toggle('disabled', count < 1);
+    const newBtn = startBtn.cloneNode(true);
+    startBtn.parentNode.replaceChild(newBtn, startBtn);
+    newBtn.addEventListener('click', () => {
+      if (activeGame.offline) {
+        const chan = openGameChannel(code);
+        chan?.postMessage({ type: 'session-start', subjectName: subject?.name, setTitle: activeGame.setTitle });
+      } else {
+        // Firebase start logic would go here
+      }
+    });
+  }
 }
 
 function renderGamemodePlayer(subject) {
   const panel = document.getElementById('gamemode-panel');
   if (!panel) return;
   const play = document.getElementById('gamemode-play');
-  const joinBtn = document.getElementById('gamemode-join');
-  const codeInput = document.getElementById('gamemode-code-input');
   const nnInput = document.getElementById('gamemode-nickname');
   const avatarEl = document.getElementById('gamemode-avatar');
   const qTitle = document.getElementById('gamemode-question-title');
   const qText = document.getElementById('gamemode-question-text');
   const optWrap = document.getElementById('gamemode-options');
   const playerTimer = document.getElementById('gamemode-player-timer');
-  const params = new URLSearchParams(window.location.search);
-  const codeParam = params.get('code') || '';
-  if (codeParam && codeInput && !codeInput.value) codeInput.value = codeParam;
+  
   if (avatarEl) {
     const name = auth?.currentUser?.displayName || '';
     const photo = auth?.currentUser?.photoURL || '';
@@ -638,91 +684,67 @@ function renderGamemodePlayer(subject) {
   if (auth?.currentUser?.displayName && nnInput && !nnInput.value) {
     nnInput.value = auth.currentUser.displayName;
   }
-  const scanBtn = document.getElementById('gamemode-scan');
-  scanBtn?.addEventListener('click', async () => {
-    const supported = 'BarcodeDetector' in window;
-    if (!supported) return;
-    const detector = new window.BarcodeDetector({ formats: ['qr_code'] });
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      const video = document.createElement('video');
-      video.srcObject = stream;
-      await video.play();
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const tick = async () => {
-        if (video.readyState >= 2) {
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          ctx.drawImage(video, 0, 0);
-          const bitm = canvas.transferToImageBitmap ? canvas.transferToImageBitmap() : null;
-          const detections = await detector.detect(bitm || canvas);
-          if (detections && detections[0]?.rawValue) {
-            const url = new URL(detections[0].rawValue);
-            const c = url.searchParams.get('code');
-            if (c && codeInput) codeInput.value = c.toUpperCase();
-            stream.getTracks().forEach((t) => t.stop());
-            return;
-          }
-        }
-        requestAnimationFrame(tick);
-      };
-      tick();
-    } catch {}
-  });
-  joinBtn?.addEventListener('click', async () => {
-    const code = (codeInput?.value || '').toUpperCase().trim();
-    const nick = (nnInput?.value || auth?.currentUser?.displayName || '').trim();
-    const session = await joinGamemodeByCode(code, nick);
-    if (!session) return;
-    panel.hidden = false;
-    play.hidden = false;
-    panel.classList.add('fullscreen');
-    if (activePlayer.offline) {
-      const chan = activePlayer.channel;
-      let startTs = Date.now();
-      chan.addEventListener('message', (e) => {
+  
+  if (!activePlayer) return;
+
+  if (activePlayer.offline) {
+    const chan = activePlayer.channel;
+    let startTs = Date.now();
+    // Only bind once
+    if (!chan._bound) {
+        chan._bound = true;
+        chan.addEventListener('message', (e) => {
         const msg = e.data || {};
         if (msg.type === 'session-start') {
-          const subj = getActiveSubject();
-          const set = subj ? getAllQuizSets(subj).find((x) => x.title === activePlayer.setTitle) : null;
-          if (set) qTitle.textContent = formatSetTitle(set.title);
+            const subj = getActiveSubject();
+            const set = subj ? getAllQuizSets(subj).find((x) => x.title === activePlayer.setTitle) : null;
+            if (set) qTitle.textContent = formatSetTitle(set.title);
+            panel.hidden = false;
+            play.hidden = false;
         } else if (msg.type === 'question') {
-          const subj = getActiveSubject();
-          const set = subj ? getAllQuizSets(subj).find((x) => x.title === activePlayer.setTitle) : null;
-          if (!set) return;
-          const idx = msg.index;
-          const question = set.questions[idx];
-          qTitle.textContent = formatSetTitle(set.title);
-          qText.textContent = question.question;
-          startTs = msg.startTs || Date.now();
-          let left = Math.max(0, 30 - Math.floor((Date.now() - startTs) / 1000));
-          playerTimer.textContent = `${left}s`;
-          const iv = setInterval(() => {
+            const subj = getActiveSubject();
+            const set = subj ? getAllQuizSets(subj).find((x) => x.title === activePlayer.setTitle) : null;
+            if (!set) return;
+            const idx = msg.index;
+            const question = set.questions[idx];
+            qTitle.textContent = formatSetTitle(set.title);
+            qText.textContent = question.question;
+            startTs = msg.startTs || Date.now();
+            let left = Math.max(0, 30 - Math.floor((Date.now() - startTs) / 1000));
+            playerTimer.textContent = `${left}s`;
+            const iv = setInterval(() => {
             left = Math.max(0, 30 - Math.floor((Date.now() - startTs) / 1000));
             playerTimer.textContent = `${left}s`;
             if (left <= 0) clearInterval(iv);
-          }, 1000);
-          optWrap.querySelectorAll('.gm-option').forEach((btn) => {
+            }, 1000);
+            optWrap.querySelectorAll('.gm-option').forEach((btn) => {
             btn.onclick = null;
             btn.disabled = false;
             btn.addEventListener('click', () => {
-              const choice = Number(btn.dataset.choice);
-              const elapsedMs = Date.now() - startTs;
-              if (elapsedMs > 30000) return;
-              chan.postMessage({ type: 'answer', index: idx, playerId: activePlayer.playerId, choice, elapsedMs });
-              optWrap.querySelectorAll('.gm-option').forEach((b) => (b.disabled = true));
+                const choice = Number(btn.dataset.choice);
+                const elapsedMs = Date.now() - startTs;
+                if (elapsedMs > 30000) return;
+                chan.postMessage({ type: 'answer', index: idx, playerId: activePlayer.playerId, choice, elapsedMs });
+                optWrap.querySelectorAll('.gm-option').forEach((b) => (b.disabled = true));
             });
-          });
+            });
         }
-      });
-    } else {
+        });
+    }
+  } else {
       const sessionRef = ref(db, `sessions/${activePlayer.sessionId}`);
       onValue(sessionRef, (snap) => {
         const s = snap.val() || {};
         const subject = getActiveSubject();
         const set = subject && s.setTitle ? getAllQuizSets(subject).find((x) => x.title === s.setTitle) : null;
         if (!set) return;
+        
+        // Check if game started to show play screen
+        if (s.status === 'started' || s.currentQuestionIndex >= 0) {
+            panel.hidden = false;
+            play.hidden = false;
+        }
+
         const idx = s.currentQuestionIndex;
         if (typeof idx !== 'number' || idx < 0) return;
         const question = set.questions[idx];
@@ -757,8 +779,7 @@ function renderGamemodePlayer(subject) {
           });
         });
       });
-    }
-  });
+  }
 }
 
 async function simulatePlayers(count = 25) {
@@ -887,71 +908,124 @@ function setupGamemodeNav() {
   });
 }
 
+function setupGamemodeJoinUI() {
+  const scanBtn = document.getElementById('gamemode-scan');
+  const joinBtn = document.getElementById('gamemode-join');
+  const codeInput = document.getElementById('gamemode-code-input');
+  const nnInput = document.getElementById('gamemode-nickname');
+  const connecting = document.getElementById('gamemode-connecting');
+  const connectingText = document.getElementById('gamemode-connecting-text');
+  const retryBtn = document.getElementById('gamemode-retry');
+  const joinDiv = document.querySelector('.gamemode-join');
+
+  scanBtn?.addEventListener('click', async () => {
+    const supported = 'BarcodeDetector' in window;
+    if (!supported) {
+      alert('QR scannen wordt niet ondersteund in deze browser.');
+      return;
+    }
+    const detector = new window.BarcodeDetector({ formats: ['qr_code'] });
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      await video.play();
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      let scanning = true;
+      const tick = async () => {
+        if (!scanning) return;
+        if (video.readyState >= 2) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0);
+          try {
+            const bitm = canvas.transferToImageBitmap ? canvas.transferToImageBitmap() : null;
+            const detections = await detector.detect(bitm || canvas);
+            if (detections && detections.length > 0) {
+              const val = detections[0].rawValue;
+              let code = '';
+              try {
+                const url = new URL(val);
+                code = url.searchParams.get('code');
+              } catch {
+                if (val.length === 6 && /^[0-9]+$/.test(val)) code = val;
+              }
+              if (code && codeInput) {
+                codeInput.value = code.toUpperCase();
+                scanning = false;
+                stream.getTracks().forEach((t) => t.stop());
+                // Optioneel: focus nickname
+                nnInput?.focus();
+                return;
+              }
+            }
+          } catch {}
+        }
+        requestAnimationFrame(tick);
+      };
+      tick();
+      // Stop na 30 sec
+      setTimeout(() => { scanning = false; stream.getTracks().forEach((t) => t.stop()); }, 30000);
+    } catch (err) {
+      console.error(err);
+      alert('Kon camera niet starten.');
+    }
+  });
+
+  joinBtn?.addEventListener('click', async () => {
+    const code = (codeInput?.value || '').toUpperCase().trim();
+    const nick = (nnInput?.value || auth?.currentUser?.displayName || 'Speler').trim();
+    if (!code) {
+      alert('Voer een code in.');
+      return;
+    }
+    if (joinDiv) joinDiv.hidden = true;
+    if (connecting) connecting.hidden = false;
+    if (connectingText) connectingText.textContent = 'Verbinden…';
+    if (retryBtn) retryBtn.hidden = true;
+
+    try {
+      const session = await joinGamemodeByCode(code, nick);
+      if (!session) throw new Error('Kon niet verbinden');
+      
+      // Update UI naar 'Wachten op host'
+      if (connecting) connecting.hidden = true;
+      const lobby = document.getElementById('gamemode-lobby');
+      if (lobby) {
+         lobby.hidden = false;
+         lobby.innerHTML = '<div style="text-align:center; padding:20px;"><h3>Wachten op host...</h3><p>Je bent verbonden!</p></div>';
+      }
+      const panel = document.getElementById('gamemode-panel');
+      if (panel) panel.classList.add('fullscreen');
+      
+    } catch (err) {
+      console.error(err);
+      if (connectingText) connectingText.textContent = 'Fout: ' + (err.message || 'Onbekend');
+      if (retryBtn) retryBtn.hidden = false;
+      // Laat retry knop teruggaan naar input
+      retryBtn.onclick = () => {
+        if (connecting) connecting.hidden = true;
+        if (joinDiv) joinDiv.hidden = false;
+      };
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   setupGamemodeNav();
+  setupGamemodeJoinUI();
   const params = new URLSearchParams(window.location.search);
   const mode = params.get('mode');
   const code = params.get('code');
-  if (mode === 'game' && code) {
+  if (mode === 'game') {
     setActiveView('anatomie');
     setActivePanel('gamemode-panel');
     const codeInput = document.getElementById('gamemode-code-input');
-    const connecting = document.getElementById('gamemode-connecting');
-    const connectingText = document.getElementById('gamemode-connecting-text');
-    const retryBtn = document.getElementById('gamemode-retry');
-    if (codeInput) codeInput.value = code;
-    if (connecting) connecting.hidden = false;
-    if (connectingText) connectingText.textContent = 'Verbinden…';
-    let done = false;
-    const timeout = setTimeout(() => {
-      if (done) return;
-      if (connectingText) connectingText.textContent = 'Verbindingtijd verstreken. Probeer opnieuw.';
-      if (retryBtn) retryBtn.hidden = false;
-    }, 30000);
-    joinGamemodeByCode(code, auth?.currentUser?.displayName || '').then((session) => {
-      done = true;
-      clearTimeout(timeout);
-      const lobby = document.getElementById('gamemode-lobby');
-      const gmCodeTop = document.getElementById('gm-player-code-top');
-      const panel = document.getElementById('gamemode-panel');
-      if (gmCodeTop) gmCodeTop.textContent = `Code: ${code}`;
-      if (connecting) connecting.hidden = true;
-      if (retryBtn) retryBtn.hidden = true;
-      if (lobby) lobby.hidden = false;
-      panel?.classList.add('fullscreen');
-      const plRef = db ? ref(db, `sessions/${activePlayer.sessionId}/players`) : null;
-      if (plRef && db) {
-        onValue(plRef, (snap) => {
-          const val = snap.val() || {};
-          const list = Object.entries(val).map(([id, p], i) => ({ id, ...p, i }));
-          const container = document.getElementById('gamemode-player-list-client');
-          if (!container) return;
-          container.innerHTML = list
-            .sort((a, b) => a.i - b.i)
-            .map((p, i) => `<div class="lb-row"><span class="lb-rank">${i + 1}</span><span class="lb-name">${p.nickname || 'Speler'}</span><span class="lb-score">${p.score || 0}</span></div>`)
-            .join('');
-        });
-      }
-    }).catch((err) => {
-      const msg = (err && err.message) || '';
-      if (msg === 'paircode_expired') {
-        if (connectingText) connectingText.textContent = 'Deze koppelcode is verlopen. Vraag een nieuwe code.';
-      } else if (msg === 'backend_unavailable') {
-        if (connectingText) connectingText.textContent = 'Server niet bereikbaar. Controleer internet of probeer later opnieuw.';
-      } else if (msg === 'code_not_found' || msg === 'session_not_found') {
-        if (connectingText) connectingText.textContent = 'Code niet gevonden. Controleer of je de juiste code gebruikt.';
-      } else {
-        if (connectingText) connectingText.textContent = 'Kon niet verbinden. Controleer je netwerk.';
-      }
-      if (retryBtn) {
-        retryBtn.hidden = false;
-        retryBtn.onclick = () => {
-          retryBtn.hidden = true;
-          if (connectingText) connectingText.textContent = 'Verbinden…';
-          joinGamemodeByCode(code, auth?.currentUser?.displayName || '');
-        };
-      }
-    });
+    if (code && codeInput) {
+       codeInput.value = code;
+       // Geen auto-join!
+    }
   }
 });
 // Ensure listeners are bound even if DOMContentLoaded has already fired
@@ -9213,6 +9287,7 @@ function openGameHostModal(setTitle) {
             if (msg.type === 'request-sync') {
               chan.postMessage({ type: 'session-start', subjectName: subject?.name || '', setTitle, status: 'waiting' });
             } else if (msg.type === 'join-request') {
+              if (Object.keys(WOENIE_LOCAL_SESSIONS[code].players).length >= 5) return;
               const id = msg.playerId;
               WOENIE_LOCAL_SESSIONS[code].players[id] = { nickname: msg.nickname || 'Speler', score: 0 };
               chan.postMessage({ type: 'session-start', subjectName: subject?.name || '', setTitle, status: 'waiting' });
