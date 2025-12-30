@@ -688,6 +688,11 @@ async function joinGamemodeByCode(code, nickname) {
     });
     clearTimeout(timeoutId);
 
+    const contentType = res.headers.get('content-type');
+    if (contentType && contentType.includes('text/html')) {
+         throw new Error('Server configuratiefout: API stuurt HTML terug (PHP werkt mogelijk niet).');
+    }
+
     if (!res.ok) {
         throw new Error(`Server error: ${res.status} ${res.statusText}`);
     }
@@ -698,7 +703,7 @@ async function joinGamemodeByCode(code, nickname) {
         data = JSON.parse(text);
     } catch (e) {
         console.error('[WoenieQuiz] Invalid JSON response:', text);
-        throw new Error('Ongeldige server reactie. Controleer internetverbinding.');
+        throw new Error('Ongeldige server reactie (Geen geldige JSON).');
     }
     
     if (data.ok) {
@@ -1366,7 +1371,10 @@ function setupGamemodeJoinUI() {
   
   // Helper to reset UI
   const resetJoinUI = () => {
-      if (connecting) connecting.hidden = true;
+      if (connecting) {
+        connecting.hidden = true;
+        connecting.style.display = 'none';
+      }
       if (joinDiv) joinDiv.hidden = false;
       if (connectingText) connectingText.textContent = 'Verbinden…';
       if (retryBtn) retryBtn.hidden = true;
@@ -1375,8 +1383,6 @@ function setupGamemodeJoinUI() {
   if (cancelBtn) {
       cancelBtn.addEventListener('click', () => {
           resetJoinUI();
-          // Note: The ongoing fetch cannot be truly cancelled here without abort controller shared ref, 
-          // but hiding UI is sufficient for UX.
       });
   }
 
@@ -1443,7 +1449,10 @@ function setupGamemodeJoinUI() {
       return;
     }
     if (joinDiv) joinDiv.hidden = true;
-    if (connecting) connecting.hidden = false;
+    if (connecting) {
+        connecting.hidden = false;
+        connecting.style.display = ''; // Reset explicit hide
+    }
     if (connectingText) connectingText.textContent = 'Verbinden…';
     if (retryBtn) retryBtn.hidden = true;
     if (cancelBtn) cancelBtn.hidden = false;

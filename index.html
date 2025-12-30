@@ -177,7 +177,7 @@
                   <button class="btn primary" id="gamemode-join" type="button">Meedoen</button>
                 </div>
               </div>
-              <div class="gamemode-connecting" id="gamemode-connecting" hidden>
+              <div class="gamemode-connecting" id="gamemode-connecting" hidden style="display: none !important;">
                 <div class="spinner" aria-hidden="false"></div>
                 <span class="chip ghost" id="gamemode-connecting-text">Verbinden…</span>
                 <button class="btn tertiary" id="gamemode-retry" type="button" hidden>Opnieuw proberen</button>
@@ -465,6 +465,6 @@
     window.process = window.process || { env: { NODE_ENV: 'production' } };
     window.FITROENIE_ANALYTICS_ENABLED = false;
   </script>
-  <script type="module" src="script.js?v=20"></script>
+  <script type="module" src="script.js?v=21"></script>
 </body>
 </html>
